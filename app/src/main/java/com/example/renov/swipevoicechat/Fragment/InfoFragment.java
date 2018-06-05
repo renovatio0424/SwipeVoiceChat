@@ -39,6 +39,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
@@ -193,6 +194,27 @@ public class InfoFragment extends Fragment {
 //        adapter.notifyDataSetChanged();
 //    }
 //
+
+    @OnClick(R.id.tv_new_story)
+    public void onClickNewStory(){
+        boolean wrapInScrollView = false;
+        MaterialDialog materialDialog = new MaterialDialog.Builder(getContext())
+                .title("새이야기 시작하기")
+                .customView(R.layout.dialog_record, wrapInScrollView)
+                .positiveText("보내기")
+                .negativeText("취소")
+                .show();
+
+        View view = materialDialog.getView();
+        TextView tvRecordAgain = (TextView) view.findViewById(R.id.tv_record_again);
+        tvRecordAgain.setVisibility(View.GONE);
+        tvRecordAgain.setText("다시하기");
+        TextView tvRecordDesc = (TextView) view.findViewById(R.id.tv_record_desc);
+        tvRecordDesc.setVisibility(View.VISIBLE);
+        tvRecordDesc.setText("3초 이상 녹음해주세요");
+        TextView tvExampleDesc = (TextView) view.findViewById(R.id.tv_example_desc);
+        tvExampleDesc.setText("오늘 집에서 쉬는데, 저처럼 평일인데 쉬시는 분 있나요?");
+    }
 
     private void paginate() {
         cardStackView.setPaginationReserved();
