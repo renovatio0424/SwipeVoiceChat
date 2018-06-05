@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.yuyakaido.android.cardstackview.CardStackView
+            android:id="@+id/activity_main_card_stack_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingTop="32dp"
+            android:paddingBottom="32dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:clipToPadding="false"
+            app:visibleCount="3"
+            app:swipeThreshold="0.75"
+            app:translationDiff="12"
+            app:scaleDiff="0.02"
+            app:stackFrom="top"
+            app:elevationEnabled="true"
+            app:swipeEnabled="true"
+            app:swipeDirection="freedom_no_bottom"
+            app:leftOverlay="@layout/swipe_left_msg_view"
+            app:rightOverlay="@layout/swipe_right_msg_view"
+            app:topOverlay="@layout/swipe_top_msg_view" />
+
+        <TextView
+            android:id="@+id/tv_new_story"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="@color/colorAccent"
+            android:gravity="center"
+            android:text="새로운 이야기 시작하기"
+            android:visibility="gone" />
+    </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/activity_main_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"/>
+
+</RelativeLayout>

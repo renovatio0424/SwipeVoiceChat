@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "820314113548",
+    "firebase_url": "https://swipevoicechat-1527566964672.firebaseio.com",
+    "project_id": "swipevoicechat-1527566964672",
+    "storage_bucket": "swipevoicechat-1527566964672.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820314113548:android:11724122893fe20f",
+        "android_client_info": {
+          "package_name": "com.example.renov.swipevoicechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "820314113548-okivsn4s6pfc9f22sdlhq98ca9n8bbcb.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "820314113548-cv2bnhdh83qf075taqi5qqti8adoikr3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.renov.swipevoicechat",
+            "certificate_hash": "78e170a1d4b632911a60642e7e424d9aede93bb2"
+          }
+        },
+        {
+          "client_id": "820314113548-hijb71oku4het770up5t6oif5g8e0ark.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "820314113548-okivsn4s6pfc9f22sdlhq98ca9n8bbcb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9t5TpCYl00K1-sQnf7vT5OMBdiBb-ZEk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "820314113548-okivsn4s6pfc9f22sdlhq98ca9n8bbcb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="birthdays">
+        <item name="1975">1975</item>
+    </string-array>
+    <string-array name="crop" >
+        <item name="camera">사진 촬영</item>
+        <item name="gallery">갤러리</item>
+    </string-array>
+    <string-array name="report">
+        <item>불쾌합니다</item>
+        <item>욕설, 비하 및 성적 표현입니다</item>
+    </string-array>
+</resources>

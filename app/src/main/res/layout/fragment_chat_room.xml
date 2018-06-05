@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.github.florent37.materialleanback.MaterialLeanBack
+        android:id="@+id/materialLeanBack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        app:mlb_lineSpacing="30dp"
+
+        app:mlb_paddingTop="40dp"
+        app:mlb_paddingBottom="30dp"
+        app:mlb_paddingLeft="30dp"
+        app:mlb_paddingRight="30dp"
+
+        app:mlb_background="@color/white"
+        app:mlb_backgroundOverlay="0.5"
+        app:mlb_backgroundOverlayColor="@color/white"
+
+        app:mlb_titleColor="@android:color/black"
+        app:mlb_titleSize="15sp"
+
+        app:mlb_overlapCards="true"
+        app:mlb_animateCards="true"
+        app:mlb_cardElevationEnlarged="10"
+         />
+</android.support.constraint.ConstraintLayout>
