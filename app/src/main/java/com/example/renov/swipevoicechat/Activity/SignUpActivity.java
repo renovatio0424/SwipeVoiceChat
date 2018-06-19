@@ -8,8 +8,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +23,7 @@ import com.afollestad.materialdialogs.simplelist.MaterialSimpleListItem;
 import com.example.renov.swipevoicechat.R;
 import com.example.renov.swipevoicechat.Utils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import butterknife.BindView;
@@ -40,7 +44,6 @@ public class SignUpActivity extends AppCompatActivity {
     @BindView(R.id.tv_start)
     TextView tvStart;
 
-
     Unbinder unbinder;
 
     MaterialSimpleListAdapter adapter = new MaterialSimpleListAdapter((dialog, index, item) -> {
@@ -51,6 +54,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     int birthday = 0;
 
+    MaterialDialog birthdayDialog;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,11 +63,13 @@ public class SignUpActivity extends AppCompatActivity {
         unbinder = ButterKnife.bind(this);
 
         int year = Calendar.getInstance().get(Calendar.YEAR);
+
         for (int i = year - 14 + 1; i > year - 44 + 1; i--) {
             adapter.add(new MaterialSimpleListItem.Builder(this)
                     .content(String.valueOf(i))
                     .backgroundColor(Color.WHITE)
                     .build());
+
         }
 
         groupGender.check(R.id.radio_male);
@@ -71,27 +78,45 @@ public class SignUpActivity extends AppCompatActivity {
         setBirthdayDialog(birthday);
     }
 
+    @OnClick(R.id.iv_back)
+    public void onClickBack(){
+        finish();
+    }
+
     @OnClick(R.id.tv_birthday)
     public void showBirthdayDialog() {
-        setBirthdayDialog(0);
+        birthdayDialog.show();
     }
 
     private void setBirthdayDialog(int birthday) {
-        new MaterialDialog.Builder(this)
+        birthdayDialog = new MaterialDialog.Builder(this)
                 .title("생년월일")
                 .adapter(adapter, null)
                 .limitIconToDefaultSize()
-                .show();
+                .build();
     }
 
     @OnClick(R.id.tv_start)
-    public void clickStartButton(){
+    public void clickStartButton() {
+        if(tvBirthday.getText().equals("클릭해주세요")){
+            Toast.makeText(this, "출생 연도를 선택해주세요", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String result = "result: " + tvBirthday.getText() + "\n"
                 + (groupGender.getCheckedRadioButtonId() == R.id.radio_male ? "male" : "female") + "\n"
                 + (groupYN.getCheckedRadioButtonId() == R.id.radio_yes ? 'y' : 'n');
+
         Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
 
+        String type = getIntent().getStringExtra("type");
+        String token = getIntent().getStringExtra("token");
+
         Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra("type", type);
+        intent.putExtra("token", token);
+        intent.putExtra("birthday",tvBirthday.getText());
+        intent.putExtra("gender",(groupGender.getCheckedRadioButtonId() == R.id.radio_male ? 'M' : 'F'));
         startActivity(intent);
     }
 

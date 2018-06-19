@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.renov.swipevoicechat.Profile;
+import com.example.renov.swipevoicechat.Model.Profile;
 import com.example.renov.swipevoicechat.R;
 import com.example.renov.swipevoicechat.widget.VoicePlayerManager;
 import com.example.renov.swipevoicechat.widget.VoicePlayerView;
@@ -45,9 +45,6 @@ public class UserCard {
 
     @View(R.id.rejectBtn)
     Button rejectBtn;
-
-    @View(R.id.superLikeBtn)
-    Button superLikeBtn;
 
     @View(R.id.swipe_top_msg_view)
     TextView swipeTopMsgView;

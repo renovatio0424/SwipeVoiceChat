@@ -1,14 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white">
+    android:layout_height="match_parent">
 
-
-    <com.mindorks.placeholderview.SwipePlaceHolderView
-        android:id="@+id/swipeView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</FrameLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            android:fitsSystemWindows="false">
+
+                <TextView
+                    android:layout_weight="1"
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginRight="24dp"
+                    style="@style/text_color"
+                    android:text="보이스 톡" />
+
+        </android.support.v7.widget.Toolbar>
+
+        <com.yuyakaido.android.cardstackview.CardStackView
+            android:id="@+id/activity_main_card_stack_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="16dp"
+            android:visibility="visible"
+            app:elevationEnabled="true"
+            app:leftOverlay="@layout/swipe_left_msg_view"
+            app:rightOverlay="@layout/swipe_right_msg_view"
+            app:scaleDiff="0.02"
+            app:stackFrom="top"
+            app:swipeDirection="freedom_no_bottom"
+            app:swipeEnabled="true"
+            app:swipeThreshold="0.75"
+            app:translationDiff="12"
+            app:visibleCount="3" />
+
+        <TableRow
+            android:id="@+id/tr_filter"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:visibility="visible"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center">
+
+            <TextView
+                style="@style/text_color"
+                android:id="@+id/filter_shop"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:background="@drawable/background_button"
+                android:gravity="center"
+                android:drawableLeft="@drawable/ic_moon"
+                android:text="15" />
+
+            <TextView
+                style="@style/text_color"
+                android:layout_marginLeft="15dp"
+                android:id="@+id/filter_setting"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:background="@drawable/background_button"
+                android:gravity="center"
+                android:text="필터" />
+
+            <TextView
+                style="@style/text_color"
+                android:id="@+id/filter_event"
+                android:layout_width="100dp"
+                android:layout_marginLeft="15dp"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:background="@drawable/background_button"
+                android:gravity="center"
+                android:text="이벤트" />
+        </TableRow>
+
+        <TextView
+            android:id="@+id/tv_new_story"
+            style="@style/style_button"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center"
+            android:text="새로운 이야기 시작하기"
+            android:visibility="gone" />
+    </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/activity_main_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        tools:visibility="visible" />
+
+</RelativeLayout>

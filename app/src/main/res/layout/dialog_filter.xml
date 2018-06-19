@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/MyDialogTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="성별"/>
+
+    <RadioGroup
+        android:id="@+id/group_gender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10">
+
+        <RadioButton
+            android:id="@+id/radio_male"
+            style="@style/MyDialogTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTint="@color/black"
+            android:text="동성" />
+
+        <RadioButton
+            android:id="@+id/radio_female"
+            style="@style/MyDialogTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTint="@color/black"
+            android:text="이성" />
+    </RadioGroup>
+
+    <TextView
+        style="@style/MyDialogTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="매칭 연령"/>
+
+    <com.appyvet.rangebar.RangeBar
+        xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/rangebar"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        custom:tickStart="5"
+        custom:tickInterval="1"
+        custom:tickEnd="10"
+        custom:pinMaxFont="10sp"
+        custom:pinRadius="10dp"
+        custom:pinColor="@color/main_color"
+        custom:barWeight="2dp"
+        custom:connectingLineWeight="2dp"
+        custom:selectorColor="@color/main_color"
+        custom:selectorSize="5dp"
+        custom:connectingLineColor="@color/main_color"
+        custom:temporaryPins="true"
+        custom:tickColor="@color/main_color"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
+
+    <TextView
+        style="@style/MyDialogTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="현재 접속 유저 매칭"/>
+
+    <RadioGroup
+        android:id="@+id/group_gender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10">
+
+        <RadioButton
+            android:id="@+id/radio_yes"
+            style="@style/MyDialogTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTint="@color/black"
+            android:text="활성화" />
+
+        <RadioButton
+            android:id="@+id/radio_no"
+            style="@style/MyDialogTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTint="@color/black"
+            android:text="비활성화" />
+    </RadioGroup>
+
+    <TextView
+        style="@style/MyDialogTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="매칭 거리"/>
+
+    <com.appyvet.rangebar.RangeBar
+        xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/rangebar2"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        custom:rangeBar="false"
+        custom:pinMaxFont="10sp"
+        custom:pinRadius="10dp"
+        custom:pinColor="@color/main_color"
+        custom:barWeight="2dp"
+        custom:connectingLineWeight="2dp"
+        custom:selectorColor="@color/main_color"
+        custom:selectorSize="5dp"
+        custom:connectingLineColor="@color/main_color"
+        custom:temporaryPins="true"
+        custom:tickColor="@color/main_color"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
+
+</LinearLayout>

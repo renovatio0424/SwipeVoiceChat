@@ -3,16 +3,19 @@ package com.example.renov.swipevoicechat.widget;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 import com.example.renov.swipevoicechat.R;
@@ -32,10 +35,10 @@ public class VoicePlayerView extends TintedImageButton {
         void onStopPlay();
     }
 
-    private static final int STATE_PREPARE = 0;
-    private static final int STATE_RECORD = 1;
-    private static final int STATE_PLAY = 2;
-    private static final int STATE_STOP = 3;
+    public static final int STATE_PREPARE = 0;
+    public static final int STATE_RECORD = 1;
+    public static final int STATE_PLAY = 2;
+    public static final int STATE_STOP = 3;
     private int mState;
 
     private VoiceRecordListener voiceRecordListener;
@@ -73,6 +76,7 @@ public class VoicePlayerView extends TintedImageButton {
         init(context, attrs);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void init(Context context, AttributeSet attrs) {
 //        progressBgColor = ResourcesCompat.getColor(getResources(), R.color.story_progress_bg, null);
 //        progressColor = ResourcesCompat.getColor(getResources(), R.color.story_progress, null);
@@ -87,7 +91,7 @@ public class VoicePlayerView extends TintedImageButton {
 //        mProgressPaint.setStyle(Paint.Style.STROKE);
 //        mProgressPaint.setStrokeWidth(px1dp);
 
-        setMainColor(R.color.colorAccent);
+        setMainColor(R.color.main_color);
         setBackgroundProgress(progressBgColor,10);
         setProgress(progressColor, 10);
         setInCircle();
@@ -96,6 +100,75 @@ public class VoicePlayerView extends TintedImageButton {
         setStopImage(R.drawable.ic_stop);
 
         drawPath = new Path();
+
+//        setOnTouchListener((v, event) -> {
+//            if(event.getAction() == MotionEvent.ACTION_DOWN){
+//                Log.d("VoicePlayerView", "Action Down");
+//                if(mState == STATE_PREPARE){
+//                    mState = STATE_RECORD;
+//
+//                    if (voiceRecordListener != null) {
+//                        voiceRecordListener.onRecord();
+//                    }
+//
+//                    setImageResource(R.drawable.ic_stop);
+//                } else if(mState == STATE_STOP){
+//                    mState = STATE_PLAY;
+//                    setImageResource(R.drawable.ic_stop);
+//                    if (voiceRecordListener != null) {
+//                        voiceRecordListener.onPlay();
+//                    }
+//                }
+//            } else if(event.getAction() == MotionEvent.ACTION_UP){
+//                Log.d("VoicePlayerView", "Action Up");
+//                if(mState == STATE_RECORD){
+//                    mState = STATE_STOP;
+//                    setImageResource(R.drawable.ic_play);
+//                    stopRecordProgress();
+//                } else if(mState == STATE_PLAY){
+//                    mState = STATE_STOP;
+//                    setImageResource(R.drawable.ic_play);
+//                    stopPlayProgress();
+//                }
+//            }
+//
+//            return false;
+//        });
+
+//        setOnLongClickListener(v -> {
+//            switch (mState) {
+//                case STATE_PREPARE:
+//                    mState = STATE_RECORD;
+//
+//                    if (voiceRecordListener != null) {
+//                        voiceRecordListener.onRecord();
+//                    }
+//
+//                    setImageResource(R.drawable.ic_stop);
+//
+//                    break;
+//                case STATE_RECORD:
+//                    mState = STATE_STOP;
+//                    setImageResource(R.drawable.ic_play);
+//                    stopRecordProgress();
+//                    break;
+//                case STATE_STOP:
+//                    mState = STATE_PLAY;
+//                    setImageResource(R.drawable.ic_stop);
+//                    if (voiceRecordListener != null) {
+//                        voiceRecordListener.onPlay();
+//                    }
+//                    break;
+//                case STATE_PLAY:
+//                    mState = STATE_STOP;
+//                    setImageResource(R.drawable.ic_play);
+//                    stopPlayProgress();
+//                    break;
+//
+//
+//            }
+//            return true;
+//        });
 
         setOnClickListener(view -> {
 
@@ -131,6 +204,7 @@ public class VoicePlayerView extends TintedImageButton {
 
             }
         });
+
         if(!justPlay)
             resetVoiceRecord();
         else
@@ -205,6 +279,9 @@ public class VoicePlayerView extends TintedImageButton {
         if (mState == STATE_PREPARE) {
 //            canvas.drawCircle(centerX + px1dp/2, centerY + px1dp/2, TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72.5f, getResources().getDisplayMetrics()), mBackgroundPaint);
 //            canvas.drawCircle(centerX, centerY, arcBounds.centerX() - px1dp, mBackgroundPaint);
+//            canvas.drawCircle(centerX, centerY, arcBounds.centerX() - mBackgroundProgressWidth, mInCirclePaint);
+//            canvas.drawCircle(centerX, centerY, arcBounds.centerX() - mBackgroundProgressWidth, mBackgroundPaint);
+//            return;
         }
 
         canvas.drawCircle(centerX, centerY, arcBounds.centerX() - mBackgroundProgressWidth, mInCirclePaint);
@@ -299,14 +376,14 @@ public class VoicePlayerView extends TintedImageButton {
         animator.start();
     }
 
-    private void stopRecordProgress() {
+    public void stopRecordProgress() {
         setProgress(0.f);
         if (animator != null) {
             animator.cancel();
         }
     }
 
-    private void stopPlayProgress() {
+    public void stopPlayProgress() {
         setProgress(0.f);
         if (animator != null) {
             animator.cancel();
@@ -327,5 +404,9 @@ public class VoicePlayerView extends TintedImageButton {
     public void prepareVoiceStop() {
         mState = STATE_STOP;
         setImageResource(drawableStop);
+    }
+
+    public int getState(){
+        return this.mState;
     }
 }

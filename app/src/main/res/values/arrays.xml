@@ -11,4 +11,8 @@
         <item>불쾌합니다</item>
         <item>욕설, 비하 및 성적 표현입니다</item>
     </string-array>
+    <string-array name="profile">
+        <item>카메라</item>
+        <item>갤러리</item>
+    </string-array>
 </resources>

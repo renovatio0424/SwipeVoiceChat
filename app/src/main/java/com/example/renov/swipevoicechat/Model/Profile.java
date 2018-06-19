@@ -1,4 +1,4 @@
-package com.example.renov.swipevoicechat;
+package com.example.renov.swipevoicechat.Model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -19,6 +19,10 @@ public class Profile {
     @SerializedName("location")
     @Expose
     private String location;
+
+    @SerializedName("distance")
+    @Expose
+    private Integer distance;
 
     public String getName() {
         return name;
@@ -50,5 +54,9 @@ public class Profile {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Integer getDistance() {
+        return distance;
     }
 }

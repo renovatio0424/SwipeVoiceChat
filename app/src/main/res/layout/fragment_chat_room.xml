@@ -1,31 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <com.github.florent37.materialleanback.MaterialLeanBack
-        android:id="@+id/materialLeanBack"
+    <!--<com.github.florent37.materialleanback.MaterialLeanBack-->
+        <!--android:id="@+id/materialLeanBack"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+
+        <!--app:mlb_lineSpacing="30dp"-->
+
+        <!--app:mlb_paddingTop="40dp"-->
+        <!--app:mlb_paddingBottom="30dp"-->
+        <!--app:mlb_paddingLeft="30dp"-->
+        <!--app:mlb_paddingRight="30dp"-->
+
+        <!--app:mlb_background="@color/white"-->
+        <!--app:mlb_backgroundOverlay="0.5"-->
+        <!--app:mlb_backgroundOverlayColor="@color/white"-->
+
+        <!--app:mlb_titleColor="@android:color/black"-->
+        <!--app:mlb_titleSize="15sp"-->
+
+        <!--app:mlb_overlapCards="true"-->
+        <!--app:mlb_animateCards="true"-->
+        <!--app:mlb_cardElevationEnlarged="10" />-->
+
+    <TextView
+        style="@style/style_sub_title"
+        android:id="@+id/tv_title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-
-        app:mlb_lineSpacing="30dp"
-
-        app:mlb_paddingTop="40dp"
-        app:mlb_paddingBottom="30dp"
-        app:mlb_paddingLeft="30dp"
-        app:mlb_paddingRight="30dp"
-
-        app:mlb_background="@color/white"
-        app:mlb_backgroundOverlay="0.5"
-        app:mlb_backgroundOverlayColor="@color/white"
-
-        app:mlb_titleColor="@android:color/black"
-        app:mlb_titleSize="15sp"
-
-        app:mlb_overlapCards="true"
-        app:mlb_animateCards="true"
-        app:mlb_cardElevationEnlarged="10"
-         />
-</android.support.constraint.ConstraintLayout>
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="나의 채팅방" />
+    <android.support.v7.widget.RecyclerView
+        android:layout_weight="1"
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>

@@ -4,17 +4,21 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetRetrofit {
-    private static NetRetrofit ourInstance = new NetRetrofit();
-    private static String SERVER_DOMAIN = "https://api.github.com/";
+    private static NetRetrofit ourInstance;
+    private static String DEVELOP_SERVER_DOMAIN = "http://13.125.253.85/";
 
-    public static NetRetrofit getInstance() {
-        return ourInstance;
-    }
     private NetRetrofit() {
+
+    }
+
+    public static synchronized NetRetrofit getInstance() {
+        if(ourInstance == null)
+            ourInstance = new NetRetrofit();
+        return ourInstance;
     }
 
     Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(SERVER_DOMAIN)
+            .baseUrl(DEVELOP_SERVER_DOMAIN)
             .addConverterFactory(GsonConverterFactory.create()) // 파싱등록
             .build();
 

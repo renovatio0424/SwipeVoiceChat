@@ -21,4 +21,9 @@
 
     <string name="facebook_app_id">174535596529368</string>
     <string name="fb_login_protocol_scheme">fb174535596529368</string>
+    <string name="filter_title">필터 설정</string>
+
+    <string name="crop_image_activity_title">프로필 사진</string>
+    <string name="crop_image_menu_rotate_right">회전</string>
+    <string name="crop_image_menu_crop">완료</string>
 </resources>

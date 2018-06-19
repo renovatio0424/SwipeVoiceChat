@@ -5,9 +5,18 @@
     <color name="colorAccent">#FF4081</color>
     <color name="grey">#CACCCE</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 
+    <color name="main_color">#364B6A</color>
+    <color name="button_color">#364B6A</color>
+    <color name="sub_color">#0067FF</color>
+    <color name="complementary_color">#FFA900</color>
+
+    <color name="transparent">#00000000</color>
     <color name="story_progress_bg">#e3e1e0</color>
     <color name="story_progress">#f2503b</color>
     <color name="alpha_0">#00000000</color>
     <color name="main_grey_color">#E4E2E1</color>
+    <color name="text_color">#FFFFFF</color>
+    <color name="grey_alpha">#33CACCCE</color>
 </resources>
