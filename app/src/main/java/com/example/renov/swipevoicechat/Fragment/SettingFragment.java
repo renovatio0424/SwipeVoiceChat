@@ -23,6 +23,8 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.renov.swipevoicechat.Activity.MainActivity;
 import com.example.renov.swipevoicechat.Activity.ShopActivity;
+import com.example.renov.swipevoicechat.Model.Result;
+import com.example.renov.swipevoicechat.Network.NetRetrofit;
 import com.example.renov.swipevoicechat.R;
 import com.igaworks.IgawCommon;
 import com.igaworks.adpopcorn.IgawAdpopcorn;
@@ -44,6 +46,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import jp.wasabeef.glide.transformations.BlurTransformation;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SettingFragment extends Fragment implements TJPlacementListener, TJConnectListener {
 
@@ -57,6 +62,7 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
     Switch swReplyPush;
     @BindView(R.id.sw_basic_push)
     Switch swBasicPush;
+
 
     public Unbinder unbinder;
 
@@ -85,12 +91,12 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
 //        Tapjoy.setDebugEnabled(true);
 
         OneSignal.getTags(tags -> {
-            if (tags != null){
+            if (tags != null) {
                 Log.d("onesignal", "get tag json: " + tags.toString());
-                boolean isReplyable = tags.has("isReplyable");
-                boolean isBasic = tags.has("isBasic");
+                boolean isReplyable = tags.has("Reply");
+                boolean isBasic = tags.has("Basic");
 
-                Log.d("onesignal", "isReplyable : " + (isReplyable ? "true" : "false") + "\nisBasic : " + (isBasic ? "true" : "false"));
+                Log.d("onesignal", "Reply : " + (isReplyable ? "true" : "false") + "\nBasic : " + (isBasic ? "true" : "false"));
                 getActivity().runOnUiThread(() -> {
                     swReplyPush.setChecked(isReplyable);
                     swBasicPush.setChecked(isBasic);
@@ -100,16 +106,16 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
 
         swReplyPush.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked)
-                OneSignal.sendTag("isReplyable", "reply");
+                OneSignal.sendTag("Reply", "reply");
             else
-                OneSignal.deleteTag("isReplyable");
+                OneSignal.deleteTag("Reply");
         });
 
         swBasicPush.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked)
-                OneSignal.sendTag("isBasic", "true");
+                OneSignal.sendTag("Basic", "true");
             else
-                OneSignal.deleteTag("isBasic");
+                OneSignal.deleteTag("Basic");
         });
     }
 
@@ -125,6 +131,30 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
     public void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+    }
+
+    @OnClick(R.id.layout_logout)
+    public void onClickLogout() {
+        //TODO: 로그아웃 기능 구현중
+        Call<Result> response = NetRetrofit.getInstance().getService().logout();
+        response.enqueue(new Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, Response<Result> response) {
+                switch (response.code()) {
+                    case 200:
+                        Toast.makeText(getContext(), "정상적으로 로그아웃 되었습니다.", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Toast.makeText(getContext(), "code: " + response.code() + "message: " + response.body(), Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Result> call, Throwable t) {
+
+            }
+        });
     }
 
     @OnClick(R.id.layout_profile)

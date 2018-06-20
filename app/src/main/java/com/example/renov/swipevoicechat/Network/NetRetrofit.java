@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetRetrofit {
     private static NetRetrofit ourInstance;
-    private static String DEVELOP_SERVER_DOMAIN = "http://13.125.253.85/";
+    private static String DEVELOP_SERVER_DOMAIN = "http://13.125.253.85/api/";
 
     private NetRetrofit() {
 

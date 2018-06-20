@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -70,14 +71,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     @OnClick(R.id.btn_complete)
     public void onClickComplete() {
-//        TODO: 회원가입
-
-        String token = getIntent().getStringExtra("token");
-        String type = getIntent().getStringExtra("type");
-        int birthday = getIntent().getIntExtra("birthday", -1);
-        String gender = getIntent().getStringExtra("gender");
-
-        NetRetrofit.getInstance().getService().register(token, type, gender, birthday);
+//        TODO: 프로필 사진 업로드
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -86,53 +80,64 @@ public class ProfileActivity extends AppCompatActivity {
     @SuppressLint("NewApi")
     @OnClick(R.id.iv_crop)
     public void onClickCrop() {
-        if (CropImage.isExplicitCameraPermissionRequired(this))
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, CropImage.CAMERA_CAPTURE_PERMISSIONS_REQUEST_CODE);
-        else
-            new MaterialDialog.Builder(ProfileActivity.this)
-                    .title("프로필 등록하기")
-                    .items(R.array.profile)
-                    .itemsCallbackSingleChoice(0, (dialog, itemView, which, text) -> {
-                        switch (which) {
-                            case 0:
-                                selectCamera();
-                                break;
-                            case 1:
-                                selectGallery();
-                                break;
-                        }
-                        return true;
-                    })
-                    .positiveText("확인")
-                    .negativeText("취소")
-                    .show();
+        if (CropImage.isExplicitCameraPermissionRequired(this)) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CropImage.CAMERA_CAPTURE_PERMISSIONS_REQUEST_CODE);
+            return;
+        }
+
+        //        else
+//            new MaterialDialog.Builder(ProfileActivity.this)
+//                    .title("프로필 등록하기")
+//                    .items(R.array.profile)
+//                    .itemsCallbackSingleChoice(0, (dialog, itemView, which, text) -> {
+//                        switch (which) {
+//                            case 0:
+//                                selectCamera();
+//                                break;
+//                            case 1:
+//                                selectGallery();
+//                                break;
+//                        }
+//                        return true;
+//                    })
+//                    .positiveText("확인")
+//                    .negativeText("취소")
+//                    .show();
 
 
 //        권한 요청
-//        CropImage.activity()
-//                .setGuidelines(CropImageView.Guidelines.ON)
-//                .setMinCropResultSize(200,300)
-//                .setFixAspectRatio(true)
-//                .setAspectRatio(3,4)
-//                .setAllowFlipping(false)
-//                .setAllowRotation(false)
-//                .start(this);
+        CropImage.activity()
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .setMinCropResultSize(200, 300)
+                .setFixAspectRatio(true)
+                .setAspectRatio(3, 4)
+                .setAllowFlipping(false)
+                .setAllowRotation(false)
+                .start(this);
     }
 
     @OnClick(R.id.btn_profile_register)
     public void onClickButtonProfileRegister() {
-//        CropImage.activity()
-//                .setGuidelines(CropImageView.Guidelines.ON)
-//                .setMinCropResultSize(200,300)
-//                .setFixAspectRatio(true)
-//                .setAspectRatio(3,4)
-//                .setAllowFlipping(false)
-//                .setAllowRotation(false)
-//                .start(this);
+        CropImage.activity()
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .setMinCropResultSize(200, 300)
+                .setFixAspectRatio(true)
+                .setAspectRatio(3, 4)
+                .setAllowFlipping(false)
+                .setAllowRotation(false)
+                .start(this);
     }
 
     private void selectCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        Uri outputFileUri = Uri.fromFile(new File(this.getExternalCacheDir().getPath(), "pickImageResult.jpeg"));
+        File newFile = new File(getApplicationContext().getExternalCacheDir(), "pickImageResult.jpeg");
+
+        Uri outputFileUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", newFile);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
         startActivityForResult(intent, CAMERA_CODE);
     }
 
@@ -155,7 +160,7 @@ public class ProfileActivity extends AppCompatActivity {
             if (CropImage.isReadExternalStoragePermissionsRequired(this, imageUri)) {
                 // request permissions and handle the result in onRequestPermissionsResult()
                 mCropImageUri = imageUri;
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE);
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE);
             } else {
                 // no permissions required or already granted, can start crop image activity
                 startCropImageActivity(imageUri);
@@ -163,9 +168,8 @@ public class ProfileActivity extends AppCompatActivity {
         } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-//                Uri resultUri = result.getUri();
-                Uri resultUri = mCropImageUri;
-                Log.d(TAG, "image uri: " + resultUri.toString());
+                Uri resultUri = result.getUri();
+//                Uri resultUri = mCropImageUri;
                 ivCrop.setImageURI(resultUri);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();

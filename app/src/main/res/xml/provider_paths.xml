@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!--<cache-path name="images" path="./images" /> &lt;!&ndash; getCacheDir(). &ndash;&gt;-->
+    <external-cache-path name="name" path="path" /> <!-- Context.getExternalCacheDir(). -->
+</paths>
+

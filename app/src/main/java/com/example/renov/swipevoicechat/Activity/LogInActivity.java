@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.renov.swipevoicechat.Model.Result;
 import com.example.renov.swipevoicechat.Model.User;
 import com.example.renov.swipevoicechat.Network.NetRetrofit;
 import com.example.renov.swipevoicechat.Network.RetrofitService;
@@ -17,6 +18,7 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -28,8 +30,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -51,8 +60,6 @@ public class LogInActivity extends AppCompatActivity {
     public String SNSTYPE_GOOGLE = "GOOGLE";
     public String SNSTYPE_FACEBOOK = "FACEBOOK";
 
-    @BindView(R.id.sign_in_facebook)
-    LoginButton signInFacebook;
     @BindView(R.id.facebook_sign_up_button)
     Button facebookSignUpButton;
 
@@ -68,9 +75,6 @@ public class LogInActivity extends AppCompatActivity {
     boolean isOurUser = false;
 
     Unbinder unbinder;
-
-
-    Callback<User> loginCallback;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -131,71 +135,61 @@ public class LogInActivity extends AppCompatActivity {
      * user_location
      **/
 
+
+
     private void initFacebookSignIn() {
         callbackManager = CallbackManager.Factory.create();
 //        signInFacebook.setReadPermissions(Arrays.asList("public_profile ", "user_status"));
-        signInFacebook.setReadPermissions(Arrays.asList("public_profile "));
-        signInFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        LoginManager.getInstance().logInWithReadPermissions(LogInActivity.this,
+                Arrays.asList("public_profile", "email"));
+    }
+
+    private Callback<Result> returnCallback(String snsType, String Token) {
+        return new Callback<Result>() {
             @Override
-            public void onSuccess(LoginResult loginResult) {
-                String facebookToken = loginResult.getAccessToken().getToken();
-                Log.e("facebook", "facebook token: " + facebookToken);
-                Toast.makeText(LogInActivity.this, "onSuccess", Toast.LENGTH_SHORT).show();
-                Call<User> response = Service.login(facebookToken, "FACEBOOK");
-                response.enqueue(new Callback<User>() {
-                    @Override
-                    public void onResponse(Call<User> call, Response<User> response) {
-                        // Signed in successfully, show authenticated UI.
-                        if (response.isSuccessful()) {
-                            Toast.makeText(LogInActivity.this, "facebook login success", Toast.LENGTH_SHORT).show();
-                        } else {
-                            switch (response.code()) {
-                                case 201:
-                                    Toast.makeText(LogInActivity.this, "created(201)", Toast.LENGTH_SHORT).show();
-                                    isOurUser = true;
-                                    moveToMain();
-                                    break;
-                                case 400:
-                                    Toast.makeText(LogInActivity.this, "Bad Request(400)", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case 401:
-                                    Toast.makeText(LogInActivity.this, "Unauthorized(401)", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case 403:
-                                    Toast.makeText(LogInActivity.this, "Forbidden(403)", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case 404:
-                                    Toast.makeText(LogInActivity.this, "Not Found(404)", Toast.LENGTH_SHORT).show();
-                                    moveToSignUp(SNSTYPE_FACEBOOK, facebookToken);
-                                    break;
-                                default:
-                                    Toast.makeText(LogInActivity.this, "error code: " + response.code(), Toast.LENGTH_SHORT).show();
-                                    moveToSignUp(SNSTYPE_FACEBOOK, facebookToken);
-                                    break;
+            public void onResponse(Call<Result> call, Response<Result> response) {
+                // Signed in successfully, show authenticated UI.
+                if (response.isSuccessful()) {
+                    moveToMain();
+                } else {
+                    switch (response.code()) {
+                        case 400://회원 가입해야 하는 유저
+                            String errorBody = null;
+                            try {
+                                errorBody = response.errorBody().string();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        }
-                    }
+                            Log.d(TAG, "header:" + response.headers() + "\nbody: " + errorBody);
+                            String mJsonString = errorBody;
+                            JsonParser parser = new JsonParser();
+                            JsonElement mJson = parser.parse(mJsonString);
+                            Gson gson = new Gson();
+                            Result result = gson.fromJson(mJson, Result.class);
 
-                    @Override
-                    public void onFailure(Call<User> call, Throwable t) {
-                        Toast.makeText(LogInActivity.this, "fail: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            if ("회원 가입을 먼저 진행해주세요.".equals(result.getMessage()))
+                                moveToSignUp(snsType, Token);
+                            break;
+
+                        default:
+                            try {
+                                Toast.makeText(LogInActivity.this, "error body: " + response.errorBody().string(), Toast.LENGTH_SHORT).show();
+                                Log.e(TAG, "error body: " + response.errorBody().string());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            break;
                     }
-                });
-                Log.d("facebook", "login result: " + loginResult.getAccessToken().getToken() + ",\n" + loginResult.getAccessToken().getUserId());
+                }
+
+
             }
 
             @Override
-            public void onCancel() {
-                Toast.makeText(LogInActivity.this, "onCancel", Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<Result> call, Throwable t) {
+                Toast.makeText(LogInActivity.this, "fail: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
-
-            @Override
-            public void onError(FacebookException error) {
-                Toast.makeText(LogInActivity.this, "onError", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-
+        };
     }
 
 
@@ -214,7 +208,30 @@ public class LogInActivity extends AppCompatActivity {
 
     @OnClick(R.id.facebook_sign_up_button)
     public void onClickFacebookSignUpButton() {
-        signInFacebook.performClick();
+        callbackManager = CallbackManager.Factory.create();
+//        signInFacebook.setReadPermissions(Arrays.asList("public_profile ", "user_status"));
+        LoginManager.getInstance().logInWithReadPermissions(LogInActivity.this,
+                Arrays.asList("public_profile", "email"));
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                String facebookToken = loginResult.getAccessToken().getToken();
+                Log.e("facebook", "facebook token: " + facebookToken);
+                Call<Result> response = Service.login(facebookToken, "FACEBOOK");
+                response.enqueue(returnCallback(SNSTYPE_FACEBOOK, facebookToken));
+                Log.d("facebook", "login result: " + loginResult.getAccessToken().getToken() + ",\n" + loginResult.getAccessToken().getUserId());
+            }
+
+            @Override
+            public void onCancel() {
+                Toast.makeText(LogInActivity.this, "onCancel", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Toast.makeText(LogInActivity.this, "onError", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void signIn() {
@@ -224,8 +241,8 @@ public class LogInActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         Toast.makeText(this, "onActivityResult(): " + requestCode + ", " + resultCode, Toast.LENGTH_SHORT).show();
+        Log.e(TAG,"onActivityResult(): " + requestCode + ", " + resultCode);
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == GOOGLE_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
@@ -233,8 +250,10 @@ public class LogInActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         } else if (requestCode == FACEBOOK_SIGN_IN) {
+            CallbackManagerImpl.RequestCodeOffset.Share.toRequestCode();
             callbackManager.onActivityResult(requestCode, resultCode, data);
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -260,47 +279,9 @@ public class LogInActivity extends AppCompatActivity {
 
             Log.e("retrofit", "google token: " + googleToken);
 
-            Call<User> response = Service.login(googleToken, "GOOGLE");
-            response.enqueue(new Callback<User>() {
-                @Override
-                public void onResponse(Call<User> call, Response<User> response) {
-                    // Signed in successfully, show authenticated UI.
-                    if (response.isSuccessful()) {
-                        Toast.makeText(LogInActivity.this, "facebook login success", Toast.LENGTH_SHORT).show();
-                    } else {
-                        switch (response.code()) {
-                            case 201:
-                                Toast.makeText(LogInActivity.this, "created(201)", Toast.LENGTH_SHORT).show();
-                                isOurUser = true;
-                                moveToMain();
-                                break;
-                            case 400:
-                                Toast.makeText(LogInActivity.this, "Bad Request(400)", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 401:
-                                Toast.makeText(LogInActivity.this, "Unauthorized(401)", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 403:
-                                Toast.makeText(LogInActivity.this, "Forbidden(403)", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 404:
-//                                TODO: 회원 가입할지 여부
-                                Toast.makeText(LogInActivity.this, "Not Found(404)", Toast.LENGTH_SHORT).show();
-                                moveToSignUp(SNSTYPE_GOOGLE, googleToken);
-                                break;
-                            default:
-                                Toast.makeText(LogInActivity.this, "error code: " + response.code(), Toast.LENGTH_SHORT).show();
-                                moveToSignUp(SNSTYPE_GOOGLE, googleToken);
-                                break;
-                        }
-                    }
-                }
+            Call<Result> response = Service.login(googleToken, "GOOGLE");
 
-                @Override
-                public void onFailure(Call<User> call, Throwable t) {
-                    Toast.makeText(LogInActivity.this, "fail: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            response.enqueue(returnCallback(SNSTYPE_GOOGLE, googleToken));
 
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
@@ -309,19 +290,6 @@ public class LogInActivity extends AppCompatActivity {
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
 
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void updateUI(GoogleSignInAccount account) {
-        if (account == null)
-            return;
-
-        if (isOurUser) {
-//            TODO: 서버에서 해당 유저가 가입했는지 확인
-            Log.d("google login", "profile image: " + account.getPhotoUrl());
-            moveToMain();
-        } else {
-            moveToSignUp(SNSTYPE_GOOGLE, account.getIdToken());
         }
     }
 
