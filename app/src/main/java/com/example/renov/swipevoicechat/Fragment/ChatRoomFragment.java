@@ -1,12 +1,14 @@
 package com.example.renov.swipevoicechat.Fragment;
 
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,8 +21,13 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.renov.swipevoicechat.Activity.ChatActivity;
+import com.example.renov.swipevoicechat.Adapter.SwipeController;
+import com.example.renov.swipevoicechat.Adapter.SwipeControllerActions;
 import com.example.renov.swipevoicechat.Event.RefreshEvent;
 import com.example.renov.swipevoicechat.Model.Profile;
+import com.example.renov.swipevoicechat.Model.VoiceChatRoom;
+import com.example.renov.swipevoicechat.Network.NetRetrofit;
+import com.example.renov.swipevoicechat.Network.ApiService;
 import com.example.renov.swipevoicechat.R;
 import com.example.renov.swipevoicechat.Utils;
 
@@ -34,6 +41,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import jp.wasabeef.glide.transformations.BlurTransformation;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatRoomFragment extends Fragment {
     public Unbinder unbinder;
@@ -44,6 +54,7 @@ public class ChatRoomFragment extends Fragment {
     @BindView(R.id.recyclerview)
     RecyclerView recyclerView;
 
+    ApiService service = NetRetrofit.getInstance(getContext()).getService();
     public static ChatRoomFragment newInstance() {
         ChatRoomFragment chatRoomFragment = new ChatRoomFragment();
         return chatRoomFragment;
@@ -69,12 +80,29 @@ public class ChatRoomFragment extends Fragment {
 //        cardAdapter = new CardAdapter(Utils.loadProfiles(getContext()));
         cardAdapter = new CardAdapter();
 
-
+        loadChatRooms();
         cardAdapter.addItem(Utils.loadProfiles(getContext()).get(0));
         cardAdapter.addItem(Utils.loadProfiles(getContext()).get(1));
         cardAdapter.addItem(Utils.loadProfiles(getContext()).get(2));
         cardAdapter.addItem(Utils.loadProfiles(getContext()).get(3));
 
+        SwipeController swipeController = new SwipeController(new SwipeControllerActions() {
+            @Override
+            public void onRightClicked(int position) {
+                cardAdapter.profiles.remove(position);
+                cardAdapter.notifyItemRemoved(position);
+                cardAdapter.notifyItemRangeChanged(position, cardAdapter.getItemCount());
+            }
+        });
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeController);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
+            }
+        });
 
 //        Bundle args = getArguments();
 //        if(args != null){
@@ -159,6 +187,25 @@ public class ChatRoomFragment extends Fragment {
 //        });
     }
 
+    private void loadChatRooms() {
+        Call<ArrayList<VoiceChatRoom>> request = service.loadVoiceChatRoomList();
+        request.enqueue(new Callback<ArrayList<VoiceChatRoom>>() {
+            @Override
+            public void onResponse(Call<ArrayList<VoiceChatRoom>> call, Response<ArrayList<VoiceChatRoom>> response) {
+                if(response.isSuccessful()){
+                    cardAdapter.addList(response.body());
+                } else {
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<VoiceChatRoom>> call, Throwable t) {
+
+            }
+        });
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -188,18 +235,25 @@ public class ChatRoomFragment extends Fragment {
         unbinder.unbind();
     }
 
+
+
     public class CardAdapter extends RecyclerView.Adapter<viewHolder> {
 
+//        private List<VoiceChatRoom> rooms;
         private List<Profile> profiles;
 
         public CardAdapter() {
             profiles = new ArrayList<>();
+//            rooms = new ArrayList<>();
         }
 
         public CardAdapter(List mProfiles) {
             profiles = mProfiles;
         }
 
+//        public CardAdapter(List mRooms) {
+//            this.rooms = mRooms;
+//        }
 
         MultiTransformation multiTransformation = new MultiTransformation(new BlurTransformation(25, 3),
                 new CircleCrop());
@@ -238,6 +292,10 @@ public class ChatRoomFragment extends Fragment {
         @Override
         public int getItemCount() {
             return profiles.size();
+        }
+
+        public void addList(ArrayList<VoiceChatRoom> rooms){
+//            this.rooms = rooms;
         }
 
         public void addItem(Profile addItem) {

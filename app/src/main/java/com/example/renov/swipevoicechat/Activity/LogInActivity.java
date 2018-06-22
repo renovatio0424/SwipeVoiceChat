@@ -3,17 +3,18 @@ package com.example.renov.swipevoicechat.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.renov.swipevoicechat.Handler.BackPressCloseHandler;
 import com.example.renov.swipevoicechat.Model.Result;
 import com.example.renov.swipevoicechat.Model.User;
 import com.example.renov.swipevoicechat.Network.NetRetrofit;
-import com.example.renov.swipevoicechat.Network.RetrofitService;
+import com.example.renov.swipevoicechat.Network.ApiService;
 import com.example.renov.swipevoicechat.R;
+import com.example.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -21,25 +22,18 @@ import com.facebook.FacebookException;
 import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import butterknife.BindView;
@@ -70,11 +64,13 @@ public class LogInActivity extends AppCompatActivity {
     @BindView(R.id.google_sign_up_button)
     Button googleSignUpButton;
 
-    RetrofitService Service = NetRetrofit.getInstance().getService();
+    ApiService Service = NetRetrofit.getInstance(this).getService();
 
     boolean isOurUser = false;
+    private BackPressCloseHandler backPressCloseHandler = new BackPressCloseHandler(this);
 
     Unbinder unbinder;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,14 +81,13 @@ public class LogInActivity extends AppCompatActivity {
 
         initGoogleSignIn();
         initFacebookSignIn();
-
-        if (isLoggedUser())
-            moveToMain();
+//        TODO : 로그인 유저 정보 받아서 넘기기
+        AutoLogIn();
     }
 
-    private boolean isLoggedUser() {
+    private void AutoLogIn() {
 //        TODO: 로그인시 토큰값 발행 -> 어플 재실행시 토큰값 확인후 바로 로그인
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+//        AccessToken accessToken = AccessToken.getCurrentAccessToken();
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -100,16 +95,33 @@ public class LogInActivity extends AppCompatActivity {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
+//
+//        // Check for existing Google Sign In account, if the user is already signed in
+//        // the GoogleSignInAccount will be non-null.
+//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+//        boolean isFacebookLoggedIn = accessToken != null && !accessToken.isExpired();
+//        boolean isGoogleLoggedIn = account != null;
+//
+//        if (isFacebookLoggedIn && isOurUser | isGoogleLoggedIn && isOurUser) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+        String accessToken = SharedPrefHelper.getInstance(LogInActivity.this).getSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, null);
+        String snsType = SharedPrefHelper.getInstance(LogInActivity.this).getSharedPreferences(SharedPrefHelper.SNS_TYPE, null);
 
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        boolean isFacebookLoggedIn = accessToken != null && !accessToken.isExpired();
-        boolean isGoogleLoggedIn = account != null;
-        if (isFacebookLoggedIn && isOurUser | isGoogleLoggedIn && isOurUser) {
-            return true;
-        } else {
-            return false;
+        if (accessToken != null && snsType != null) {
+            if (snsType.equals(SNSTYPE_FACEBOOK))
+                accessToken = AccessToken.getCurrentAccessToken().getToken();
+            else if (snsType.equals(SNSTYPE_GOOGLE)){
+                accessToken = GoogleSignIn.getLastSignedInAccount(this).getIdToken();
+            } else {
+                Toast.makeText(this, "로그인 한적 없는 유저입니다", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Call<User> call = NetRetrofit.getInstance(this).getService().login(accessToken, snsType);
+            call.enqueue(returnCallback(snsType, accessToken));
         }
     }
 
@@ -136,7 +148,6 @@ public class LogInActivity extends AppCompatActivity {
      **/
 
 
-
     private void initFacebookSignIn() {
         callbackManager = CallbackManager.Factory.create();
 //        signInFacebook.setReadPermissions(Arrays.asList("public_profile ", "user_status"));
@@ -144,12 +155,33 @@ public class LogInActivity extends AppCompatActivity {
                 Arrays.asList("public_profile", "email"));
     }
 
-    private Callback<Result> returnCallback(String snsType, String Token) {
-        return new Callback<Result>() {
+    private Callback<User> returnCallback(String snsType, String Token) {
+        return new Callback<User>() {
             @Override
-            public void onResponse(Call<Result> call, Response<Result> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 // Signed in successfully, show authenticated UI.
                 if (response.isSuccessful()) {
+//                    hellovoiceauth token set
+                    Log.d(TAG, "header: " + response.headers());
+
+                    String token = response.headers().get("HelloVoiceAuth");
+                    Log.d(TAG, "token: " + token);
+
+                    SharedPrefHelper.getInstance(LogInActivity.this).setSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, token);
+                    SharedPrefHelper.getInstance(LogInActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, snsType);
+
+                    User myInfo = response.body();
+//                    User myInfo = new User();
+//                    myInfo.setBirth(response.body().getBirth());
+//                    myInfo.setGender(response.body().getGender());
+//                    myInfo.setLat(response.body().getLat());
+//                    myInfo.setLng(response.body().getLng());
+                    Log.d(TAG,"gender: " + myInfo.getGender() +
+                            "\nlat: " + myInfo.getLat() +
+                            "\nlng: " + myInfo.getLng() +
+                            "\nprofileImageUrl: " + myInfo.getProfileImageUrl() +
+                            "\nbirth: " + myInfo.getBirth());
+
                     moveToMain();
                 } else {
                     switch (response.code()) {
@@ -186,12 +218,11 @@ public class LogInActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Result> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 Toast.makeText(LogInActivity.this, "fail: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         };
     }
-
 
     private void initGoogleSignIn() {
         // Set the dimensions of the sign-in button.
@@ -217,8 +248,8 @@ public class LogInActivity extends AppCompatActivity {
             public void onSuccess(LoginResult loginResult) {
                 String facebookToken = loginResult.getAccessToken().getToken();
                 Log.e("facebook", "facebook token: " + facebookToken);
-                Call<Result> response = Service.login(facebookToken, "FACEBOOK");
-                response.enqueue(returnCallback(SNSTYPE_FACEBOOK, facebookToken));
+                Call<User> request = Service.login(facebookToken, "FACEBOOK");
+                request.enqueue(returnCallback(SNSTYPE_FACEBOOK, facebookToken));
                 Log.d("facebook", "login result: " + loginResult.getAccessToken().getToken() + ",\n" + loginResult.getAccessToken().getUserId());
             }
 
@@ -242,7 +273,7 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Toast.makeText(this, "onActivityResult(): " + requestCode + ", " + resultCode, Toast.LENGTH_SHORT).show();
-        Log.e(TAG,"onActivityResult(): " + requestCode + ", " + resultCode);
+        Log.e(TAG, "onActivityResult(): " + requestCode + ", " + resultCode);
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == GOOGLE_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
@@ -279,9 +310,9 @@ public class LogInActivity extends AppCompatActivity {
 
             Log.e("retrofit", "google token: " + googleToken);
 
-            Call<Result> response = Service.login(googleToken, "GOOGLE");
+            Call<User> request = Service.login(googleToken, SNSTYPE_GOOGLE);
 
-            response.enqueue(returnCallback(SNSTYPE_GOOGLE, googleToken));
+            request.enqueue(returnCallback(SNSTYPE_GOOGLE, googleToken));
 
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
@@ -294,7 +325,6 @@ public class LogInActivity extends AppCompatActivity {
     }
 
     private void moveToMain() {
-        LoginManager.getInstance().logOut();
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -314,5 +344,10 @@ public class LogInActivity extends AppCompatActivity {
         super.onDestroy();
         unbinder.unbind();
 //        profileTracker.stopTracking();
+    }
+
+    @Override
+    public void onBackPressed() {
+        backPressCloseHandler.onBackPressed();
     }
 }

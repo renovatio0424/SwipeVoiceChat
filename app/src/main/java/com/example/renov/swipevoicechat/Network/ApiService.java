@@ -11,6 +11,7 @@ import com.example.renov.swipevoicechat.Model.VoiceChatRoom;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -18,11 +19,13 @@ import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
-public interface RetrofitService {
+public interface ApiService {
     @GET("users/{user}/repos")
     Call<ArrayList<JsonObject>> getListRepos(@Path("user") String id);
 
@@ -37,7 +40,7 @@ public interface RetrofitService {
 
     @FormUrlEncoded
     @POST("user/login")
-    Call<Result> login(@Field("token") String token, @Field("type") String SnsType);
+    Call<User> login(@Field("token") String token, @Field("type") String SnsType);
 
     @GET("user/logout")
     Call<Result> logout();
@@ -45,12 +48,14 @@ public interface RetrofitService {
     @GET("user/filter")
     Call<Filter> checkFilter();
 
+    @Headers("Content-Type: application/json")
     @POST("user/filter")
     void updateFilter(@Body Filter filter);
 
     @GET("user")
     Call<User> checkCurrentUserInfo();
 
+    @FormUrlEncoded
     @PUT("user")
     Call<User> updateUserInfo(@Field("update") User updateUserInfo);
 
@@ -62,12 +67,20 @@ public interface RetrofitService {
     @GET("voice")
     Call<VoiceCard> getRandomVoiceCard();
 
+    /**
+     * ChatId가 있으면 챗방으로
+     * 없으면 새이야기
+     * */
     @FormUrlEncoded
     @POST("voice")
-    Call<VoiceCard> sendVoice(@Field("chatId") int chatId, @Field("url") String url);
+    Call<VoiceCard> sendChatVoice(@Field("chatId") int chatId, @Field("url") String url);
+
+    @FormUrlEncoded
+    @POST("voice")
+    Call<VoiceCard> sendNewVoice(@Field("url") String url);
 
     @GET("voice/chat/list")
-    Call<VoiceChatRoom> loadVoiceChatRoomList();
+    Call<ArrayList<VoiceChatRoom>> loadVoiceChatRoomList();
 
     @GET("voice/chat/{chatId}/list")
     Call<ArrayList<VoiceChat>> loadVoiceChatList(@Path("chatId") String chatId);
@@ -81,5 +94,8 @@ public interface RetrofitService {
     Call<VoiceCard> passVoice(@Field("id") int id, @Field("type") String passType, @Field("reason") @Nullable String reason);
 
 
-//    @GET("/upload")
+    @GET("upload")
+    Call<Map> getUploadMetaData(@Query("type") String type, @Query("size") int size);
+
+
 }

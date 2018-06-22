@@ -11,16 +11,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.simplelist.MaterialSimpleListAdapter;
 import com.afollestad.materialdialogs.simplelist.MaterialSimpleListItem;
@@ -28,17 +23,13 @@ import com.example.renov.swipevoicechat.Model.Result;
 import com.example.renov.swipevoicechat.Model.User;
 import com.example.renov.swipevoicechat.Network.NetRetrofit;
 import com.example.renov.swipevoicechat.R;
-import com.example.renov.swipevoicechat.Utils;
-import com.google.android.gms.common.oob.SignUp;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import butterknife.BindView;
@@ -213,31 +204,23 @@ public class SignUpActivity extends AppCompatActivity {
         String token = getIntent().getStringExtra("token");
         String gender = (groupGender.getCheckedRadioButtonId() == R.id.radio_male ? "M" : "F");
         String birth = tvBirthday.getText().toString();
-        Call<User> response = NetRetrofit.getInstance().getService().register(token,
+        Call<User> response = NetRetrofit.getInstance(this).getService().register(token,
                 type,
                 gender,
                 birth,
-                "123.124",
-                "125.124"
+                String.valueOf(mlocation.getLatitude()),
+                String.valueOf(mlocation.getLongitude())
         );
 
-        Intent intent = new Intent(this, ProfileActivity.class);
-        intent.putExtra("type", type);
-        intent.putExtra("token", token);
-        intent.putExtra("birthday", birth);
-        intent.putExtra("gender", gender);
+
 
         response.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
-                    moveToProfile(intent);
+                    moveToMain();
                 } else {
                     switch (response.code()) {
-                        case 404:
-//                        TODO: 이미 가입한 유저임
-                            moveToProfile(intent);
-                            break;
 
                         case 400://회원 가입해야 하는 유저
                             String errorBody = null;
@@ -254,7 +237,7 @@ public class SignUpActivity extends AppCompatActivity {
                             Result result = gson.fromJson(mJson, Result.class);
 
                             if ("회원 가입을 먼저 진행해주세요.".equals(result.getMessage()))
-                                moveToProfile(intent);
+                                moveToMain();
                             break;
 
                         default:
@@ -278,7 +261,9 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void moveToProfile(Intent intent) {
+    private void moveToMain() {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
 

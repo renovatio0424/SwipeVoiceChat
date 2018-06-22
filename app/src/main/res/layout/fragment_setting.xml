@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/transparent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:background="@color/black">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -16,12 +17,6 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         android:fitsSystemWindows="false">
-
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_arrow_back" />
 
         <TextView
             android:id="@+id/textView8"
@@ -365,8 +360,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:background="@color/grey"
-        android:visibility="gone" />
+        android:background="@color/grey" />
+
 
     <RelativeLayout
         android:id="@+id/layout_logout"

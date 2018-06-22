@@ -31,22 +31,24 @@
             android:gravity="center_horizontal"
             android:layout_marginRight="24dp"
             style="@style/text_color"
-            android:text="채팅방" />
+            android:text="안녕하세요" />
     </android.support.v7.widget.Toolbar>
 
-    <include layout="@layout/item_chat_me"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_chatlist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
 
-    <include layout="@layout/item_chat_other"/>
+    </android.support.v7.widget.RecyclerView>
 
     <RelativeLayout
-        android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <Button
             android:layout_margin="10dp"
             android:id="@+id/btn_reply"
-            android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/round_background_grey"

@@ -20,18 +20,28 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.renov.swipevoicechat.Model.User;
+import com.example.renov.swipevoicechat.Network.FileUploadRetrofit;
 import com.example.renov.swipevoicechat.Network.NetRetrofit;
 import com.example.renov.swipevoicechat.R;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.http.Multipart;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -72,9 +82,80 @@ public class ProfileActivity extends AppCompatActivity {
     @OnClick(R.id.btn_complete)
     public void onClickComplete() {
 //        TODO: 프로필 사진 업로드
+        if(mCropImageUri == null){
+            Toast.makeText(this, "프로필 사진을 등록해주세요", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ImageUpload(mCropImageUri);
+
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    private void ImageUpload(Uri mCropImageUri) {
+        File imageFile = new File(mCropImageUri.getPath());
+        int fileSize = Integer.parseInt(String.valueOf(imageFile.length()/1024));
+        Call<Map> call = NetRetrofit.getInstance(this).getService().getUploadMetaData("image",fileSize);
+        call.enqueue(new Callback<Map>() {
+            @Override
+            public void onResponse(Call<Map> call, Response<Map> response) {
+                try {
+                    Log.d(TAG, "response raw: " + response.raw());
+                    Log.d(TAG, "response headers: " + response.headers());
+                    Log.d(TAG, "response body: " + response.body());
+
+                    if (response.errorBody() != null)
+                        Log.d(TAG, "response error body: " + response.errorBody().string());
+
+
+                    if(response.isSuccessful()){
+                        String key = (String) response.body().get("key");
+                        String Host = (String) response.body().get("Host");
+
+                        Log.d(TAG, "key: " + key);
+                        Log.d(TAG, "Host: " + Host);
+
+                        String fileName = key.replace("image/","");
+                        fileName = fileName.replace(".jpg","");
+
+                        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", fileName);
+                        response.body().put("file", imageFile);
+
+                        Call<String> request = FileUploadRetrofit.getInstance(getApplicationContext()).getService().upload(key, response.body(), filePart);
+                        request.enqueue(new Callback<String>() {
+                            @Override
+                            public void onResponse(Call<String> call, Response<String> response) {
+                                if(response.isSuccessful()){
+                                    Log.d(TAG,"body: " + response.body());
+                                } else {
+                                    try {
+                                        Log.d(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<String> call, Throwable t) {
+
+                            }
+                        });
+                    } else {
+                        Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map> call, Throwable t) {
+
+            }
+        });
     }
 
     @SuppressLint("NewApi")
@@ -170,6 +251,7 @@ public class ProfileActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri resultUri = result.getUri();
 //                Uri resultUri = mCropImageUri;
+                mCropImageUri = resultUri;
                 ivCrop.setImageURI(resultUri);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();

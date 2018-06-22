@@ -38,7 +38,7 @@ public class RetrofitActivity extends AppCompatActivity {
         String id = editText.getText().toString();
 
         if (!id.isEmpty()) {
-            Call<ArrayList<JsonObject>> res = NetRetrofit.getInstance().getService().getListRepos(id);
+            Call<ArrayList<JsonObject>> res = NetRetrofit.getInstance(this).getService().getListRepos(id);
             res.enqueue(new Callback<ArrayList<JsonObject>>() {
                 @Override
                 public void onResponse(Call<ArrayList<JsonObject>> call, Response<ArrayList<JsonObject>> response) {

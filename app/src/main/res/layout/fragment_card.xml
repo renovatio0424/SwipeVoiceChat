@@ -5,7 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:background="@color/black">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,16 +22,14 @@
             android:theme="?attr/actionBarTheme"
             android:fitsSystemWindows="false">
 
-                <TextView
-                    android:layout_weight="1"
-                    android:id="@+id/textView8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:layout_marginRight="24dp"
-                    style="@style/text_color"
-                    android:text="보이스 톡" />
-
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginRight="24dp"
+                style="@style/text_color"
+                android:text="보이스톡" />
         </android.support.v7.widget.Toolbar>
 
         <com.yuyakaido.android.cardstackview.CardStackView
@@ -58,7 +57,7 @@
             android:id="@+id/tr_filter"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="10dp"
             android:gravity="center">

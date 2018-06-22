@@ -32,6 +32,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.renov.swipevoicechat.Activity.FilterActivity;
 import com.example.renov.swipevoicechat.Event.RefreshEvent;
 import com.example.renov.swipevoicechat.Model.Profile;
+import com.example.renov.swipevoicechat.Model.VoiceCard;
+import com.example.renov.swipevoicechat.Network.NetRetrofit;
+import com.example.renov.swipevoicechat.Network.ApiService;
 import com.example.renov.swipevoicechat.R;
 import com.example.renov.swipevoicechat.Utils;
 import com.example.renov.swipevoicechat.widget.VoicePlayerManager;
@@ -42,6 +45,7 @@ import com.yuyakaido.android.cardstackview.SwipeDirection;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,9 +54,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import jp.wasabeef.glide.transformations.BlurTransformation;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CardFragment extends Fragment {
 
+    private static final String TAG = CardFragment.class.getSimpleName();
     @BindView(R.id.activity_main_progress_bar)
     public ProgressBar progressBar;
     @BindView(R.id.activity_main_card_stack_view)
@@ -66,6 +74,8 @@ public class CardFragment extends Fragment {
 
     private String[] permissions = {Manifest.permission.RECORD_AUDIO};
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+
+    ApiService service = NetRetrofit.getInstance(getContext()).getService();
 
     public Unbinder unbinder;
 
@@ -169,6 +179,27 @@ public class CardFragment extends Fragment {
                     Toast.makeText(getActivity(), "음성이 발송되었습니다", Toast.LENGTH_SHORT).show();
 
                     String voice_url_path = resultData.getString(VoiceDialogFragment.EXTRA_RESULT_DATA);
+
+                    Call<VoiceCard> request = service.sendNewVoice(voice_url_path);
+                    request.enqueue(new Callback<VoiceCard>() {
+                        @Override
+                        public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
+                            if(response.isSuccessful()){
+                                Toast.makeText(getContext(), "성공적으로 전송했습니다.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                try {
+                                    Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<VoiceCard> call, Throwable t) {
+
+                        }
+                    });
 //                    user.setVoice(voice_url_path);
 //
 //                    LogUtil.d("voice resultCode: " + resultCode);
@@ -178,13 +209,10 @@ public class CardFragment extends Fragment {
 //
 //                    confirmButton.setVisibility(View.VISIBLE);
                 }
-//                String url = Constants.URL_STORY_NEW_START;
-
-
 //                List<NameValuePair> paramInfo = new ArrayList<>();
 //                paramInfo.add(new BasicNameValuePair("userId", user.getId()));
 //                paramInfo.add(new BasicNameValuePair("urlPath", fileUrl));
-//                HttpRequestVO httpRequestVO = HttpUtil.getHttpRequestVO(url, StoryUpdate.class, paramInfo, HttpMethod.POST, getApplicationContext());
+//                HttpRequestVO httpRequestVO = HttpUtil.getHttpRequestVO(Constants.URL_STORY_NEW_START;, StoryUpdate.class, paramInfo, HttpMethod.POST, getApplicationContext());
 //                RequestFactory requestFactory = new RequestFactory();
 //                requestFactory.setProgressHandler(new ProgressHandler(activity, false));
 //                requestFactory.create(httpRequestVO, new HttpResponseCallback<StoryUpdate>() {
@@ -281,6 +309,10 @@ public class CardFragment extends Fragment {
         cardStackView.setVisibility(View.GONE);
         btnNewStory.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
+        filterRow.setVisibility(View.GONE);
+
+        loadCard();
+
         new Handler().postDelayed(() -> {
 //                adapter = createTouristSpotCardAdapter();
             adapter = createUserCardAdapter();
@@ -290,7 +322,24 @@ public class CardFragment extends Fragment {
             btnNewStory.setVisibility(View.VISIBLE);
             filterRow.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
+            filterRow.setVisibility(View.VISIBLE);
         }, 1000);
+    }
+
+    //TODO: API 구현중
+    private void loadCard() {
+        Call<VoiceCard> request = service.getRandomVoiceCard();
+        request.enqueue(new Callback<VoiceCard>() {
+            @Override
+            public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<VoiceCard> call, Throwable t) {
+
+            }
+        });
     }
 
     private LinkedList<Profile> extractRemainingProfiles() {

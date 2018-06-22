@@ -26,6 +26,7 @@ import com.example.renov.swipevoicechat.Activity.ShopActivity;
 import com.example.renov.swipevoicechat.Model.Result;
 import com.example.renov.swipevoicechat.Network.NetRetrofit;
 import com.example.renov.swipevoicechat.R;
+import com.example.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.igaworks.IgawCommon;
 import com.igaworks.adpopcorn.IgawAdpopcorn;
 import com.onesignal.OneSignal;
@@ -136,14 +137,16 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
     @OnClick(R.id.layout_logout)
     public void onClickLogout() {
         //TODO: 로그아웃 기능 구현중
-        Call<Result> response = NetRetrofit.getInstance().getService().logout();
+        Call<Result> response = NetRetrofit.getInstance(getContext()).getService().logout();
         response.enqueue(new Callback<Result>() {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
+                if (response.isSuccessful()){
+                    Toast.makeText(getContext(), "정상적으로 로그아웃 되었습니다.", Toast.LENGTH_SHORT).show();
+                    SharedPrefHelper.getInstance(getContext()).removeAllSharedPreferences();
+                }
+
                 switch (response.code()) {
-                    case 200:
-                        Toast.makeText(getContext(), "정상적으로 로그아웃 되었습니다.", Toast.LENGTH_SHORT).show();
-                        break;
                     default:
                         Toast.makeText(getContext(), "code: " + response.code() + "message: " + response.body(), Toast.LENGTH_SHORT).show();
                         break;
@@ -152,7 +155,7 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
-
+                t.printStackTrace();
             }
         });
     }
