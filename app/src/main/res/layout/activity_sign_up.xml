@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_sample4"
+    android:background="@drawable/background_sample0"
     android:fitsSystemWindows="true">
 
 
@@ -48,7 +48,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="vertical"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/linearLayout6"
             tools:layout_editor_absoluteX="10dp">
 
             <TextView
@@ -109,6 +113,9 @@
             android:layout_marginBottom="16dp"
             android:layout_marginTop="8dp"
             android:orientation="vertical"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout"
             app:layout_goneMarginBottom="32dp"
@@ -183,7 +190,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/group_gender" />
         </LinearLayout>
 
-
         <LinearLayout
             android:id="@+id/linearLayout4"
             android:layout_width="match_parent"
@@ -191,8 +197,11 @@
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintBottom_toTopOf="@id/textView15"
+            app:layout_constraintTop_toBottomOf="@id/linearLayout6"
             app:layout_constraintVertical_bias="0.79"
             tools:layout_editor_absoluteX="9dp">
 
@@ -261,6 +270,9 @@
             android:layout_weight="1"
             android:text="욕설, 음란, 부적절한 내용을 전달하면 신고받을 수 있고,\n 서비스 이용에 제한이 있을 수 있습니다."
             android:textAlignment="center"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
             app:layout_constraintVertical_bias="0.642"

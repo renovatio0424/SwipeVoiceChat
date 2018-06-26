@@ -55,9 +55,9 @@ public interface ApiService {
     @GET("user")
     Call<User> checkCurrentUserInfo();
 
-    @FormUrlEncoded
+    @Headers("Content-Type: application/json")
     @PUT("user")
-    Call<User> updateUserInfo(@Field("update") User updateUserInfo);
+    Call<User> updateUserInfo(@Body User updateUserInfo);
 
 
 

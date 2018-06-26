@@ -123,7 +123,7 @@ public class CardFragment extends Fragment {
 
     private UserCardAdapter createUserCardAdapter() {
         final UserCardAdapter adapter = new UserCardAdapter(getContext());
-        for (Profile profile : Utils.loadProfiles(this.getContext())) {
+        for (Profile profile : Utils.loadProfiles(getContext())) {
             adapter.add(profile);
         }
         return adapter;
@@ -179,8 +179,15 @@ public class CardFragment extends Fragment {
                     Toast.makeText(getActivity(), "음성이 발송되었습니다", Toast.LENGTH_SHORT).show();
 
                     String voice_url_path = resultData.getString(VoiceDialogFragment.EXTRA_RESULT_DATA);
+                    Call<VoiceCard> request = null;
 
-                    Call<VoiceCard> request = service.sendNewVoice(voice_url_path);
+                    if(isNewStory){
+                        Log.d(TAG,"voice Url : " + voice_url_path);
+                        request = service.sendNewVoice(voice_url_path);
+                    } else {
+//                        request = service.sendChatVoice()
+                    }
+
                     request.enqueue(new Callback<VoiceCard>() {
                         @Override
                         public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
@@ -200,6 +207,8 @@ public class CardFragment extends Fragment {
 
                         }
                     });
+
+
 //                    user.setVoice(voice_url_path);
 //
 //                    LogUtil.d("voice resultCode: " + resultCode);

@@ -23,6 +23,7 @@ import com.example.renov.swipevoicechat.Model.Result;
 import com.example.renov.swipevoicechat.Model.User;
 import com.example.renov.swipevoicechat.Network.NetRetrofit;
 import com.example.renov.swipevoicechat.R;
+import com.example.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
@@ -64,6 +65,8 @@ public class SignUpActivity extends AppCompatActivity {
     MaterialSimpleListAdapter adapter = new MaterialSimpleListAdapter((dialog, index, item) -> {
         Toast.makeText(this, "click[" + index + "]: " + item.getContent(), Toast.LENGTH_SHORT).show();
         tvBirthday.setText(item.getContent());
+        if (isCompleteForm())
+            tvStart.setActivated(true);
         dialog.dismiss();
     });
 
@@ -74,8 +77,10 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
+        setContentView(R.layout.activity_sign_up3);
         unbinder = ButterKnife.bind(this);
+
+        tvStart.setActivated(false);
 
         int year = Calendar.getInstance().get(Calendar.YEAR);
 
@@ -87,15 +92,24 @@ public class SignUpActivity extends AppCompatActivity {
 
         }
 
+        groupGender.setOnCheckedChangeListener(((group, checkedId) -> {
+            if (isCompleteForm()) tvStart.setActivated(true);
+        }));
+
         groupYN.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.radio_yes)
+            if (checkedId == R.id.radio_yes) {
                 getLocation();
+                if (isCompleteForm())
+                    tvStart.setActivated(true);
+            }
+
         });
 
         setBirthdayDialog(birthday);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
+
 
     private void getLocation() {
 //        TODO : 위치 권한 설정 -> 위치 설정 OK ? -> 위치 정보 가져오기
@@ -110,7 +124,7 @@ public class SignUpActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_COARSE_LOCATION))
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION))
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
             else
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
@@ -133,19 +147,19 @@ public class SignUpActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode){
+        switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE:
                 // If request is cancelled, the result arrays are empty.
 
                 for (String permission : permissions)
                     Log.e(TAG, "permission: " + permission);
 
-                for (int i : grantResults )
+                for (int i : grantResults)
                     Log.e(TAG, "grantResult: " + i);
 
-                if(grantResults.length > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED))
+                if (grantResults.length > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED))
                     getLocation();
-                else{
+                else {
                     Toast.makeText(this, "위치 권한 설정에 동의하셔야 서비스 이용이 가능합니다.", Toast.LENGTH_SHORT).show();
                     groupYN.check(R.id.radio_no);
                 }
@@ -185,6 +199,14 @@ public class SignUpActivity extends AppCompatActivity {
                 .build();
     }
 
+
+    String type;
+    String token;
+    String gender;
+    String birth;
+    String lat;
+    String lng;
+
     @OnClick(R.id.tv_start)
     public void clickStartButton() {
         if (!isCompleteForm()) {
@@ -199,55 +221,36 @@ public class SignUpActivity extends AppCompatActivity {
 
 //        TODO: 회원가입 ㄱㄱ
 
+        type = getIntent().getStringExtra("type");
+        token = getIntent().getStringExtra("token");
+        gender = (groupGender.getCheckedRadioButtonId() == R.id.radio_male ? "M" : "F");
+        birth = tvBirthday.getText().toString();
+        lat = String.valueOf(mlocation.getLatitude());
+        lng = String.valueOf(mlocation.getLongitude());
 
-        String type = getIntent().getStringExtra("type");
-        String token = getIntent().getStringExtra("token");
-        String gender = (groupGender.getCheckedRadioButtonId() == R.id.radio_male ? "M" : "F");
-        String birth = tvBirthday.getText().toString();
         Call<User> response = NetRetrofit.getInstance(this).getService().register(token,
                 type,
                 gender,
                 birth,
-                String.valueOf(mlocation.getLatitude()),
-                String.valueOf(mlocation.getLongitude())
+                lat,
+                lng
         );
-
 
 
         response.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
-                    moveToMain();
+                    String token = response.headers().get("HelloVoiceAuth");
+                    Log.d(TAG, "token: " + token);
+                    SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, token);
+                    moveToProfile(response.body());
                 } else {
-                    switch (response.code()) {
-
-                        case 400://회원 가입해야 하는 유저
-                            String errorBody = null;
-                            try {
-                                errorBody = response.errorBody().string();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            Log.d(TAG, "header:" + response.headers() + "\nbody: " + errorBody);
-                            String mJsonString = errorBody;
-                            JsonParser parser = new JsonParser();
-                            JsonElement mJson = parser.parse(mJsonString);
-                            Gson gson = new Gson();
-                            Result result = gson.fromJson(mJson, Result.class);
-
-                            if ("회원 가입을 먼저 진행해주세요.".equals(result.getMessage()))
-                                moveToMain();
-                            break;
-
-                        default:
-                            try {
-                                Toast.makeText(SignUpActivity.this, "error body: " + response.errorBody().string(), Toast.LENGTH_SHORT).show();
-                                Log.e(TAG, "error body: " + response.errorBody().string());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            break;
+                    try {
+                        Toast.makeText(SignUpActivity.this, "error body: " + response.errorBody().string(), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "error body: " + response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -261,12 +264,11 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void moveToMain() {
+    private void moveToProfile(User user) {
         Intent intent = new Intent(this, ProfileActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("user", user);
         startActivity(intent);
     }
-
 
     private boolean isCompleteForm() {
         if (!tvBirthday.getText().equals("클릭해주세요") &&

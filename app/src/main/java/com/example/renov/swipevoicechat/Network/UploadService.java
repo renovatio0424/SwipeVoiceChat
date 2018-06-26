@@ -21,6 +21,6 @@ public interface UploadService {
     @Multipart
     @PUT("{key}")
     Call<String> upload(@Path("key") String key,
-                        @HeaderMap Map<String,String> headers,
+                        @HeaderMap Map<String, String> headers,
                         @Part MultipartBody.Part file);
 }

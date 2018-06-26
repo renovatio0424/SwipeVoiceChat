@@ -12,12 +12,23 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.bumptech.glide.RequestManager;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.example.renov.swipevoicechat.Network.NetRetrofit;
+import com.example.renov.swipevoicechat.Network.network.HttpNetworkError;
+import com.example.renov.swipevoicechat.Network.network.HttpRequestVO;
+import com.example.renov.swipevoicechat.Network.network.HttpResponseCallback;
+import com.example.renov.swipevoicechat.Network.network.ProgressHandler;
+import com.example.renov.swipevoicechat.Network.network.RequestManager;
+import com.example.renov.swipevoicechat.Network.network.VolleyMultipartRequest;
 import com.example.renov.swipevoicechat.R;
+import com.example.renov.swipevoicechat.Util.ImageUtil;
 import com.example.renov.swipevoicechat.widget.VoicePlayerManager;
 import com.example.renov.swipevoicechat.widget.VoicePlayerView;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
@@ -25,6 +36,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class VoiceDialogFragment extends DialogFragment {
 
@@ -32,10 +45,6 @@ public class VoiceDialogFragment extends DialogFragment {
     private boolean isReply;
     private ResultReceiver receiver;
     private String voiceUrl;
-    private boolean isProfile;
-    private boolean isPromotion;
-    private int dialogCase;
-    private int needBuzziCount;
     public static final String EXTRA_RECEIVER = "extra.receiver";
     public static final String EXTRA_RESULT_DATA = "extra.result.data";
 
@@ -60,8 +69,7 @@ public class VoiceDialogFragment extends DialogFragment {
 
     @OnClick(R.id.btn_send)
     public void onClickBtnSend() {
-//        getUploadVoiceInfoAndUploadVoice();
-        this.dismiss();
+        getUploadVoiceInfoAndUploadVoice();
     }
 
     @OnClick(R.id.btn_voice_reset)
@@ -106,12 +114,8 @@ public class VoiceDialogFragment extends DialogFragment {
         Bundle args = getArguments();
         if (args != null) {
             isReply = args.getBoolean("isReply");
-            isPromotion = args.getBoolean("isPromotion");
             voiceUrl = args.getString("voiceUrl");
-            isProfile = args.getBoolean("isProfile");
-            dialogCase = args.getInt("dialogCase", 0);
             receiver = args.getParcelable(EXTRA_RECEIVER);
-            needBuzziCount = args.getInt("needBuzziCount");
         }
     }
 
@@ -218,83 +222,126 @@ public class VoiceDialogFragment extends DialogFragment {
         unbinder.unbind();
     }
 
-//    private void getUploadVoiceInfoAndUploadVoice() {
-//        HttpRequestVO httpRequestVO = HttpUtil.getHttpRequestVO(Constants.URL_STORY_VOICE_UPLOAD, Map.class, null, getContext());
-//        new RequestFactory().create(httpRequestVO, new HttpResponseCallback<Map>() {
-//            @Override
-//            public void onResponse(Map result) {
-//                LogUtil.d("voice upload result: " + result.toString());
+    private void getUploadVoiceInfoAndUploadVoice() {
+        File voiceFile = new File(VoicePlayerManager.getInstance().getFileName());
+        int fileSize = (int) voiceFile.length();
+
+        Call<Map> call = NetRetrofit.getInstance(getContext()).getService().getUploadMetaData("voice", fileSize);
+        call.enqueue(new Callback<Map>() {
+            @Override
+            public void onResponse(Call<Map> call, retrofit2.Response<Map> response) {
+                try {
+                    Log.d(TAG, "response raw: " + response.raw());
+                    Log.d(TAG, "response headers: " + response.headers());
+                    Log.d(TAG, "response body: " + response.body());
+
+                    if (response.errorBody() != null)
+                        Log.d(TAG, "response error body: " + response.errorBody().string());
+
+                    if (response.isSuccessful()) {
+                        uploadVoice(response.body(), voiceFile);
+//                        fileName = fileName.replace(".jpg", "");
+
+
+//                        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", fileName, RequestBody.create(MediaType.parse("image/*"), imageFile));
+//                        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", fileName, RequestBody.create(MediaType.parse("image/*"), imageFile));
+//                        response.body().put("file", imageFile);
+
+//                        Call<String> request = FileUploadRetrofit.getInstance(getApplicationContext()).getService().upload(key, response.body(), filePart);
+//                        request.enqueue(new Callback<String>() {
+//                            @Override
+//                            public void onResponse(Call<String> call, Response<String> response) {
+//                                if(response.isSuccessful()){
+//                                    Log.d(TAG,"body: " + response.body());
+//                                } else {
+//                                    try {
+//                                        Log.d(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                            }
 //
-//                uploadVoice(result);
-//            }
+//                            @Override
+//                            public void onFailure(Call<String> call, Throwable t) {
 //
-//            @Override
-//            public void onError(HttpNetworkError error) {
-//                Log.e("result", null, error);
-//            }
-//        }).execute();
-//    }
-//
-//    public void uploadVoice(Map updateInfo) {
-//        final String uploadImagePath = (String) updateInfo.get("uploadImagePath");
-//
-//        String filePath = ImageUtil.getFilePathFromUri(getTempUri(), getContext());
-//        if (StringUtil.isEmpty(filePath)) {
-//            return;
-//        }
-//
-//        final ProgressHandler progressHandler = new ProgressHandler(getActivity(), false);
-//
-//        VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest(Constants.IMAGE_SERVER_URL,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        Log.d(TAG, "onResponse : " + response);
-//
-//                        progressHandler.onCancel();
-//
-//                        Bundle data = new Bundle();
-//                        data.putString(Constants.EXTRA_RESULT_DATA, uploadImagePath);
-//                        receiver.send(1000, data);
-//
-//                        dismiss();
-//
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        Log.e(TAG, "onErrorResponse : " + error.getMessage());
-//
-//                        progressHandler.onCancel();
-//                    }
-//                });
-//
-//        updateInfo.remove("Host");
-//        updateInfo.remove("uploadImagePath");
-//        multipartRequest.addStringParams(updateInfo);
-//        multipartRequest.addAttachment(VolleyMultipartRequest.MEDIA_TYPE_JPEG, "file", new File(filePath));
-//        multipartRequest.buildRequest();
-//        multipartRequest.setRetryPolicy(new DefaultRetryPolicy(
-//                Constants.HTTP_CONNECTION_TIME_OUT,
-//                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-//                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-//
-////        multipartRequest.setFixedStreamingMode(true);
-//
-//
-//        progressHandler.onStart();
-//        RequestManager.addRequest(multipartRequest, "ProfileMultipart");
-//    }
-//
-//    private Uri getTempUri() {
-//        Uri uri = null;
-//        try {
-//            uri = Uri.fromFile(new File(VoicePlayerManager.getInstance().getFileName()));
-//        } catch (Exception e) {
-//            LogUtil.w("getTempUri fail : " + e.getMessage());
-//        }
-//        return uri;
-//    }
+//                            }
+//                        });
+                    } else {
+                        Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void uploadVoice(Map updateInfo, File temptFile) {
+        final String uploadImagePath = "https://" + updateInfo.get("Host") + "/" + updateInfo.get("key");
+
+        String filePath = ImageUtil.getFilePathFromUri(getTempUri(temptFile), getContext());
+        if (filePath == null || "".equals(filePath)) {
+            return;
+        }
+
+        final ProgressHandler progressHandler = new ProgressHandler(getActivity(), false);
+
+        VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest("https://hellovoicebucket.s3.amazonaws.com",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, "onResponse : " + response);
+
+                        progressHandler.onCancel();
+
+                        Bundle data = new Bundle();
+                        data.putString(VoiceDialogFragment.EXTRA_RESULT_DATA, uploadImagePath);
+                        receiver.send(1000, data);
+
+                        dismiss();
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "onErrorResponse : " + error.getMessage());
+
+                        progressHandler.onCancel();
+                    }
+                });
+
+        updateInfo.remove("Host");
+        updateInfo.remove("uploadImagePath");
+        multipartRequest.addStringParams(updateInfo);
+        multipartRequest.addAttachment(VolleyMultipartRequest.MEDIA_TYPE_JPEG, "file", new File(filePath));
+        multipartRequest.buildRequest();
+        multipartRequest.setRetryPolicy(new DefaultRetryPolicy(
+                10000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+//        multipartRequest.setFixedStreamingMode(true);
+
+
+        progressHandler.onStart();
+        RequestManager.addRequest(multipartRequest, "ProfileMultipart");
+    }
+
+    private Uri getTempUri(File temptFile) {
+        Uri uri = null;
+        try {
+            uri = Uri.fromFile(temptFile);
+        } catch (Exception e) {
+            Log.w(TAG,"getTempUri fail : " + e.getMessage());
+        }
+        return uri;
+    }
 }
 

@@ -17,6 +17,7 @@ import com.example.renov.swipevoicechat.Event.RefreshEvent;
 import com.example.renov.swipevoicechat.Fragment.CardFragment;
 import com.example.renov.swipevoicechat.Fragment.SettingFragment;
 import com.example.renov.swipevoicechat.Fragment.ChatRoomFragment;
+import com.example.renov.swipevoicechat.Fragment.SettingFragment2;
 import com.example.renov.swipevoicechat.Handler.BackPressCloseHandler;
 import com.example.renov.swipevoicechat.Model.User;
 import com.example.renov.swipevoicechat.Network.NetRetrofit;
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements TJConnectListener
                 Fragment currentFragment = null;
                 switch (position){
                     case 0:
-                        currentFragment = SettingFragment.newInstance();
+                        currentFragment = SettingFragment2.newInstance(myinfo);
                         break;
                     case 1:
                         currentFragment = CardFragment.newInstance();
@@ -222,16 +223,6 @@ public class MainActivity extends AppCompatActivity implements TJConnectListener
                     "\nprofileImageUrl: " + myinfo.getProfileImageUrl() +
                     "\nbirth: " + myinfo.getBirth());
 
-//                    myinfo.setProfileImageUrl(response.body().getProfileImageUrl());
-//                    myinfo.setLng(response.body().getLng());
-//                    myinfo.setLat(response.body().getLat());
-//                    myinfo.setGender(response.body().getGender());
-//                    myinfo.setBirth(response.body().getBirth());
-
-                    Log.e(TAG, "profileImageUrl: " + (myinfo.getProfileImageUrl() == null ? "null" : "exist" ));
-
-                    if(myinfo.getProfileImageUrl() == null)
-                        goToProfile();
                 } else {
                     try {
                         Log.e(TAG,"raw: " + response.raw());
@@ -251,10 +242,5 @@ public class MainActivity extends AppCompatActivity implements TJConnectListener
 
             }
         });
-    }
-
-    private void goToProfile() {
-        Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-        startActivity(intent);
     }
 }

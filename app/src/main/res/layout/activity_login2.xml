@@ -4,9 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_sample4"
     android:fitsSystemWindows="true">
 
+    <ImageView
+        style="@style/background_image_style"
+        app:layout_constraintBottom_toBottomOf="@+id/button2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/facebook_sign_up_button"
@@ -19,7 +24,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:background="@color/transparent"
-        android:drawableLeft="@drawable/ico_facebook"
+        android:drawableLeft="@drawable/ic_facebook"
         android:drawablePadding="20dp"
         android:gravity="center"
         android:text="Facebook으로 로그인하기"
@@ -41,7 +46,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:background="@color/transparent"
-        android:drawableLeft="@drawable/googleg_disabled_color_18"
+        android:drawableLeft="@drawable/ic_google"
         android:drawablePadding="20dp"
         android:gravity="center"
         android:text="Google로 로그인하기"

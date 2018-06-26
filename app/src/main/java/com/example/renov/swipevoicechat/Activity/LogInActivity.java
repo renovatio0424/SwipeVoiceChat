@@ -181,8 +181,10 @@ public class LogInActivity extends AppCompatActivity {
                             "\nlng: " + myInfo.getLng() +
                             "\nprofileImageUrl: " + myInfo.getProfileImageUrl() +
                             "\nbirth: " + myInfo.getBirth());
-
-                    moveToMain();
+                    if(myInfo.getProfileImageUrl() == null || "".equals(myInfo.getProfileImageUrl()))
+                        moveToProfile(myInfo);
+                    else
+                        moveToMain();
                 } else {
                     switch (response.code()) {
                         case 400://회원 가입해야 하는 유저
@@ -222,6 +224,12 @@ public class LogInActivity extends AppCompatActivity {
                 Toast.makeText(LogInActivity.this, "fail: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         };
+    }
+
+    private void moveToProfile(User user) {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra("user", user);
+        startActivity(intent);
     }
 
     private void initGoogleSignIn() {

@@ -21,9 +21,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.renov.swipevoicechat.Activity.LogInActivity;
 import com.example.renov.swipevoicechat.Activity.MainActivity;
 import com.example.renov.swipevoicechat.Activity.ShopActivity;
 import com.example.renov.swipevoicechat.Model.Result;
+import com.example.renov.swipevoicechat.Model.User;
 import com.example.renov.swipevoicechat.Network.NetRetrofit;
 import com.example.renov.swipevoicechat.R;
 import com.example.renov.swipevoicechat.Util.SharedPrefHelper;
@@ -64,11 +66,14 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
     @BindView(R.id.sw_basic_push)
     Switch swBasicPush;
 
-
+    User myInfo;
     public Unbinder unbinder;
 
-    public static SettingFragment newInstance() {
+    public static SettingFragment newInstance(User user) {
         SettingFragment settingFragment = new SettingFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("user", user);
+        settingFragment.setArguments(bundle);
         return settingFragment;
     }
 
@@ -76,16 +81,24 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        myInfo = (User) getArguments().getParcelable("user");
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Glide.with(getContext())
-                .load(R.drawable.com_facebook_profile_picture_blank_square)
-                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
-                .into(profileImage);
+        if (myInfo == null || myInfo.getProfileImageUrl() == null || "".equals(myInfo.getProfileImageUrl()))
+            Glide.with(getContext())
+                    .load(R.drawable.com_facebook_profile_picture_blank_square)
+                    .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+                    .into(profileImage);
+        else
+            Glide.with(getContext())
+                    .load(myInfo.getProfileImageUrl())
+                    .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+                    .into(profileImage);
 
 //        Hashtable connectFlags = new Hashtable();
 //        Tapjoy.connect(getContext(), "Ub_KBzFkRFypz8GBf_yYYAECuQQGr90J9QlVAlUQT9BTDC6N2rrty66AL9sq", connectFlags, this);
@@ -141,9 +154,10 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
         response.enqueue(new Callback<Result>() {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
-                if (response.isSuccessful()){
-                    Toast.makeText(getContext(), "정상적으로 로그아웃 되었습니다.", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     SharedPrefHelper.getInstance(getContext()).removeAllSharedPreferences();
+                    goToLogin();
                 }
 
                 switch (response.code()) {
@@ -158,6 +172,12 @@ public class SettingFragment extends Fragment implements TJPlacementListener, TJ
                 t.printStackTrace();
             }
         });
+    }
+
+    private void goToLogin() {
+        Intent intent = new Intent(getContext(), LogInActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     @OnClick(R.id.layout_profile)

@@ -26,6 +26,16 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="bottom_button">
+        <item name="android:background">@color/button_color</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="style_sub_title">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18sp</item>
@@ -57,5 +67,13 @@
         <item name="titleTextColor">@color/white</item>
         <item name="actionMenuTextColor">@color/white</item>
         <item name="android:textColorPrimary">@color/white</item>
+    </style>
+
+    <style name="background_image_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:src">@drawable/background_sample0</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:tint">#6F000000</item>
     </style>
 </resources>
