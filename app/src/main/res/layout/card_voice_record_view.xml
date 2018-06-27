@@ -23,7 +23,7 @@
             android:background="@color/grey"
             app:srcCompat="@drawable/ic_person" />
 
-        <com.example.renov.swipevoicechat.widget.VoicePlayerView
+        <com.square.renov.swipevoicechat.widget.VoicePlayerView
             android:layout_gravity="center"
             android:id="@+id/voiceplayerview"
             android:layout_width="158dp"

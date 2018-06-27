@@ -48,7 +48,7 @@
         android:visibility="visible"
         tools:text="예시" />
 
-    <com.example.renov.swipevoicechat.widget.VoicePlayerView
+    <com.square.renov.swipevoicechat.widget.VoicePlayerView
         android:id="@+id/btn_voice_record"
         android:layout_width="158dp"
         android:layout_height="158dp"

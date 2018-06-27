@@ -3,51 +3,60 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:background="@color/black">
 
     <ImageView
-        android:id="@+id/iv_other_profile"
+        android:id="@+id/iv_my_profile"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginBottom="5dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="25dp"
         app:layout_constraintBottom_toTopOf="@+id/tv_my_name"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/com_facebook_profile_picture_blank_square" />
 
     <TextView
-        android:id="@+id/tv_other_name"
+        android:id="@+id/tv_my_name"
+        style="@style/text_color"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:text="이름"
-        style="@style/text_color"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/iv_other_profile"
-        app:layout_constraintStart_toStartOf="@+id/iv_other_profile"
-        app:layout_constraintTop_toBottomOf="@+id/iv_other_profile" />
+        app:layout_constraintStart_toEndOf="@+id/iv_my_profile"
+        tools:layout_editor_absoluteY="25dp" />
 
     <TableRow
         android:id="@+id/chat_bubble"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="6dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="6dp"
-        android:background="@drawable/background_other_voice"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/background_my_voice"
+        android:padding="4dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/iv_other_profile"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toStartOf="@+id/textView18"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/tv_my_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_my_name">
 
         <ImageButton
-            android:id="@+id/ib_other_play"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:id="@+id/ib_my_play"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
+            android:background="@drawable/round_white_background"
             android:scaleType="fitXY"
+            android:tint="@color/main_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/pb_other_progress"
             app:layout_constraintStart_toEndOf="@+id/iv_other_profile"
@@ -55,22 +64,38 @@
             app:srcCompat="@drawable/ic_play" />
 
         <ProgressBar
-            android:id="@+id/pb_other_progress"
+            android:id="@+id/pb_my_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="156dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
+            android:layout_marginLeft="8dp"
+            android:layout_weight="1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ib_my_play"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_other_voice_time"
+            android:id="@+id/tv_my_voice_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginLeft="8dp"
             android:text="00:34" />
     </TableRow>
+
+    <TextView
+        android:id="@+id/textView18"
+        style="@style/text_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:text="오후 1:30"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_bubble"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="오후 1:30" />
 
 
 </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.renov.swipevoicechat">
+    package="com.square.renov.swipevoicechat">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -19,6 +19,8 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <uses-permission android:name="com.android.vending.BILLING"/>
 
     <meta-data
         android:name="com.google.android.gms.version"
@@ -114,7 +116,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.example.renov.swipevoicechat.fileprovider"
+            android:authorities="com.formationsquare.renov.swipevoicechat.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

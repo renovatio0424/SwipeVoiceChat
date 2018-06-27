@@ -104,8 +104,7 @@
 
         <ImageView
             android:padding="8dp"
-            android:background="@drawable/round_white_background"
-            android:tint="@color/grey"
+            android:background="@drawable/round_white_stroke"
             android:id="@+id/iv_edit_name"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -155,6 +154,7 @@
             android:text="루나충전하기" />
 
         <RelativeLayout
+            android:id="@+id/layout_shop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
@@ -194,6 +194,7 @@
             android:background="@color/grey" />
 
         <RelativeLayout
+            android:id="@+id/layout_invite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
@@ -206,7 +207,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
-                android:text="친구초대하고보석받기" />
+                android:text="친구 초대하고 보석받기" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -231,6 +232,7 @@
             android:background="@color/grey" />
 
         <RelativeLayout
+            android:id="@+id/layout_free"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">

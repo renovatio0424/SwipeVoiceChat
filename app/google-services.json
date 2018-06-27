@@ -15,10 +15,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "820314113548-okivsn4s6pfc9f22sdlhq98ca9n8bbcb.apps.googleusercontent.com",
-          "client_type": 3
-        },
-        {
           "client_id": "820314113548-cv2bnhdh83qf075taqi5qqti8adoikr3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -27,8 +23,56 @@
           }
         },
         {
-          "client_id": "820314113548-hijb71oku4het770up5t6oif5g8e0ark.apps.googleusercontent.com",
+          "client_id": "820314113548-l3hoeoav9qk16cunck3pdnb2mfk2j3i5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.renov.swipevoicechat",
+            "certificate_hash": "51fb8d18bbe3703a3927e2eea028f0b2df1528a0"
+          }
+        },
+        {
+          "client_id": "820314113548-okivsn4s6pfc9f22sdlhq98ca9n8bbcb.apps.googleusercontent.com",
           "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9t5TpCYl00K1-sQnf7vT5OMBdiBb-ZEk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "820314113548-okivsn4s6pfc9f22sdlhq98ca9n8bbcb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820314113548:android:a42ccd77571854b7",
+        "android_client_info": {
+          "package_name": "com.square.renov.swipevoicechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "820314113548-tdb8ro9834t4do4toh906voj1n7ph49l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.square.renov.swipevoicechat",
+            "certificate_hash": "51fb8d18bbe3703a3927e2eea028f0b2df1528a0"
+          }
         },
         {
           "client_id": "820314113548-okivsn4s6pfc9f22sdlhq98ca9n8bbcb.apps.googleusercontent.com",

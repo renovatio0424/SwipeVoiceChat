@@ -34,9 +34,9 @@
             android:text="채팅방" />
     </android.support.v7.widget.Toolbar>
 
-    <include layout="@layout/item_chat_me"/>
-
     <include layout="@layout/item_chat_other"/>
+
+    <include layout="@layout/item_chat_me2"/>
 
     <RelativeLayout
         android:layout_weight="1"

@@ -21,7 +21,7 @@
         android:layout_height="1dp"
         android:background="#726763" />
 
-    <com.example.renov.swipevoicechat.widget.VoicePlayerView
+    <com.square.renov.swipevoicechat.widget.VoicePlayerView
         android:id="@+id/btn_voice_record"
         android:layout_width="158dp"
         android:layout_height="158dp"

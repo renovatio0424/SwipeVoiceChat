@@ -11,6 +11,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:orientation="vertical">
 
         <android.support.v7.widget.Toolbar
@@ -18,17 +20,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/transparent"
+            android:fitsSystemWindows="false"
             android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme"
-            android:fitsSystemWindows="false">
+            android:theme="?attr/actionBarTheme">
 
             <TextView
                 android:id="@+id/textView8"
+                style="@style/text_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
                 android:layout_marginRight="24dp"
-                style="@style/text_color"
+                android:gravity="center_horizontal"
                 android:text="보이스톡" />
         </android.support.v7.widget.Toolbar>
 
@@ -53,48 +55,58 @@
             app:translationDiff="12"
             app:visibleCount="3" />
 
-        <TableRow
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/tr_filter"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:visibility="gone"
-            android:layout_marginTop="5dp"
+            android:layout_height="30dp"
             android:layout_marginBottom="10dp"
-            android:gravity="center">
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:visibility="gone">
 
             <TextView
-                style="@style/text_color"
                 android:id="@+id/filter_shop"
-                android:layout_width="100dp"
+                style="@style/text_color"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
-                android:padding="10dp"
+                android:layout_gravity="center_horizontal"
                 android:background="@drawable/background_button"
-                android:gravity="center"
                 android:drawableLeft="@drawable/ic_moon"
-                android:text="15" />
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="15"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/filter_setting"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                style="@style/text_color"
-                android:layout_marginLeft="15dp"
                 android:id="@+id/filter_setting"
-                android:layout_width="100dp"
+                style="@style/text_color"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
-                android:padding="10dp"
                 android:background="@drawable/background_button"
                 android:gravity="center"
-                android:text="필터" />
+                android:padding="4dp"
+                android:text="필터"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/filter_shop"
+                app:layout_constraintRight_toLeftOf="@id/filter_event"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                style="@style/text_color"
                 android:id="@+id/filter_event"
-                android:layout_width="100dp"
-                android:layout_marginLeft="15dp"
+                style="@style/text_color"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
-                android:padding="10dp"
                 android:background="@drawable/background_button"
                 android:gravity="center"
-                android:text="이벤트" />
-        </TableRow>
+                android:padding="4dp"
+                android:text="이벤트"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/filter_setting" />
+        </android.support.constraint.ConstraintLayout>
 
         <TextView
             android:id="@+id/tv_new_story"
