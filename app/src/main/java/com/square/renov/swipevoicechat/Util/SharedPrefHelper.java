@@ -3,6 +3,8 @@ package com.square.renov.swipevoicechat.Util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.square.renov.swipevoicechat.Model.User;
+
 public class SharedPrefHelper {
     private static SharedPrefHelper instance;
 
@@ -14,6 +16,7 @@ public class SharedPrefHelper {
     //	출석일자 체크 2018-02-05 김정원
     public static final String LOGGED_DAY_COUNT = "LOGGED_DAY_COUNT";
     public static final String SNS_TYPE = "SNS_TYPE";
+    public static final String USER_INFO = "USER_INFO";
 
     public SharedPreferences prefs;
 
@@ -88,9 +91,7 @@ public class SharedPrefHelper {
     public void removeAllSharedPreferences() {
         removeSharedPreferences(ACCESS_TOKEN);
         removeSharedPreferences(USER_STATUS);
-        removeSharedPreferences(USER_ID);
-        removeSharedPreferences(POINT);
-        removeSharedPreferences(LOGGED_DAY_COUNT);
+        removeSharedPreferences(USER_INFO);
     }
 
 

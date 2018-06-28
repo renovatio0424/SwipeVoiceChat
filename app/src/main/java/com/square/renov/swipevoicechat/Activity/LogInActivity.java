@@ -177,20 +177,21 @@ public class LogInActivity extends AppCompatActivity {
                     String token = response.headers().get("HelloVoiceAuth");
                     Log.d(TAG, "token: " + token);
 
+                    User myInfo = response.body();
+
+                    Gson gson = new Gson();
                     SharedPrefHelper.getInstance(LogInActivity.this).setSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, token);
                     SharedPrefHelper.getInstance(LogInActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, snsType);
+                    SharedPrefHelper.getInstance(LogInActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(myInfo));
 
-                    User myInfo = response.body();
-//                    User myInfo = new User();
-//                    myInfo.setBirth(response.body().getBirth());
-//                    myInfo.setGender(response.body().getGender());
-//                    myInfo.setLat(response.body().getLat());
-//                    myInfo.setLng(response.body().getLng());
                     Log.d(TAG,"gender: " + myInfo.getGender() +
                             "\nlat: " + myInfo.getLat() +
                             "\nlng: " + myInfo.getLng() +
                             "\nprofileImageUrl: " + myInfo.getProfileImageUrl() +
                             "\nbirth: " + myInfo.getBirth());
+
+                    Log.e(TAG, "user.tostring(): " + gson.toJson(myInfo));
+
                     if(myInfo.getProfileImageUrl() == null || "".equals(myInfo.getProfileImageUrl()))
                         moveToProfile(myInfo);
                     else

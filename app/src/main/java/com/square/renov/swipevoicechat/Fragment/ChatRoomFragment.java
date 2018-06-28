@@ -20,16 +20,20 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.square.renov.swipevoicechat.Activity.ChatActivity;
 import com.square.renov.swipevoicechat.Adapter.SwipeController;
 import com.square.renov.swipevoicechat.Adapter.SwipeControllerActions;
 import com.square.renov.swipevoicechat.Event.RefreshEvent;
-import com.square.renov.swipevoicechat.Model.Profile;
+import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.ApiService;
 import com.square.renov.swipevoicechat.R;
-import com.square.renov.swipevoicechat.Utils;
+import com.square.renov.swipevoicechat.Util.AgeUtil;
+import com.square.renov.swipevoicechat.Util.DistanceUtil;
+import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
+import com.square.renov.swipevoicechat.Util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -48,13 +52,11 @@ import retrofit2.Response;
 public class ChatRoomFragment extends Fragment {
     public Unbinder unbinder;
 
-//    @BindView(R.id.materialLeanBack)
-//    MaterialLeanBack materialLeanBack;
-
     @BindView(R.id.recyclerview)
     RecyclerView recyclerView;
 
     ApiService service = NetRetrofit.getInstance(getContext()).getService();
+
     public static ChatRoomFragment newInstance() {
         ChatRoomFragment chatRoomFragment = new ChatRoomFragment();
         return chatRoomFragment;
@@ -78,18 +80,14 @@ public class ChatRoomFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
 
 //        cardAdapter = new CardAdapter(Utils.loadProfiles(getContext()));
-        cardAdapter = new CardAdapter();
+        cardAdapter = new CardAdapter(Utils.loadRooms(getContext()));
 
         loadChatRooms();
-        cardAdapter.addItem(Utils.loadProfiles(getContext()).get(0));
-        cardAdapter.addItem(Utils.loadProfiles(getContext()).get(1));
-        cardAdapter.addItem(Utils.loadProfiles(getContext()).get(2));
-        cardAdapter.addItem(Utils.loadProfiles(getContext()).get(3));
 
         SwipeController swipeController = new SwipeController(new SwipeControllerActions() {
             @Override
             public void onRightClicked(int position) {
-                cardAdapter.profiles.remove(position);
+                cardAdapter.rooms.remove(position);
                 cardAdapter.notifyItemRemoved(position);
                 cardAdapter.notifyItemRangeChanged(position, cardAdapter.getItemCount());
             }
@@ -113,7 +111,6 @@ public class ChatRoomFragment extends Fragment {
 //                cardAdapter.addItem(add);
 //            }
 //        }
-
         recyclerView.setAdapter(cardAdapter);
         cardAdapter.notifyDataSetChanged();
 //        Main Logic here
@@ -220,7 +217,7 @@ public class ChatRoomFragment extends Fragment {
         if (refreshEvent.action == RefreshEvent.Action.SEND_NEW_STORY) {
             int sendPosition = refreshEvent.position;
             if (sendPosition != -1) {
-                Profile add = Utils.loadProfiles(getContext()).get(sendPosition);
+                VoiceChatRoom add = Utils.loadRooms(getContext()).get(sendPosition);
                 cardAdapter.addItem(add);
                 cardAdapter.notifyDataSetChanged();
             }
@@ -239,21 +236,15 @@ public class ChatRoomFragment extends Fragment {
 
     public class CardAdapter extends RecyclerView.Adapter<viewHolder> {
 
-//        private List<VoiceChatRoom> rooms;
-        private List<Profile> profiles;
+        private List<VoiceChatRoom> rooms;
 
         public CardAdapter() {
-            profiles = new ArrayList<>();
-//            rooms = new ArrayList<>();
+            rooms = new ArrayList<>();
         }
 
-        public CardAdapter(List mProfiles) {
-            profiles = mProfiles;
+        public CardAdapter(List rooms) {
+            this.rooms = rooms;
         }
-
-//        public CardAdapter(List mRooms) {
-//            this.rooms = mRooms;
-//        }
 
         MultiTransformation multiTransformation = new MultiTransformation(new BlurTransformation(25, 3),
                 new CircleCrop());
@@ -277,13 +268,18 @@ public class ChatRoomFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull viewHolder holder, int position) {
-            Profile currentProfile = profiles.get(position);
+            VoiceChatRoom currentProfile = rooms.get(position);
+
+            User opponentUser = currentProfile.getOpponentUser();
+            String myInfo = SharedPrefHelper.getInstance(getContext()).getSharedPreferences(SharedPrefHelper.USER_INFO, null);
+            Gson gson = new Gson();
+            User me = gson.fromJson(myInfo, User.class);
 
             holder.lastTime.setText("오전 12:39");
-            holder.chatDesc.setText(currentProfile.getDistance() + "km");
-            holder.name.setText(currentProfile.getName() + ", " + currentProfile.getAge());
+            holder.chatDesc.setText(DistanceUtil.getDistanceFromLatLng(opponentUser, me) + "km");
+            holder.name.setText(opponentUser.getName() + ", " + AgeUtil.getAgeFromBirth(opponentUser.getBirth()));
             Glide.with(getContext())
-                    .load(currentProfile.getImageUrl())
+                    .load(opponentUser.getProfileImageUrl())
                     .apply(RequestOptions.bitmapTransform(multiTransformation))
                     .into(holder.profileImage);
 
@@ -291,15 +287,15 @@ public class ChatRoomFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return profiles.size();
+            return rooms.size();
         }
 
         public void addList(ArrayList<VoiceChatRoom> rooms){
 //            this.rooms = rooms;
         }
 
-        public void addItem(Profile addItem) {
-            profiles.add(addItem);
+        public void addItem(VoiceChatRoom addItem) {
+            rooms.add(addItem);
         }
     }
 

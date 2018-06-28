@@ -72,6 +72,15 @@ public class VoicePlayerManager {
         return voicePlay(mFileName);
     }
 
+    public int getPlayTime(String filePath) throws IOException {
+        if(mPlayer == null){
+            mPlayer = new MediaPlayer();
+        }
+        mPlayer.setDataSource(filePath);
+        int time = mPlayer.getDuration();
+        mPlayer = null;
+        return time;
+    }
 
     public int voicePlay(String filePath) {
         if (mPlayer == null) {

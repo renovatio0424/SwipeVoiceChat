@@ -9,7 +9,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.square.renov.swipevoicechat.Model.Profile;
+import com.square.renov.swipevoicechat.Model.User;
+import com.square.renov.swipevoicechat.Model.VoiceCard;
 import com.square.renov.swipevoicechat.R;
+import com.square.renov.swipevoicechat.Util.AgeUtil;
+import com.square.renov.swipevoicechat.Util.DistanceUtil;
 import com.square.renov.swipevoicechat.widget.VoicePlayerManager;
 import com.square.renov.swipevoicechat.widget.VoicePlayerView;
 import com.mindorks.placeholderview.SwipeDirection;
@@ -51,20 +55,20 @@ public class UserCard {
 
     private VoicePlayerManager voicePlayerManager;
 
-    private Profile mProfile;
+    private VoiceCard mVoiceCard;
     private Context mContext;
     private SwipePlaceHolderView mSwipeView;
 
-    public UserCard(Context context, Profile profile, SwipePlaceHolderView swipeView) {
+    public UserCard(Context context, VoiceCard voiceCard, SwipePlaceHolderView swipeView) {
         mContext = context;
-        mProfile = profile;
+        mVoiceCard = voiceCard;
         mSwipeView = swipeView;
         mSwipeView.enableTouchSwipe();
     }
 
     @Resolve
     private void onResolved(){
-        Log.d("onResolved", "profile image url: " + mProfile.getImageUrl());
+        Log.d("onResolved", "profile image url: " + mVoiceCard.getUser().getProfileImageUrl());
 
         voicePlayerManager = VoicePlayerManager.getInstance();
         voicePlayerView.prepareVoicePlay();
@@ -92,12 +96,14 @@ public class UserCard {
             }
         });
 
-        Glide.with(mContext)
-                .load(mProfile.getImageUrl())
-                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25,3)))
-                .into(profileImageView);
-        nameAgeTxt.setText(mProfile.getName() + ", " + mProfile.getAge());
-        locationNameTxt.setText(mProfile.getLocation());
+//        User userInfo = mVoiceCard.getUser();
+//        User myInfo = ;
+//        Glide.with(mContext)
+//                .load(userInfo.getProfileImageUrl())
+//                .apply(RequestOptions.bitmapTransform(new BlurTransformation(25,3)))
+//                .into(profileImageView);
+//        nameAgeTxt.setText(userInfo.getName() + ", " + AgeUtil.getAgeFromBirth(userInfo.getBirth()));
+//        locationNameTxt.setText(DistanceUtil.getDistanceFromLatLng(userInfo,));
 
         acceptBtn.setOnClickListener(v -> mSwipeView.doSwipe(true));
         rejectBtn.setOnClickListener(v -> mSwipeView.doSwipe(false));

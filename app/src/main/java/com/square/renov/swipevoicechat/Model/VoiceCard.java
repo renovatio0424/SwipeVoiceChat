@@ -16,7 +16,7 @@ public class VoiceCard {
     private User user;
     @SerializedName("createdAt")
     @Expose
-    private Integer createdAt;
+    private Long createdAt;
 
     public Integer getId() {
         return id;
@@ -42,11 +42,11 @@ public class VoiceCard {
         this.user = user;
     }
 
-    public Integer getCreatedAt() {
+    public Long getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Integer createdAt) {
+    public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
     }
 

@@ -21,12 +21,14 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.square.renov.swipevoicechat.Activity.LogInActivity;
 import com.square.renov.swipevoicechat.Activity.ShopActivity;
 import com.square.renov.swipevoicechat.Model.Result;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.R;
+import com.square.renov.swipevoicechat.Util.AgeUtil;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.igaworks.IgawCommon;
 import com.igaworks.adpopcorn.IgawAdpopcorn;
@@ -57,6 +59,8 @@ public class SettingFragment2 extends Fragment {
     ImageView ivEditProfile;
     @BindView(R.id.iv_edit_name)
     ImageView ivEditName;
+    @BindView(R.id.tv_name)
+    TextView nameAgeInfo;
 
 
     User myInfo;
@@ -78,8 +82,9 @@ public class SettingFragment2 extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        myInfo = (User) getArguments().getParcelable("user");
+        Gson gson = new Gson();
+        String jsonUserInfo = SharedPrefHelper.getInstance(getContext()).getSharedPreferences(SharedPrefHelper.USER_INFO, null);
+        myInfo = gson.fromJson(jsonUserInfo, User.class);
     }
 
     @Override
@@ -97,7 +102,7 @@ public class SettingFragment2 extends Fragment {
                     .apply(RequestOptions.bitmapTransform(multiTransformation))
                     .into(profileImage);
 
-
+        nameAgeInfo.setText(myInfo.getName() + ", " + AgeUtil.getAgeFromBirth(myInfo.getBirth()));
     }
 
     @Nullable
@@ -116,17 +121,17 @@ public class SettingFragment2 extends Fragment {
 
 
     @OnClick(R.id.layout_free)
-    public void onClickFree(){
+    public void onClickFree() {
         Toast.makeText(getContext(), "click free", Toast.LENGTH_SHORT).show();
     }
 
     @OnClick(R.id.layout_invite)
-    public void onClickInvite(){
+    public void onClickInvite() {
         Toast.makeText(getContext(), "click invite", Toast.LENGTH_SHORT).show();
     }
 
     @OnClick(R.id.layout_shop)
-    public void onClickShop(){
+    public void onClickShop() {
         Intent intent = new Intent(getContext(), ShopActivity.class);
         startActivity(intent);
     }
@@ -141,7 +146,7 @@ public class SettingFragment2 extends Fragment {
     }
 
     @OnClick(R.id.iv_setting_detail)
-    public void onClickSettingDetail(){
+    public void onClickSettingDetail() {
         //TODO: 로그아웃 기능 구현중
         Call<Result> response = NetRetrofit.getInstance(getContext()).getService().logout();
         response.enqueue(new Callback<Result>() {
@@ -174,7 +179,7 @@ public class SettingFragment2 extends Fragment {
     }
 
     @OnClick(R.id.iv_edit_name)
-    public void onClickEditName(){
+    public void onClickEditName() {
         Toast.makeText(getContext(), "click edit name", Toast.LENGTH_SHORT).show();
     }
 

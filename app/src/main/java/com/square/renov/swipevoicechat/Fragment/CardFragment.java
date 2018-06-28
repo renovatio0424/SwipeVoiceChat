@@ -20,19 +20,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.square.renov.swipevoicechat.Activity.FilterActivity;
 import com.square.renov.swipevoicechat.Event.RefreshEvent;
-import com.square.renov.swipevoicechat.Model.Profile;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Model.VoiceCard;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
@@ -40,7 +38,8 @@ import com.square.renov.swipevoicechat.Network.ApiService;
 import com.square.renov.swipevoicechat.R;
 import com.square.renov.swipevoicechat.Util.AgeUtil;
 import com.square.renov.swipevoicechat.Util.DistanceUtil;
-import com.square.renov.swipevoicechat.Utils;
+import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
+import com.square.renov.swipevoicechat.Util.Utils;
 import com.square.renov.swipevoicechat.widget.VoicePlayerManager;
 import com.square.renov.swipevoicechat.widget.VoicePlayerView;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -52,6 +51,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -97,7 +97,9 @@ public class CardFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-        myInfo = (User) getArguments().getParcelable("user");
+        Gson gson = new Gson();
+        String jsonUserInfo = SharedPrefHelper.getInstance(getContext()).getSharedPreferences(SharedPrefHelper.USER_INFO,null);
+        myInfo = gson.fromJson(jsonUserInfo, User.class);
     }
 
     @Override
@@ -131,8 +133,8 @@ public class CardFragment extends Fragment {
         unbinder.unbind();
     }
 
-    private UserCardAdapter createUserCardAdapter() {
-        final UserCardAdapter adapter = new UserCardAdapter(getContext());
+    private void createUserCardAdapter() {
+
         for(VoiceCard card : Utils.loadCards(getContext())){
             adapter.add(card);
         }
@@ -140,7 +142,6 @@ public class CardFragment extends Fragment {
 //        for (Profile profile : Utils.loadProfiles(getContext())) {
 //            adapter.add(profile);
 //        }
-        return adapter;
     }
 
     private void setup() {
@@ -193,34 +194,82 @@ public class CardFragment extends Fragment {
                     Toast.makeText(getActivity(), "음성이 발송되었습니다", Toast.LENGTH_SHORT).show();
 
                     String voice_url_path = resultData.getString(VoiceDialogFragment.EXTRA_RESULT_DATA);
-                    Call<VoiceCard> request = null;
 
                     if(isNewStory){
                         Log.d(TAG,"voice Url : " + voice_url_path);
-                        request = service.sendNewVoice(voice_url_path);
-                    } else {
-//                        request = service.sendChatVoice()
-                    }
-
-                    request.enqueue(new Callback<VoiceCard>() {
-                        @Override
-                        public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
-                            if(response.isSuccessful()){
-                                Toast.makeText(getContext(), "성공적으로 전송했습니다.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                try {
-                                    Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                        Call<VoiceCard> request = service.sendNewVoice(voice_url_path);
+                        request.enqueue(new Callback<VoiceCard>() {
+                            @Override
+                            public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
+                                if(response.isSuccessful()){
+                                    Toast.makeText(getContext(), "성공적으로 전송했습니다.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    try {
+                                        Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onFailure(Call<VoiceCard> call, Throwable t) {
+                            @Override
+                            public void onFailure(Call<VoiceCard> call, Throwable t) {
+                                t.printStackTrace();
+                                Log.e(TAG,t.getMessage());
+                            }
+                        });
+                    } else {
+                        int currentPosition = cardStackView.getTopIndex();
+                        VoiceCard currentCard = adapter.getItem(currentPosition);
+//                        request = service.sendChatVoice(currentCard.getId() ,voice_url_path);
+                        Call<String> request = service.replyVoice(currentCard.getId());
+                        request.enqueue(new Callback<String>() {
+                            @Override
+                            public void onResponse(Call<String> call, Response<String> response) {
+                                if(response.isSuccessful()){
+                                    Gson gson = new Gson();
+                                    Map map = gson.fromJson(response.body(), Map.class);
+                                    int id = (int) map.get("id");
 
-                        }
-                    });
+                                    Call<VoiceCard> request = service.sendChatVoice(id,voice_url_path);
+                                    request.enqueue(new Callback<VoiceCard>() {
+                                        @Override
+                                        public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
+                                            if(response.isSuccessful()){
+                                                Toast.makeText(getContext(), "성공적으로 전송했습니다.", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                try {
+                                                    Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<VoiceCard> call, Throwable t) {
+                                            t.printStackTrace();
+                                            Log.e(TAG,t.getMessage());
+                                        }
+                                    });
+                                } else {
+                                    try {
+                                        Log.e(TAG, "code: " + response.code() + "error: " + response.errorBody().string());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<String> call, Throwable t) {
+                                t.printStackTrace();
+                                Log.e(TAG, t.getMessage());
+                            }
+                        });
+                    }
+
+
 
 
 //                    user.setVoice(voice_url_path);
@@ -338,9 +387,11 @@ public class CardFragment extends Fragment {
 
         new Handler().postDelayed(() -> {
 //                adapter = createTouristSpotCardAdapter();
-            adapter = createUserCardAdapter();
-
+            adapter = new UserCardAdapter(getContext());
+            
             loadCard();
+            createUserCardAdapter();
+
 
             cardStackView.setAdapter(adapter);
             cardStackView.setVisibility(View.VISIBLE);
@@ -403,7 +454,8 @@ public class CardFragment extends Fragment {
 
             @Override
             public void onFailure(Call<VoiceCard> call, Throwable t) {
-
+                Log.e(TAG, t.getMessage());
+                t.printStackTrace();
             }
         });
     }
@@ -423,7 +475,7 @@ public class CardFragment extends Fragment {
 //        adapter.addAll(spots);
 //        adapter.notifyDataSetChanged();
 //    }
-
+//
 //    private void addLast() {
 //        LinkedList<TouristSpot> spots = extractRemainingProfiles();
 //        spots.addLast(createTouristSpot());
@@ -593,18 +645,6 @@ public class CardFragment extends Fragment {
         cardStackView.reverse();
     }
 
-    public class TouristSpot {
-        public String name;
-        public String city;
-        public String url;
-
-        public TouristSpot(String name, String city, String url) {
-            this.name = name;
-            this.city = city;
-            this.url = url;
-        }
-    }
-
     public class UserCardAdapter extends ArrayAdapter<VoiceCard> {
 
         VoicePlayerManager voicePlayerManager = VoicePlayerManager.getInstance();
@@ -630,11 +670,13 @@ public class CardFragment extends Fragment {
             VoiceCard voiceCard = getItem(position);
             User cardUser = voiceCard.getUser();
             holder.nameAgeTxt.setText(cardUser.getName() + ", " + AgeUtil.getAgeFromBirth(cardUser.getBirth()));
+
             if(myInfo != null)
                 holder.locationNameTxt.setText("" + DistanceUtil.getDistanceFromLatLng(cardUser, myInfo) + "km");
 
             Glide.with(getContext())
                     .load(cardUser.getProfileImageUrl())
+                    .apply(RequestOptions.placeholderOf(R.drawable.ic_person))
                     .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
                     .into(holder.profileImage);
 
@@ -667,15 +709,16 @@ public class CardFragment extends Fragment {
 
                 @Override
                 public void onPlay() {
-                    String url = "http://s3-ap-northeast-1.amazonaws.com/pesofts-image/voiceChat/20180528/3359781527498366440.m4a";
+//                    String url = "http://s3-ap-northeast-1.amazonaws.com/pesofts-image/voiceChat/20180528/3359781527498366440.m4a";
+                    String url = voiceCard.getVoiceUrl();
+                    Log.e("VoiceCard", "url: " + url);
                     int duration = voicePlayerManager.voicePlay(url);
                     holder.voicePlayerView.startVoicePlayProgress(duration);
-                    voicePlayerManager.voicePlayStop();
                 }
 
                 @Override
                 public void onStopPlay() {
-
+                    voicePlayerManager.voicePlayStop();
                 }
             });
 
@@ -685,6 +728,12 @@ public class CardFragment extends Fragment {
         @Override
         public int getPosition(@Nullable VoiceCard item) {
             return super.getPosition(item);
+        }
+
+        @Nullable
+        @Override
+        public VoiceCard getItem(int position) {
+            return super.getItem(position);
         }
 
         public class ViewHolder {
@@ -697,9 +746,9 @@ public class CardFragment extends Fragment {
             @BindView(R.id.locationNameTxt)
             public TextView locationNameTxt;
             @BindView(R.id.rejectBtn)
-            public Button rejectBtn;
+            public ImageView rejectBtn;
             @BindView(R.id.acceptBtn)
-            public Button acceptBtn;
+            public ImageView acceptBtn;
             @BindView(R.id.iv_report)
             public ImageView ivReport;
 

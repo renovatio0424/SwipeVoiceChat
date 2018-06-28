@@ -72,8 +72,13 @@
     <style name="background_image_style">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:src">@drawable/background_sample0</item>
+        <item name="android:src">@drawable/bg_semifinal</item>
         <item name="android:scaleType">centerCrop</item>
         <item name="android:tint">#6F000000</item>
+    </style>
+
+    <style name="chat_time_text_style">
+        <item name = "android:textColor">#FFFFFF</item>
+        <item name="android:textSize">10sp</item>
     </style>
 </resources>

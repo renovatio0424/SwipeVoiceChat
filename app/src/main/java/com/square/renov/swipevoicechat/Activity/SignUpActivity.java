@@ -232,6 +232,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         Call<User> response = NetRetrofit.getInstance(this).getService().register(token,
                 type,
+                name,
                 gender,
                 birth,
                 lat,
@@ -247,6 +248,9 @@ public class SignUpActivity extends AppCompatActivity {
                     Log.d(TAG, "token: " + token);
                     SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, token);
                     SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, getIntent().getStringExtra("type"));
+                    Gson gson = new Gson();
+                    SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(response.body()));
+
                     moveToProfile(response.body());
                 } else {
                     try {

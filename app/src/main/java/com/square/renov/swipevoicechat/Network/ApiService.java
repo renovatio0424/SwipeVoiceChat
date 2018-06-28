@@ -33,6 +33,7 @@ public interface ApiService {
     @POST("user/register")
     Call<User> register(@Field("token") String token,
                         @Field("type") String type,
+                        @Field("name") String name,
                         @Field("gender") String gender,
                         @Field("birth") String birth,
                         @Field("lat") String lat,
@@ -87,7 +88,7 @@ public interface ApiService {
 
     @FormUrlEncoded
     @POST("voice/chat/start")
-    Call<ArrayList<VoiceChatRoom>> startVoiceChat(@Field("voiceId") int voiceId);
+    Call<String> replyVoice(@Field("voiceId") int voiceId);
 
     @FormUrlEncoded
     @POST("voice/pass")

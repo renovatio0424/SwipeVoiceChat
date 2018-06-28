@@ -26,6 +26,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.network.ProgressHandler;
@@ -33,6 +34,7 @@ import com.square.renov.swipevoicechat.Network.network.RequestManager;
 import com.square.renov.swipevoicechat.Network.network.VolleyMultipartRequest;
 import com.square.renov.swipevoicechat.R;
 import com.square.renov.swipevoicechat.Util.ImageUtil;
+import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -280,6 +282,8 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if(response.isSuccessful()){
+                    Gson gson = new Gson();
+                    SharedPrefHelper.getInstance(ProfileActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(response.body()));
                     moveToMain();
                 } else {
                     try {

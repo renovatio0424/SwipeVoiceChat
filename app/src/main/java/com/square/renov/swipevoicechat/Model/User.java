@@ -3,6 +3,7 @@ package com.square.renov.swipevoicechat.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -117,5 +118,10 @@ public class User implements Parcelable{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

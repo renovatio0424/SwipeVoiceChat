@@ -93,7 +93,7 @@
                 card_view:srcCompat="@drawable/ic_report" />
         </android.support.constraint.ConstraintLayout>
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/button_layout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -101,18 +101,26 @@
             android:gravity="center_horizontal"
             android:orientation="horizontal">
 
-            <Button
+            <ImageView
                 android:id="@+id/rejectBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="reject" />
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_cancel"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/acceptBtn"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <Button
+            <ImageView
                 android:id="@+id/acceptBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Accept" />
-        </LinearLayout>
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_heart"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/rejectBtn"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </android.support.constraint.ConstraintLayout>
 
         <!--<include-->
         <!--layout="@layout/swipe_top_msg_view"/>-->
