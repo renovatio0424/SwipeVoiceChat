@@ -30,9 +30,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.square.renov.swipevoicechat.Activity.FilterActivity;
+import com.square.renov.swipevoicechat.Activity.InviteActivity;
+import com.square.renov.swipevoicechat.Activity.ShopActivity;
 import com.square.renov.swipevoicechat.Event.RefreshEvent;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Model.VoiceCard;
+import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.ApiService;
 import com.square.renov.swipevoicechat.R;
@@ -49,6 +52,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +88,8 @@ public class CardFragment extends Fragment {
     User myInfo;
 
     public Unbinder unbinder;
+    public VoiceCard pastCard;
+
 
     public static CardFragment newInstance(User myInfo) {
         CardFragment cardFragment = new CardFragment();
@@ -145,6 +151,7 @@ public class CardFragment extends Fragment {
     }
 
     private void setup() {
+        cardStackView.setSwipeThreshold(0.5f);
         cardStackView.setSwipeDirection(SwipeDirection.HORIZONTAL);
         cardStackView.setCardEventListener(new CardStackView.CardEventListener() {
             @Override
@@ -155,6 +162,8 @@ public class CardFragment extends Fragment {
             @Override
             public void onCardSwiped(SwipeDirection direction) {
                 Log.d("CardStackView", "onCardSwiped: " + direction.toString());
+                int currentPosition = cardStackView.getTopIndex();
+                pastCard = adapter.getItem(currentPosition);
                 Log.d("CardStackView", "topIndex: " + cardStackView.getTopIndex());
                 if (direction == SwipeDirection.Right) {
                     showRecordDialog(false);
@@ -219,19 +228,18 @@ public class CardFragment extends Fragment {
                             }
                         });
                     } else {
-                        int currentPosition = cardStackView.getTopIndex();
-                        VoiceCard currentCard = adapter.getItem(currentPosition);
-//                        request = service.sendChatVoice(currentCard.getId() ,voice_url_path);
-                        Call<String> request = service.replyVoice(currentCard.getId());
-                        request.enqueue(new Callback<String>() {
-                            @Override
-                            public void onResponse(Call<String> call, Response<String> response) {
-                                if(response.isSuccessful()){
-                                    Gson gson = new Gson();
-                                    Map map = gson.fromJson(response.body(), Map.class);
-                                    int id = (int) map.get("id");
 
-                                    Call<VoiceCard> request = service.sendChatVoice(id,voice_url_path);
+//                        request = service.sendChatVoice(currentCard.getId() ,voice_url_path);
+                        Call<VoiceChatRoom> request = service.makeVoiceChatRoom(pastCard.getId());
+                        request.enqueue(new Callback<VoiceChatRoom>() {
+                            @Override
+                            public void onResponse(Call<VoiceChatRoom> call, Response<VoiceChatRoom> response) {
+                                Log.e(TAG, "" + response.body());
+
+                                if(response.isSuccessful()){
+                                    int id = response.body().getId();
+
+                                    Call<VoiceCard> request = service.sendChatVoice(id, voice_url_path);
                                     request.enqueue(new Callback<VoiceCard>() {
                                         @Override
                                         public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
@@ -262,7 +270,7 @@ public class CardFragment extends Fragment {
                             }
 
                             @Override
-                            public void onFailure(Call<String> call, Throwable t) {
+                            public void onFailure(Call<VoiceChatRoom> call, Throwable t) {
                                 t.printStackTrace();
                                 Log.e(TAG, t.getMessage());
                             }
@@ -390,7 +398,7 @@ public class CardFragment extends Fragment {
             adapter = new UserCardAdapter(getContext());
             
             loadCard();
-            createUserCardAdapter();
+//            createUserCardAdapter();
 
 
             cardStackView.setAdapter(adapter);
@@ -433,12 +441,14 @@ public class CardFragment extends Fragment {
 //
 //            }
 //        });
-        Call<VoiceCard> response = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
-        response.enqueue(new Callback<VoiceCard>() {
+        Call<List<VoiceCard>> response = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
+        response.enqueue(new Callback<List<VoiceCard>>() {
             @Override
-            public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
+            public void onResponse(Call<List<VoiceCard>> call, Response<List<VoiceCard>> response) {
                 if(response.isSuccessful()){
-                    adapter.add(response.body());
+                    for(VoiceCard randomCard : response.body()){
+                        adapter.add(randomCard);
+                    }
                     adapter.notifyDataSetChanged();
                     Log.e(TAG, "load card success");
                 } else {
@@ -453,7 +463,7 @@ public class CardFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<VoiceCard> call, Throwable t) {
+            public void onFailure(Call<List<VoiceCard>> call, Throwable t) {
                 Log.e(TAG, t.getMessage());
                 t.printStackTrace();
             }
@@ -517,6 +527,8 @@ public class CardFragment extends Fragment {
     @OnClick(R.id.filter_shop)
     public void onClickFilterShop(){
         Toast.makeText(getContext(), "click filter shop", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getActivity(), ShopActivity.class);
+        startActivity(intent);
     }
 
     @OnClick(R.id.filter_setting)
@@ -532,6 +544,11 @@ public class CardFragment extends Fragment {
 //                .show();
     }
 
+    @OnClick(R.id.filter_event)
+    public void onClickFilterEvent(){
+        Intent intent = new Intent(getActivity(), InviteActivity.class);
+        startActivity(intent);
+    }
 
     private void paginate() {
         cardStackView.setPaginationReserved();
@@ -638,7 +655,6 @@ public class CardFragment extends Fragment {
 
         cardStackView.swipe(SwipeDirection.Right, cardAnimationSet, overlayAnimationSet);
 
-
     }
 
     private void reverse() {
@@ -676,7 +692,6 @@ public class CardFragment extends Fragment {
 
             Glide.with(getContext())
                     .load(cardUser.getProfileImageUrl())
-                    .apply(RequestOptions.placeholderOf(R.drawable.ic_person))
                     .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
                     .into(holder.profileImage);
 
@@ -728,6 +743,11 @@ public class CardFragment extends Fragment {
         @Override
         public int getPosition(@Nullable VoiceCard item) {
             return super.getPosition(item);
+        }
+
+        @Override
+        public int getCount() {
+            return super.getCount();
         }
 
         @Nullable

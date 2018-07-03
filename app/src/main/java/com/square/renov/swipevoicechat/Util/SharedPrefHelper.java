@@ -3,6 +3,7 @@ package com.square.renov.swipevoicechat.Util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.gson.Gson;
 import com.square.renov.swipevoicechat.Model.User;
 
 public class SharedPrefHelper {
@@ -50,6 +51,13 @@ public class SharedPrefHelper {
 
     public float getSharedPreferences(String key, float defaultVal) {
         return prefs.getFloat(key, defaultVal);
+    }
+
+    public User getUserInfo(){
+        String userInfo = instance.getSharedPreferences(USER_INFO, null);
+        Gson gson = new Gson();
+        User me = gson.fromJson(userInfo, User.class);
+        return me;
     }
 
     public void setSharedPreferences(String key, boolean val) {

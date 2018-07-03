@@ -176,7 +176,8 @@ public class MainActivity extends AppCompatActivity {
                     "\nlat: " + myinfo.getLat() +
                     "\nlng: " + myinfo.getLng() +
                     "\nprofileImageUrl: " + myinfo.getProfileImageUrl() +
-                    "\nbirth: " + myinfo.getBirth());
+                    "\nbirth: " + myinfo.getBirth() +
+                    "\nname: " + myinfo.getName());
 
                 } else {
                     try {

@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,6 +26,7 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
+import com.square.renov.swipevoicechat.Fragment.RecordMeterDialogFragment;
 import com.square.renov.swipevoicechat.Model.Profile;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Model.VoiceChat;
@@ -36,8 +38,11 @@ import com.square.renov.swipevoicechat.widget.VoicePlayerManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
@@ -96,22 +101,19 @@ public class ChatActivity extends AppCompatActivity {
                 .apply(RequestOptions.bitmapTransform(multiTransformation))
                 .into(otherProfile);
 
-        VoicePlayerManager voicePlayerManager = VoicePlayerManager.getInstance();
+        int chatId = 1;
+        RecordMeterDialogFragment recordMeterDialogFragment = RecordMeterDialogFragment.newInstance(chatId);
 
-
-        Dialog dialog = new Dialog(ChatActivity.this);
 
         findViewById(R.id.btn_reply).setOnTouchListener((v, event) -> {
+
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                voicePlayerManager.voiceRecord(getApplicationContext());
                 Toast.makeText(ChatActivity.this, "녹음을 시작합니다.", Toast.LENGTH_SHORT).show();
-                dialog.setContentView(R.layout.dialog_reply);
-                dialog.show();
+                recordMeterDialogFragment.show(getSupportFragmentManager(), "RecordMeterDialogFragment");
                 ((TextView) v).setText("보내려면 놓기");
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                voicePlayerManager.voiceRecordStop();
+                recordMeterDialogFragment.dismiss();
                 Toast.makeText(ChatActivity.this, "녹음을 종료합니다.", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
                 ((TextView) v).setText("누르고 말하기");
             }
 

@@ -1,7 +1,9 @@
 package com.square.renov.swipevoicechat;
 
 import android.app.Application;
+import android.content.Context;
 
+import com.nextapps.naswall.NASWall;
 import com.square.renov.swipevoicechat.Network.network.RequestManager;
 import com.onesignal.OneSignal;
 
@@ -18,6 +20,8 @@ public class MyApplication extends Application {
                 .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
                 .unsubscribeWhenNotificationsAreDisabled(true)
                 .init();
+
+
     }
 
 

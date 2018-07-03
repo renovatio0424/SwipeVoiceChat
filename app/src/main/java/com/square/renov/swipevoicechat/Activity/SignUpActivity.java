@@ -32,6 +32,7 @@ import com.google.gson.JsonParser;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -244,17 +245,27 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
-                    String token = response.headers().get("HelloVoiceAuth");
-                    Log.d(TAG, "token: " + token);
-                    SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, token);
-                    SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, getIntent().getStringExtra("type"));
-                    Gson gson = new Gson();
-                    SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(response.body()));
+                    if(response.code() == 200){
+                        String token = response.headers().get("HelloVoiceAuth");
+                        Log.d(TAG, "token: " + token);
+                        SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, token);
+                        SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, getIntent().getStringExtra("type"));
+                        Gson gson = new Gson();
+                        SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(response.body()));
+                        moveToProfile(response.body());
+                    }
 
-                    moveToProfile(response.body());
+
                 } else {
                     try {
-                        Toast.makeText(SignUpActivity.this, "error body: " + response.errorBody().string(), Toast.LENGTH_SHORT).show();
+                        String error = response.errorBody().string();
+                        Toast.makeText(SignUpActivity.this, "error body: " + error, Toast.LENGTH_SHORT).show();
+                        Gson gson = new Gson();
+                        Map<String,String> message = gson.fromJson(error, Map.class);
+                        if("이미 가입한 유저입니다.".equals(message.get("message"))){
+                            User me = SharedPrefHelper.getInstance(SignUpActivity.this).getUserInfo();
+                            moveToProfile(me);
+                        }
                         Log.e(TAG, "error body: " + response.errorBody().string());
                     } catch (IOException e) {
                         e.printStackTrace();

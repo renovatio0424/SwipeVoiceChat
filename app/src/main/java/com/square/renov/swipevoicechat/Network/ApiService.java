@@ -11,6 +11,7 @@ import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -51,7 +52,7 @@ public interface ApiService {
 
     @Headers("Content-Type: application/json")
     @POST("user/filter")
-    void updateFilter(@Body Filter filter);
+    Call<Filter> updateFilter(@Body Filter filter);
 
     @GET("user")
     Call<User> checkCurrentUserInfo();
@@ -66,7 +67,7 @@ public interface ApiService {
 
 
     @GET("voice")
-    Call<VoiceCard> getRandomVoiceCard();
+    Call<List<VoiceCard>> getRandomVoiceCard();
 
     /**
      * ChatId가 있으면 챗방으로
@@ -88,12 +89,11 @@ public interface ApiService {
 
     @FormUrlEncoded
     @POST("voice/chat/start")
-    Call<String> replyVoice(@Field("voiceId") int voiceId);
+    Call<VoiceChatRoom> makeVoiceChatRoom(@Field("voiceId") int voiceId);
 
     @FormUrlEncoded
     @POST("voice/pass")
     Call<VoiceCard> passVoice(@Field("id") int id, @Field("type") String passType, @Field("reason") @Nullable String reason);
-
 
     @GET("upload")
     Call<Map> getUploadMetaData(@Query("type") String type, @Query("size") int size);

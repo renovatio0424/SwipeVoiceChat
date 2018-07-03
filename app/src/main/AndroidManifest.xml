@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.square.renov.swipevoicechat">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -21,6 +22,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <uses-permission android:name="com.android.vending.BILLING"/>
+
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
 
     <meta-data
         android:name="com.google.android.gms.version"
@@ -101,14 +104,16 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <meta-data android:name="igaworks_app_key" android:value="656388411" />
-        <meta-data android:name="igaworks_hash_key" android:value="5e171c3b4820478b" />
+        <meta-data android:name="igaworks_app_key" android:value="623746993" />
+        <meta-data android:name="igaworks_hash_key" android:value="a7a71fb182c84184" />
 
         <activity android:name="com.igaworks.adpopcorn.activity.ApOfferWallActivity_NT"
             android:theme="@android:style/Theme.NoTitleBar"/>
 
         <activity android:name="com.igaworks.adpopcorn.activity.ApVideoAdActivity"
             android:theme="@android:style/Theme.NoTitleBar"/>
+
+        <meta-data android:name="igaworks_reward_server_type" android:value="server" />
 
         <activity android:name=".Activity.ShopActivity"/>
         
@@ -123,6 +128,20 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <activity android:name=".Activity.InviteActivity"/>
+
+        <meta-data android:name="naswall_app_key" android:value="5814ff20e28869c92117a9494765ed3c" />
+
+        <activity android:name="com.nextapps.naswall.NASWallBrowser" android:configChanges="keyboardHidden|orientation|screenSize">
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="com.nextapps.naswall.NASWall" android:configChanges="keyboardHidden|orientation" />
 
     </application>
 

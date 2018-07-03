@@ -55,12 +55,12 @@ public class Utils {
         }
     }
 
-    public static List<VoiceChatRoom> loadRooms(Context context){
+    public static ArrayList<VoiceChatRoom> loadRooms(Context context){
         try {
             GsonBuilder builder = new GsonBuilder();
             Gson gson = builder.create();
             JSONArray array = new JSONArray(loadJSONFromAsset(context, "voicechatrooms.json"));
-            List<VoiceChatRoom> voiceChatRooms = new ArrayList<>();
+            ArrayList<VoiceChatRoom> voiceChatRooms = new ArrayList<>();
             for (int i = 0; i < array.length(); i++) {
                 VoiceChatRoom voiceChatRoom = gson.fromJson(array.getString(i), VoiceChatRoom.class);
                 voiceChatRooms.add(voiceChatRoom);

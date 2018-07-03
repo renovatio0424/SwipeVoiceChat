@@ -26,6 +26,8 @@ import com.square.renov.swipevoicechat.Adapter.SwipeController;
 import com.square.renov.swipevoicechat.Adapter.SwipeControllerActions;
 import com.square.renov.swipevoicechat.Event.RefreshEvent;
 import com.square.renov.swipevoicechat.Model.User;
+import com.square.renov.swipevoicechat.Model.VoiceCard;
+import com.square.renov.swipevoicechat.Model.VoiceChat;
 import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.ApiService;
@@ -38,6 +40,7 @@ import com.square.renov.swipevoicechat.Util.Utils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +53,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatRoomFragment extends Fragment {
+    private static final String TAG = ChatRoomFragment.class.getSimpleName();
     public Unbinder unbinder;
 
     @BindView(R.id.recyclerview)
@@ -82,7 +86,7 @@ public class ChatRoomFragment extends Fragment {
 //        cardAdapter = new CardAdapter(Utils.loadProfiles(getContext()));
         cardAdapter = new CardAdapter(Utils.loadRooms(getContext()));
 
-        loadChatRooms();
+//        loadChatRooms();
 
         SwipeController swipeController = new SwipeController(new SwipeControllerActions() {
             @Override
@@ -112,7 +116,7 @@ public class ChatRoomFragment extends Fragment {
 //            }
 //        }
         recyclerView.setAdapter(cardAdapter);
-        cardAdapter.notifyDataSetChanged();
+
 //        Main Logic here
 //        materialLeanBack.setCustomizer(textView -> textView.setTypeface(null, Typeface.BOLD));
 //        materialLeanBack.setAdapter(new MaterialLeanBack.Adapter<MaterialLeanBack.ViewHolder>() {
@@ -189,16 +193,37 @@ public class ChatRoomFragment extends Fragment {
         request.enqueue(new Callback<ArrayList<VoiceChatRoom>>() {
             @Override
             public void onResponse(Call<ArrayList<VoiceChatRoom>> call, Response<ArrayList<VoiceChatRoom>> response) {
-                if(response.isSuccessful()){
-                    cardAdapter.addList(response.body());
-                } else {
+                if (response.isSuccessful()) {
 
+                    for (VoiceChatRoom itRoom : response.body()) {
+                        int position = response.body().indexOf(itRoom);
+                        List<VoiceChatRoom> rooms = Utils.loadRooms(getContext());
+                        if(rooms.size() > response.body().size())
+                            itRoom.setOpponentUser(rooms.get(position).getOpponentUser());
+                    }
+
+                    if (cardAdapter == null) {
+                        cardAdapter = new CardAdapter(response.body());
+                    } else {
+                        cardAdapter.addList(response.body());
+                    }
+                    for (VoiceChatRoom itRoom : response.body())
+                        Log.e(TAG, "Room id: " + itRoom.getId());
+                    cardAdapter.notifyDataSetChanged();
+                } else {
+                    try {
+                        Log.e(TAG, "error code: " + response.code());
+                        Log.e(TAG, "error message: " + response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<ArrayList<VoiceChatRoom>> call, Throwable t) {
-
+                t.printStackTrace();
+                Log.e(TAG, "message: " + t.getMessage());
             }
         });
     }
@@ -233,16 +258,15 @@ public class ChatRoomFragment extends Fragment {
     }
 
 
-
     public class CardAdapter extends RecyclerView.Adapter<viewHolder> {
 
-        private List<VoiceChatRoom> rooms;
+        private ArrayList<VoiceChatRoom> rooms;
 
         public CardAdapter() {
             rooms = new ArrayList<>();
         }
 
-        public CardAdapter(List rooms) {
+        public CardAdapter(ArrayList rooms) {
             this.rooms = rooms;
         }
 
@@ -276,10 +300,13 @@ public class ChatRoomFragment extends Fragment {
             User me = gson.fromJson(myInfo, User.class);
 
             holder.lastTime.setText("오전 12:39");
-            holder.chatDesc.setText(DistanceUtil.getDistanceFromLatLng(opponentUser, me) + "km");
-            holder.name.setText(opponentUser.getName() + ", " + AgeUtil.getAgeFromBirth(opponentUser.getBirth()));
+//            holder.chatDesc.setText(DistanceUtil.getDistanceFromLatLng(opponentUser, me) + "km");
+            holder.chatDesc.setText("10 km");
+//            holder.name.setText(opponentUser.getName() + ", " + AgeUtil.getAgeFromBirth(opponentUser.getBirth()));
+            holder.name.setText("test name, test age");
             Glide.with(getContext())
-                    .load(opponentUser.getProfileImageUrl())
+//                    .load(opponentUser.getProfileImageUrl())
+                    .load(R.drawable.common_google_signin_btn_icon_dark_focused)
                     .apply(RequestOptions.bitmapTransform(multiTransformation))
                     .into(holder.profileImage);
 
@@ -290,8 +317,8 @@ public class ChatRoomFragment extends Fragment {
             return rooms.size();
         }
 
-        public void addList(ArrayList<VoiceChatRoom> rooms){
-//            this.rooms = rooms;
+        public void addList(ArrayList<VoiceChatRoom> rooms) {
+            this.rooms = rooms;
         }
 
         public void addItem(VoiceChatRoom addItem) {

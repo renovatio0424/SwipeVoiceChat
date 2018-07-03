@@ -22,6 +22,11 @@ public class VoicePlayerManager {
     private VoicePlayerManager() {
     }
 
+
+    public int getAmplitude(){
+        return this.mRecorder.getMaxAmplitude();
+    }
+
     public static VoicePlayerManager getInstance() {
         if (instance == null) {
             synchronized (VoicePlayerManager.class) {

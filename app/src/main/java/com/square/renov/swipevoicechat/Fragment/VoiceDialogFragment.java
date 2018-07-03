@@ -1,5 +1,6 @@
 package com.square.renov.swipevoicechat.Fragment;
 
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
@@ -72,6 +74,8 @@ public class VoiceDialogFragment extends DialogFragment {
         getUploadVoiceInfoAndUploadVoice();
     }
 
+
+
     @OnClick(R.id.btn_voice_reset)
     public void onClickBtnVoiceReset() {
         int currentState = mBtnVoiceRecord.getState();
@@ -128,6 +132,7 @@ public class VoiceDialogFragment extends DialogFragment {
         return view;
     }
 
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
@@ -159,6 +164,7 @@ public class VoiceDialogFragment extends DialogFragment {
 //                            }
 //                        }
 //                );
+
                 VoicePlayerManager.getInstance().voiceRecord(getContext());
                 mBtnVoiceRecord.startRecordProgress(30000);
                 mBtnVoiceReset.setText("녹음 중지");

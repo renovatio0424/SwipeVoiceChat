@@ -17,6 +17,7 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
 
 import com.square.renov.swipevoicechat.R;
 
@@ -178,12 +179,19 @@ public class VoicePlayerView extends TintedImageButton {
 
                     if (voiceRecordListener != null) {
                         voiceRecordListener.onRecord();
+                        startRecordTime = System.currentTimeMillis();
                     }
 
                     setImageResource(R.drawable.ic_stop);
 
                     break;
                 case STATE_RECORD:
+                    endRecordTime = System.currentTimeMillis();
+                    if(endRecordTime - startRecordTime < 3000){
+                        Toast.makeText(getContext(), "3초 이상 녹음해주세요", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     mState = STATE_STOP;
                     setImageResource(R.drawable.ic_play);
                     stopRecordProgress();
@@ -326,7 +334,11 @@ public class VoicePlayerView extends TintedImageButton {
         this.voiceRecordListener = voiceRecordListener;
     }
 
+    long startRecordTime, endRecordTime;
+
     public void startRecordProgress(long duration) {
+
+
         animator = ObjectAnimator.ofFloat(this, "progress", 0.f, 1.f);
         animator.setDuration(duration);
         animator.setInterpolator(new LinearInterpolator());

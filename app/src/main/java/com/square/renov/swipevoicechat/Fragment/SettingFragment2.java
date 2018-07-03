@@ -22,6 +22,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
+import com.square.renov.swipevoicechat.Activity.InviteActivity;
 import com.square.renov.swipevoicechat.Activity.LogInActivity;
 import com.square.renov.swipevoicechat.Activity.ShopActivity;
 import com.square.renov.swipevoicechat.Model.Result;
@@ -127,7 +128,8 @@ public class SettingFragment2 extends Fragment {
 
     @OnClick(R.id.layout_invite)
     public void onClickInvite() {
-        Toast.makeText(getContext(), "click invite", Toast.LENGTH_SHORT).show();
+        Intent intent= new Intent(getContext(), InviteActivity.class);
+        startActivity(intent);
     }
 
     @OnClick(R.id.layout_shop)

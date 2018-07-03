@@ -26,4 +26,9 @@
     <string name="crop_image_activity_title">프로필 사진</string>
     <string name="crop_image_menu_rotate_right">회전</string>
     <string name="crop_image_menu_crop">완료</string>
+
+    <string name="shop_luna_desc"><![CDATA[내 루나 <font size="20"><b>20</b></font>개]]></string>
+    <string name="invite_desc1">지금 친구들을 초대하고\n 더 많은 목소리를 만나보세요!</string>
+    <string name="invite_desc2">카톡을 통해 초대받은 친구가 가입시\n 제공된 추천 코드를 입력하면, \n가입 승인이 완료될 때 \n당신과 친구 모두 10루나를 드려요</string>
+    <string name="invite_desc3">앱스토어 추천 유도 행위는 금지입니다.</string>
 </resources>

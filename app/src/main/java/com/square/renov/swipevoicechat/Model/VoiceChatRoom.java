@@ -14,6 +14,9 @@ public class VoiceChatRoom {
     @SerializedName("lastChatDate")
     @Expose
     private long lastChatDate;
+    @SerializedName("leaved")
+    @Expose
+    private boolean leaved;
 
 
     public int getId() {
@@ -26,5 +29,13 @@ public class VoiceChatRoom {
 
     public long getLastChatDate() {
         return lastChatDate;
+    }
+
+    public boolean isLeaved() {
+        return leaved;
+    }
+
+    public void setOpponentUser(User opponentUser) {
+        this.opponentUser = opponentUser;
     }
 }
