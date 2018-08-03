@@ -1,10 +1,16 @@
 package com.square.renov.swipevoicechat.Event;
 
+import com.square.renov.swipevoicechat.Model.VoiceChat;
+import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
+
 public class RefreshEvent {
 
     public Action action;
     public String type;
     public int position;
+    public VoiceChatRoom voiceChatRoom;
+    public VoiceChat voiceChat;
+    public static String TYPE_REPLY = "reply";
 
     public RefreshEvent(Action action) {
         this.action = action;
@@ -20,7 +26,18 @@ public class RefreshEvent {
         this.position = mPosition;
     }
 
+    public RefreshEvent(Action action, VoiceChatRoom room){
+        this.action = action;
+        this.voiceChatRoom = room;
+    }
+
+    public RefreshEvent(Action action, VoiceChat chat){
+        this.action = action;
+        this.voiceChat = chat;
+    }
+
     public enum Action {
-        SEND_NEW_STORY
+        STATUS_CHANGE,
+        PUSH
     }
 }

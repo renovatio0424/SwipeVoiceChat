@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_record"
+    android:elevation="1dp"
+    android:fitsSystemWindows="true">
+
+    <TextView
+        android:id="@+id/tv_end_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        android:text="00:23"
+        app:layout_constraintBottom_toBottomOf="@+id/progressbar"
+        app:layout_constraintStart_toEndOf="@+id/iv_volume"
+        app:layout_constraintTop_toTopOf="@+id/progressbar" />
+
+    <TextView
+        android:id="@+id/tv_start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        android:text="00:00"
+        app:layout_constraintBottom_toBottomOf="@+id/progressbar"
+        app:layout_constraintEnd_toStartOf="@+id/iv_volume"
+        app:layout_constraintTop_toTopOf="@+id/progressbar" />
+
+    <ImageView
+        android:id="@+id/iv_volume_shadow"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.2"
+        android:elevation="3dp"
+        android:rotation="180"
+        android:scaleType="fitXY"
+        android:scaleX="-1"
+        app:layout_constraintBottom_toTopOf="@+id/ib_record_btn"
+        app:layout_constraintDimensionRatio="H,4:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_volume"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintWidth_percent="0.5"
+        app:srcCompat="@drawable/record_volume" />
+
+    <ImageView
+        android:elevation="3dp"
+        android:id="@+id/iv_volume"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent="0.5"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/ib_record_btn"
+        app:layout_constraintDimensionRatio="H,2:1"
+        app:layout_constraintEnd_toEndOf="@+id/frameLayout2"
+        app:layout_constraintStart_toStartOf="@+id/frameLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/tv_record_example"
+        app:srcCompat="@drawable/record_volume"
+        android:scaleType="fitXY"/>
+
+    <FrameLayout
+        android:id="@+id/frameLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background_record_gradation"
+        android:elevation="2dp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="113dp">
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_record_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/background_timer"
+        android:elevation="3dp"
+        android:paddingBottom="2dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="2dp"
+        android:text="00:00:00 / 00: 00: 00"
+        android:textColor="@color/grey"
+        app:layout_constraintEnd_toEndOf="@+id/tv_record_title"
+        app:layout_constraintStart_toStartOf="@+id/tv_record_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_record_title" />
+
+    <TextView
+        android:elevation="3dp"
+        android:id="@+id/tv_record_example"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/ex_record"
+        app:layout_constraintBottom_toTopOf="@+id/ib_record_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_record_time"
+        app:layout_constraintVertical_bias="0.33" />
+
+    <ImageButton
+        android:id="@+id/ib_record_btn"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/transparent"
+        android:elevation="3dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/record" />
+
+    <ImageButton
+        android:id="@+id/ib_send_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/transparent"
+        android:elevation="3dp"
+        app:layout_constraintBottom_toBottomOf="@+id/ib_record_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.33"
+        app:layout_constraintStart_toEndOf="@+id/ib_record_btn"
+        app:layout_constraintTop_toTopOf="@+id/ib_record_btn"
+        app:srcCompat="@drawable/send_inactivated" />
+
+    <ImageButton
+        android:id="@+id/ib_re_record_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/transparent"
+        android:elevation="3dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@+id/ib_record_btn"
+        app:layout_constraintEnd_toStartOf="@+id/ib_record_btn"
+        app:layout_constraintHorizontal_bias="0.66"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/ib_record_btn"
+        app:srcCompat="@drawable/reload" />
+
+    <ImageButton
+        android:id="@+id/ib_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="32dp"
+        android:background="@color/transparent"
+        android:elevation="3dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/exit_button" />
+
+    <TextView
+        android:id="@+id/tv_record_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="14dp"
+        android:elevation="3dp"
+        android:shadowColor="@color/shadow_color"
+        android:shadowDx="3.0"
+        android:shadowDy="3.0"
+        android:shadowRadius="10.0"
+        android:text="새 이야기"
+        android:textColor="@color/white"
+        android:textSize="21sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ib_close" />
+
+    <TextView
+        android:id="@+id/tv_record_state"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:elevation="3dp"
+        android:text="On Air"
+        android:textColor="@color/red"
+        android:textSize="21sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/tv_record_title"
+        app:layout_constraintStart_toStartOf="@+id/tv_record_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_record_time" />
+
+    <SeekBar
+        android:id="@+id/progressbar"
+
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:elevation="3dp"
+        android:progressBackgroundTint="@color/white"
+        android:progressTint="@color/red"
+        android:thumbTint="@color/white"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/ib_record_btn"
+        app:layout_constraintEnd_toEndOf="@+id/tv_record_example"
+        app:layout_constraintHorizontal_bias="0.512"
+        app:layout_constraintStart_toStartOf="@+id/tv_record_example"
+        app:layout_constraintTop_toBottomOf="@+id/tv_record_example"
+        app:layout_constraintVertical_bias="0.559" />
+</android.support.constraint.ConstraintLayout>

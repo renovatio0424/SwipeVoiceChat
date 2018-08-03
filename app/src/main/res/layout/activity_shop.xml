@@ -1,395 +1,414 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/grey"
     android:fitsSystemWindows="true">
 
-    <ImageView
-        style="@style/background_image_style"
-        android:src="@drawable/background_final"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        android:fitsSystemWindows="false"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_arrow_back" />
-
-        <TextView
-            android:id="@+id/textView8"
-            style="@style/text_color"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="40dp"
-            android:gravity="center"
-            android:text="루나 상점" />
-
-    </android.support.v7.widget.Toolbar>
-
-    <LinearLayout
-        android:id="@+id/linearLayout2"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
+        android:layout_marginTop="1dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar2">
 
-        <TextView
-            android:id="@+id/my_luna_point_desc"
-            style="@style/text_color"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:gravity="center"
-            android:text="@string/shop_luna_desc"
-            android:textSize="18sp"/>
-
-        <TextView
-            style="@style/style_sub_title"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="center_vertical"
-            android:background="@color/grey_alpha"
-            android:gravity="center_vertical"
-            android:paddingLeft="16dp"
-            android:text="루나 구매하기" />
-
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_weight="1">
-
-            <TableRow
-                android:padding="4dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-
-                <LinearLayout
-                    android:id="@+id/layout_package2"
-                    android:gravity="center_horizontal"
-                    android:layout_weight="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/luna_package_style"
-                        android:drawableTop="@drawable/package_moon1"
-                        android:text="75"
-                        android:gravity="center"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        style="@style/text_color"
-                        android:gravity="center"
-                        android:layout_marginTop="8dp"
-                        android:text="3,000원"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_package3"
-                    android:gravity="center_horizontal"
-                    android:layout_weight="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/luna_package_style"
-                        android:drawableTop="@drawable/package_moon1"
-                        android:text="125"
-                        android:gravity="center"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        style="@style/text_color"
-                        android:gravity="center"
-                        android:layout_marginTop="8dp"
-                        android:text="5,000원"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-
-
-            </TableRow>
-
-            <TableRow
-                android:padding="4dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:id="@+id/layout_package1"
-                    android:gravity="center_horizontal"
-                    android:layout_weight="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/luna_package_style"
-                        android:drawableTop="@drawable/package_moon1"
-                        android:text="25"
-                        android:gravity="center"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        style="@style/text_color"
-                        android:gravity="center"
-                        android:layout_marginTop="8dp"
-                        android:text="1,000원"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-
-                <LinearLayout
-
-                    android:id="@+id/layout_package4"
-                    android:gravity="center_horizontal"
-                    android:layout_weight="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/luna_package_style"
-                        android:drawableTop="@drawable/package_moon1"
-                        android:text="250"
-                        android:gravity="center"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        style="@style/text_color"
-                        android:gravity="center"
-                        android:layout_marginTop="8dp"
-                        android:text="10,000원"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-            </TableRow>
-        </TableLayout>
-
         <LinearLayout
+            android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="0dp"
             android:orientation="vertical">
 
             <TextView
-                style="@style/style_sub_title"
+                android:id="@+id/my_luna_point_desc"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:background="@color/grey_alpha"
-                android:gravity="center_vertical"
-                android:paddingLeft="16dp"
-                android:text="루나 무료 충전하기" />
+                android:layout_height="45dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:text="@string/shop_luna_desc"
+                android:textColor="#9013fe"
+                android:textSize="18sp" />
 
-            <RelativeLayout
-                android:id="@+id/free_shop1"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:background="@color/white"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/first_row_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/layout_package1"
+                        android:layout_width="130dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal">
+
+                            <ImageButton
+                                android:id="@+id/luna_package1"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:background="@drawable/lunar_1" />
+
+                            <ImageView
+                                android:id="@+id/charge_event1"
+                                android:layout_width="72dp"
+                                android:layout_height="72dp"
+                                android:background="@drawable/event_ribbon"
+                                android:visibility="gone" />
+
+                            <TextView
+                                style="@style/luna_count_badge"
+                                android:text="25"/>
+                        </FrameLayout>
+
+
+
+                        <TextView
+                            style="@style/shop_bonus_style"
+                            android:text="보너스 +0"/>
+
+                        <TextView
+                            style="@style/shop_price_style"
+                            android:text="\uFFE61,000"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_package2"
+                        android:layout_width="130dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal">
+
+                            <ImageButton
+                                android:id="@+id/luna_package2"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:background="@drawable/lunar_2" />
+
+                            <ImageView
+                                android:id="@+id/charge_event2"
+                                android:layout_width="72dp"
+                                android:layout_height="72dp"
+                                android:background="@drawable/event_ribbon"
+                                android:visibility="gone" />
+
+                            <TextView
+                                style="@style/luna_count_badge"
+                                android:text="75" />
+                        </FrameLayout>
+
+
+                        <TextView
+                            style="@style/shop_bonus_style"
+                            android:text="보너스 +5" />
+
+                        <TextView
+                            style="@style/shop_price_style"
+                            android:text="\uFFE63,000" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/second_row_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/first_row_layout"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="13dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/layout_package3"
+                        android:layout_width="130dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal">
+
+                            <ImageButton
+                                android:id="@+id/luna_package3"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:background="@drawable/lunar_3" />
+
+                            <ImageView
+                                android:id="@+id/charge_event3"
+                                android:layout_width="72dp"
+                                android:layout_height="72dp"
+                                android:background="@drawable/event_ribbon"
+                                android:visibility="visible" />
+
+                            <TextView
+                                style="@style/luna_count_badge"
+                                android:text="125" />
+                        </FrameLayout>
+
+
+                        <TextView
+                            style="@style/shop_bonus_style"
+                            android:text="보너스 +15" />
+
+                        <TextView
+                            style="@style/shop_price_style"
+                            android:text="\uFFE65,000" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_package4"
+                        android:layout_width="130dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal">
+
+                            <ImageButton
+                                android:id="@+id/luna_package4"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:background="@drawable/lunar_4" />
+
+                            <ImageView
+                                android:id="@+id/charge_event4"
+                                android:layout_width="72dp"
+                                android:layout_height="72dp"
+                                android:background="@drawable/event_ribbon"
+                                android:visibility="gone" />
+
+                            <TextView
+                                style="@style/luna_count_badge"
+                                android:text="250"/>
+                        </FrameLayout>
+
+
+                        <TextView
+                            style="@style/shop_bonus_style"
+                            android:text="보너스 +50" />
+
+                        <TextView
+                            style="@style/shop_price_style"
+                            android:text="\uFFE610,000" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/third_row_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/second_row_layout"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="23dp"
+                    android:layout_marginTop="13dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/layout_package5"
+                        android:layout_width="130dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal">
+
+                            <ImageButton
+                                android:id="@+id/luna_package5"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:background="@drawable/lunar_5" />
+
+                            <ImageView
+                                android:id="@+id/charge_event5"
+                                android:layout_width="72dp"
+                                android:layout_height="72dp"
+                                android:background="@drawable/event_ribbon"
+                                android:visibility="visible" />
+                            <TextView
+                                style="@style/luna_count_badge"
+                                android:text="500"/>
+                        </FrameLayout>
+
+
+                        <TextView
+                            style="@style/shop_bonus_style"
+                            android:text="보너스 +150"/>
+
+                        <TextView
+                            style="@style/shop_price_style"
+                            android:text="\uFFE620,000" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/pay_error_layout"
+                        android:layout_width="130dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+
+                        <ImageButton
+                            android:id="@+id/pay_error_button"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center_horizontal"
+                            android:background="@drawable/lunar_error" />
+
+
+                        <TextView
+                            style="@style/shop_error_style"
+                            android:id="@+id/error_text_view1"
+                            android:layout_marginTop="2dp"
+                            android:text="결제 오류" />
+
+                        <TextView
+                            style="@style/shop_error_style"
+                            android:layout_marginTop="3dp"
+                            android:text="문의" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/tv_point_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/button_text_background"
+                    android:drawableTint="@color/grey"
+                    android:paddingBottom="2dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingTop="2dp"
+                    android:text="루나 사용 내역"
+                    android:textColor="@color/button_text_color" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/white"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tv_shop"
-                    style="@style/text_color"
-                    android:layout_width="wrap_content"
+                    style="@style/style_setting_title"
+                    android:text="루나 무료 충전하기" />
+
+                <RelativeLayout
+                    android:id="@+id/free_shop1"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="16dp"
-                    android:text="무료 충전소 1"
-                    tools:text="무료 충전소 1" />
+                    android:layout_weight="1"
+                    android:visibility="gone">
 
-                <ImageView
-                    android:id="@+id/imageView8"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/tv_shop"
+                        style="@style/style_setting_desc"
+                        android:text="무료 충전소 1" />
+
+                    <ImageView
+                        android:id="@+id/imageView8"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_chevron_right" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/free_shop2"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_chevron_right" />
-            </RelativeLayout>
+                    android:layout_weight="1">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:background="@color/grey" />
+                    <TextView
+                        style="@style/style_setting_desc"
+                        android:text="무료 충전소 1" />
 
-            <RelativeLayout
-                android:id="@+id/free_shop2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_chevron_right" />
+                </RelativeLayout>
 
-                <TextView
-                    style="@style/text_color"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:id="@+id/free_shop3"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
-                    android:text="무료 충전소 2" />
+                    android:layout_weight="1">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_chevron_right" />
-            </RelativeLayout>
+                    <TextView
+                        style="@style/style_setting_desc"
+                        android:text="무료 충전소 2" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:background="@color/grey" />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_chevron_right" />
+                </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/free_shop3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <TextView
-                    style="@style/text_color"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
-                    android:text="무료 충전소 3" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_chevron_right" />
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:background="@color/grey" />
-
-            <RelativeLayout
-                android:id="@+id/receipt_luna"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <TextView
-                    style="@style/text_color"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
-                    android:text="루나 사용 내역" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_chevron_right" />
-            </RelativeLayout>
+            </LinearLayout>
 
         </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
 
-    </LinearLayout>
-
-
-
+    <include layout="@layout/layout_title_bar"/>
 
 </android.support.constraint.ConstraintLayout>

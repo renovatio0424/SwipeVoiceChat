@@ -1,335 +1,321 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="@color/main_background">
 
-    <ImageView
-        style="@style/background_image_style"
+    <include layout="@layout/layout_title_bar"/>
+
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@color/white">
 
-    <LinearLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/transparent"
-            android:fitsSystemWindows="false"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme">
-
-
-            <ImageView
-                app:srcCompat="@drawable/ic_arrow_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/textView8"
-                style="@style/text_color"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="24dp"
-                android:gravity="center"
-                android:text="시작하기" />
-
-        </android.support.v7.widget.Toolbar>
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_margin="3dp"
-            android:background="@drawable/rec_white_background"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-
-            <TextView
-                android:id="@+id/textView7"
-                style="@style/text_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:padding="10dp"
-                android:text="성별 선택"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView11"
-                style="@style/text_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="12dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="8dp"
-                android:drawableLeft="@drawable/ic_moon"
-                android:drawablePadding="5dp"
-                android:text="5"
-                app:layout_constraintBottom_toBottomOf="@+id/textView7"
-                app:layout_constraintStart_toEndOf="@+id/textView7"
-                app:layout_constraintTop_toTopOf="@+id/textView7"
-                app:layout_constraintVertical_bias="0.0"
-                tools:text="5" />
-
-            <Switch
-                android:theme="@style/Theme.MyTheme"
-                android:id="@+id/sw_gender"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView7"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView7"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <RadioGroup
-                android:visibility="gone"
-                android:id="@+id/radio_group_gender"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@+id/textView7"
-                tools:layout_editor_absoluteX="16dp">
-
-                <RadioButton
-                    android:id="@+id/radio_male"
-                    android:buttonTint="@color/white"
-                    style="@style/text_color"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="남성" />
-
-                <RadioButton
-                    android:id="@+id/radio_female"
-                    android:buttonTint="@color/white"
-                    style="@style/text_color"
-                    android:layout_marginLeft="80dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="여성" />
-            </RadioGroup>
-
-            <TextView
-                style="@style/text_color"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="'여성'이 '남성'에게 보낸 이야기를 가져옵니다"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/radio_group_gender" />
-        </android.support.constraint.ConstraintLayout>
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_margin="3dp"
-            android:background="@drawable/rec_white_background"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-
-            <TextView
-                android:id="@+id/textView7"
-                style="@style/text_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:padding="10dp"
-                android:text="접속중인 사용자 이야기"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView11"
-                style="@style/text_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="12dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="8dp"
-                android:drawableLeft="@drawable/ic_moon"
-                android:drawablePadding="5dp"
-                android:text="5"
-                app:layout_constraintBottom_toBottomOf="@+id/textView7"
-                app:layout_constraintStart_toEndOf="@+id/textView7"
-                app:layout_constraintTop_toTopOf="@+id/textView7"
-                app:layout_constraintVertical_bias="0.0"
-                tools:text="5" />
-
-            <Switch
-                android:id="@+id/sw_active_user"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:theme="@style/Theme.MyTheme"
-                app:layout_constraintBottom_toBottomOf="@+id/textView7"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView7"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <TextView
-                style="@style/text_color"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="지금 접속 중인 사용자의 최근 이야기를 가져옵니다."
-                android:padding="10dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView7"
-                app:layout_constraintVertical_bias="1.0" />
-        </android.support.constraint.ConstraintLayout>
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_margin="3dp"
-            android:background="@drawable/rec_white_background"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-
-            <TextView
-                android:id="@+id/textView7"
-                style="@style/text_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:padding="10dp"
-                android:text="연령 선택"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView11"
-                style="@style/text_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="12dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="8dp"
-                android:drawableLeft="@drawable/ic_moon"
-                android:drawablePadding="5dp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView7"
-                app:layout_constraintStart_toEndOf="@+id/textView7"
-                app:layout_constraintTop_toTopOf="@+id/textView7"
-                app:layout_constraintVertical_bias="0.0"
-                android:text="5"
-                tools:text="5" />
-
-            <TextView
-                android:id="@+id/tv_age_range"
-                style="@style/text_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:text="12~44세"
-                app:layout_constraintBottom_toBottomOf="@+id/textView11"
-                app:layout_constraintStart_toEndOf="@+id/textView11"
-                app:layout_constraintTop_toTopOf="@+id/textView11"
-                tools:text="17~32세" />
-
-            <Switch
-                android:theme="@style/Theme.MyTheme"
-                android:id="@+id/sw_age_range"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView7"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView7" />
-
-            <com.appyvet.rangebar.RangeBar xmlns:custom="http://schemas.android.com/apk/res-auto"
-                android:visibility="gone"
-                android:id="@+id/rangebar_age"
-                android:layout_width="match_parent"
-                android:layout_height="72dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                custom:barWeight="2dp"
-                custom:connectingLineColor="@color/complementary_color"
-                custom:connectingLineWeight="2dp"
-                custom:layout_constraintBottom_toTopOf="@+id/textView14"
-                custom:layout_constraintEnd_toEndOf="parent"
-                custom:layout_constraintStart_toStartOf="parent"
-                custom:layout_constraintTop_toBottomOf="@+id/textView7"
-                custom:pinColor="@color/complementary_color"
-                custom:pinMaxFont="10sp"
-                custom:pinRadius="10dp"
-                custom:selectorColor="@color/complementary_color"
-                custom:selectorSize="5dp"
-                custom:temporaryPins="true"
-                custom:tickColor="@color/complementary_color"
-                custom:tickEnd="44"
-                custom:tickInterval="1"
-                custom:tickStart="12" />
-
-            <TextView
-                android:id="@+id/textView14"
-                style="@style/text_color"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:padding="10dp"
-                android:text="선택한 연령대의 이야기를 가져옵니다."
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/rangebar_age" />
-        </android.support.constraint.ConstraintLayout>
 
         <TextView
+            android:id="@+id/textView7"
             style="@style/text_color"
-            android:padding="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:padding="10dp"
+            android:text="성별 선택"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:elevation="5dp"
+            android:id="@+id/textView11"
+            style="@style/text_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/background_grey_stroke"
+            android:drawableLeft="@drawable/luna_count"
+            android:drawablePadding="5dp"
+            android:drawableTint="@color/main_color"
+            android:paddingBottom="1dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="1dp"
+            android:text="5"
+            android:textColor="@color/main_color"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
+            app:layout_constraintStart_toEndOf="@+id/textView7"
+            app:layout_constraintTop_toTopOf="@+id/textView7"
+            tools:text="5" />
+
+        <ImageView
+            android:id="@+id/sw_gender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/radio_off"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView7"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <RadioGroup
+            android:id="@+id/radio_group_gender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="필터를 설정하면 10개의 이야기를 자져올 때마다 필터에 표시된 만큼의 달을 사용합니다." />
-    </LinearLayout>
-</FrameLayout>
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/textView7"
+            tools:layout_editor_absoluteX="16dp">
+
+            <RadioButton
+                android:id="@+id/radio_male"
+                style="@style/text_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/main_color"
+                android:text="남성" />
+
+            <RadioButton
+                android:id="@+id/radio_female"
+                style="@style/text_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="80dp"
+                android:buttonTint="@color/main_color"
+                android:text="여성" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/tv_gender_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:padding="10dp"
+            android:text="'여성'이 '남성'에게 보낸 이야기를 5개 가져옵니다"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radio_group_gender" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:background="@color/white">
+
+
+        <TextView
+            android:id="@+id/textView7"
+            style="@style/text_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:padding="10dp"
+            android:text="접속중인 사용자 이야기"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:elevation="5dp"
+            android:id="@+id/textView11"
+            style="@style/text_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/background_grey_stroke"
+            android:drawableLeft="@drawable/luna_count"
+            android:drawablePadding="5dp"
+            android:drawableTint="@color/main_color"
+            android:paddingBottom="1dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="1dp"
+            android:text="5"
+            android:textColor="@color/main_color"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
+            app:layout_constraintStart_toEndOf="@+id/textView7"
+            app:layout_constraintTop_toTopOf="@+id/textView7"
+            tools:text="5" />
+
+        <ImageView
+            android:id="@+id/sw_active_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/radio_off"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView7"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:padding="10dp"
+            android:text="지금 접속 중인 사용자의 최근 이야기를 5개 가져옵니다."
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView7" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:background="@color/white">
+
+
+        <TextView
+            android:id="@+id/textView7"
+            style="@style/text_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:padding="10dp"
+            android:text="연령 선택"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView11"
+            style="@style/text_color"
+            android:elevation="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/background_grey_stroke"
+            android:drawableLeft="@drawable/luna_count"
+            android:drawablePadding="5dp"
+            android:drawableTint="@color/main_color"
+            android:paddingBottom="1dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="1dp"
+            android:text="5"
+            android:textColor="@color/main_color"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
+            app:layout_constraintStart_toEndOf="@+id/textView7"
+            app:layout_constraintTop_toTopOf="@+id/textView7"
+            tools:text="5" />
+
+        <TextView
+            android:id="@+id/tv_age_range"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:text="12~44세"
+            android:textSize="17sp"
+            android:textColor="@color/main_color"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/sw_age_range"
+            app:layout_constraintTop_toBottomOf="@+id/sw_age_range"
+            tools:text="17~32세" />
+
+        <ImageView
+            android:id="@+id/sw_age_range"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/radio_off"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView7" />
+
+        <com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/rangebar_age"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            custom:bar_color="@color/grey"
+            custom:bar_highlight_color="@color/main_color"
+            custom:data_type="_integer"
+            custom:gap="5"
+            custom:layout_constraintBottom_toTopOf="@+id/textView14"
+            custom:layout_constraintEnd_toEndOf="parent"
+            custom:layout_constraintStart_toStartOf="parent"
+            custom:layout_constraintTop_toBottomOf="@+id/tv_age_range"
+            custom:left_thumb_image="@drawable/thumb_image"
+            custom:right_thumb_image="@drawable/thumb_image"
+            custom:max_value="44"
+            custom:min_value="12"/>
+
+        <TextView
+            android:id="@+id/textView14"
+            style="@style/text_color"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:padding="10dp"
+            android:text="선택한 연령대의 이야기를 5개 가져옵니다."
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rangebar_age" />
+    </android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:textColor="#7A7A7A"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:textSize="11sp"
+        android:text="필터를 설정하면 이야기를 가져올 때마다 필터에 표시된 만큼의 루나를 사용합니다." />
+</LinearLayout>
 
 

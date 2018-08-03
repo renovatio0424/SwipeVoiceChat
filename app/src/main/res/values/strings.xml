@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">SwipeVoiceChat</string>
+
+
+    <string name="app_name">Sori</string>
     <string name="title_activity_login">Sign in</string>
 
     <!-- Strings related to login -->
@@ -27,8 +29,23 @@
     <string name="crop_image_menu_rotate_right">회전</string>
     <string name="crop_image_menu_crop">완료</string>
 
-    <string name="shop_luna_desc"><![CDATA[내 루나 <font size="20"><b>20</b></font>개]]></string>
+    <string name="shop_luna_desc"><![CDATA[<font size="20"><b>%d</b></font>루나 보유중]]></string>
     <string name="invite_desc1">지금 친구들을 초대하고\n 더 많은 목소리를 만나보세요!</string>
     <string name="invite_desc2">카톡을 통해 초대받은 친구가 가입시\n 제공된 추천 코드를 입력하면, \n가입 승인이 완료될 때 \n당신과 친구 모두 10루나를 드려요</string>
     <string name="invite_desc3">앱스토어 추천 유도 행위는 금지입니다.</string>
+    <string name="empty_chat_room">아직 채팅방이 없습니다. \n다른 사람의 이야기에 답장을 하거나 \n새이야기를 시작해보세요</string>
+    <string name="ex_record"><![CDATA[오늘 집에서 쉬는데, <br>저처럼 평일에 쉬시는 분 있나요? <br><font color=#A59C9C>함께 영화 보러 가실 분 <br>찾습니다...</font>]]></string>
+    <string name="ex_save">녹음 파일이 생성되었습니다. \n다시 듣고 싶으시면 \n재생버튼을 눌러주세요</string>
+    <string name="sign_up_desc">당신에 대하여 조금만 알려주세요. \n당신과 연관된 이야기를 들려드립니다 :)</string>
+    <string name="date">날짜</string>
+    <string name="log_desc">내역</string>
+    <string name="change">변화</string>
+    <string name="accumulate">누적</string>
+    <string name="private_user_info"><u>개인정보 취급 방침</u></string>
+    <string name="terms_location"><u>위치기반 이용방침</u></string>
+    <string name="terms_use"><u>이용약관</u></string>
+    <string name="do_qna">문의하기</string>
+    <string name="email_content_qna">ID : %1$s \\n기기 : Android \\n* 위의 정보는 문제를 해결하기위해 필요한 정보입니다. 지우지 말아 주세요.\\n\\n</string>
+    <string name="send_email">Send Email</string>
+    <string name="dialog_reply_content"><![CDATA[첫 답장에만 루나가 필요해요!<br><br><font color=#9013fe><small>2루나 필요</small></font>]]></string>
 </resources>

@@ -3,6 +3,7 @@ package com.square.renov.swipevoicechat.widget;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.IOException;
@@ -23,8 +24,12 @@ public class VoicePlayerManager {
     }
 
 
-    public int getAmplitude(){
+    public int getAmplitude() {
         return this.mRecorder.getMaxAmplitude();
+    }
+
+    public MediaPlayer getmPlayer() {
+        return mPlayer;
     }
 
     public static VoicePlayerManager getInstance() {
@@ -45,29 +50,42 @@ public class VoicePlayerManager {
     }
 
     public void voiceRecord(Context context) {
-        mRecorder = new MediaRecorder();
+        if(mRecorder == null){
+            mRecorder = new MediaRecorder();
+            mFileName = context.getExternalCacheDir().getAbsolutePath();
+            mFileName += VOICE_FILE_NAME;
 
-        mFileName = context.getExternalCacheDir().getAbsolutePath();
-        mFileName += VOICE_FILE_NAME;
-
-        mRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        try {
+            mRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             mRecorder.setOutputFile(mFileName);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+//            mRecorder.setAudioEncoder(MediaRecorder.getAudioSourceMax());
+            mRecorder.setAudioEncodingBitRate(16);
+            mRecorder.setAudioSamplingRate(44100);
+        }
+
+        try {
             mRecorder.prepare();
+            mRecorder.start();
         } catch (Exception e) {
 //            Log.e(LOG_TAG, "prepare() failed");
             Log.e(TAG, null, e);
         }
 
-        mRecorder.start();
+
     }
 
     public void voiceRecordStop() {
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;
+        try {
+            mRecorder.stop();
+            mRecorder.reset();
+            mRecorder.release();
+            mRecorder = null;
+        } catch (RuntimeException e){
+            e.printStackTrace();
+        }
+//        mRecorder.release();
+
     }
 
     public int voicePlay(Context context) {
@@ -77,13 +95,12 @@ public class VoicePlayerManager {
         return voicePlay(mFileName);
     }
 
-    public int getPlayTime(String filePath) throws IOException {
-        if(mPlayer == null){
+    public int getPlayTime(String filePath, Context context) throws IOException {
+        if (mPlayer == null) {
             mPlayer = new MediaPlayer();
         }
-        mPlayer.setDataSource(filePath);
+        mPlayer = MediaPlayer.create(context, Uri.parse(filePath));
         int time = mPlayer.getDuration();
-        mPlayer = null;
         return time;
     }
 
@@ -120,9 +137,25 @@ public class VoicePlayerManager {
 
     public void voicePlayStop() {
         isPlay.set(false);
+        if (mPlayer != null) {
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer = null;
+        }
+    }
 
-        mPlayer.stop();
-        mPlayer.release();
-        mPlayer = null;
+    public void voicePlayResume() {
+        isPlay.set(true);
+        mPlayer.start();
+    }
+
+
+    public void voicePlayPause() {
+        isPlay.set(false);
+        mPlayer.pause();
+    }
+
+    public boolean isPlay() {
+        return isPlay.get();
     }
 }

@@ -7,7 +7,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class User implements Parcelable{
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class User extends RealmObject implements Parcelable{
+
 
     @SerializedName("name")
     @Expose
@@ -27,6 +31,12 @@ public class User implements Parcelable{
     @SerializedName("profileImageUrl")
     @Expose
     private String profileImageUrl;
+    @SerializedName("id")
+    @Expose
+    private int id;
+    @SerializedName("cash")
+    @Expose
+    private int luna;
 
     public String getLat() {
         return lat;
@@ -81,6 +91,8 @@ public class User implements Parcelable{
         dest.writeString(gender);
         dest.writeString(profileImageUrl);
         dest.writeInt(birth);
+        dest.writeInt(id);
+        dest.writeInt(luna);
     }
 
     public User(){
@@ -98,6 +110,8 @@ public class User implements Parcelable{
         }
         gender = in.readString();
         profileImageUrl = in.readString();
+        id = in.readInt();
+        luna = in.readInt();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -123,5 +137,21 @@ public class User implements Parcelable{
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getLuna() {
+        return luna;
+    }
+
+    public void setLuna(int luna) {
+        this.luna = luna;
     }
 }

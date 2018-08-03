@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tutorial">tutorial</string>
+    <string name="login">log in</string>
+    <string name="facebook_sign_up">facebook sign up</string>
+    <string name="google_sign_up">facebook sign up</string>
+    <string name="facebook_profile_regist">facebook profile regist</string>
+    <string name="google_profile_regist">google profile regist</string>
+    <string name="facebook_main">facebook main</string>
+    <string name="google_main">google main</string>
+</resources>

@@ -1,138 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:background="@color/black">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tv_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="카드 가 없습니다. 잠시만 기다려 주세요 :)"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/tr_filter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/activity_main_card_stack_view" />
+
+    <ImageButton
+        android:id="@+id/ib_reject"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="8dp"
+        android:elevation="1dp"
+        android:scaleType="fitXY"
+        android:background="@drawable/button_reject"
+        app:layout_constraintBottom_toTopOf="@+id/tr_filter"
+        app:layout_constraintEnd_toStartOf="@+id/ib_accept"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/activity_main_card_stack_view" />
+
+    <ImageButton
+        android:id="@+id/ib_accept"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
+        android:background="@drawable/button_accept"
+        android:elevation="1dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/ib_reject"
+        app:layout_constraintEnd_toStartOf="@+id/activity_main_card_stack_view"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/ib_reject"
+        app:layout_constraintTop_toTopOf="@+id/ib_reject" />
+
+    <com.yuyakaido.android.cardstackview.CardStackView
+        android:id="@+id/activity_main_card_stack_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp"
+        android:visibility="visible"
+        app:elevationEnabled="true"
+        app:layout_constraintBottom_toTopOf="@+id/tr_filter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:leftOverlay="@layout/swipe_left_msg_view"
+        app:rightOverlay="@layout/swipe_right_msg_view"
+        app:scaleDiff="0.05"
+        app:stackFrom="top"
+        app:swipeDirection="freedom_no_bottom"
+        app:swipeEnabled="true"
+        app:swipeThreshold="0.75"
+        app:translationDiff="16"
+        app:visibleCount="3">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
+    </com.yuyakaido.android.cardstackview.CardStackView>
+
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/tr_filter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:gravity="center"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/fl_new_story"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/filter_luna"
+            style="@style/filter_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/transparent"
-            android:fitsSystemWindows="false"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme">
+            android:drawableLeft="@drawable/ic_moon"
+            android:drawableTint="@color/main_color_inactive"
+            android:text="15"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/filter_setting"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <!--<TextView-->
-                <!--android:id="@+id/textView8"-->
-                <!--style="@style/text_color"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginRight="24dp"-->
-                <!--android:gravity="center_horizontal"-->
-                <!--android:text="보이스톡" />-->
-
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:gravity="center_horizontal"
-                app:srcCompat="@drawable/ic_sori_icon"
-                />
-
-        </android.support.v7.widget.Toolbar>
-
-        <com.yuyakaido.android.cardstackview.CardStackView
-            android:id="@+id/activity_main_card_stack_view"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/filter_setting"
+            style="@style/filter_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="16dp"
-            android:visibility="visible"
-            app:elevationEnabled="true"
-            app:leftOverlay="@layout/swipe_left_msg_view"
-            app:rightOverlay="@layout/swipe_right_msg_view"
-            app:scaleDiff="0.02"
-            app:stackFrom="top"
-            app:swipeDirection="freedom_no_bottom"
-            app:swipeEnabled="true"
-            app:swipeThreshold="0.75"
-            app:translationDiff="12"
-            app:visibleCount="3" />
+            android:drawableLeft="@drawable/ic_filter"
+            android:drawableTint="@color/main_color_inactive"
+            android:text="필터"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/filter_luna"
+            app:layout_constraintRight_toLeftOf="@id/filter_event"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/tr_filter"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="5dp"
-            android:gravity="center"
-            android:visibility="gone">
+        <TextView
+            android:id="@+id/filter_event"
+            style="@style/filter_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_event"
+            android:drawableTint="@color/main_color_inactive"
+            android:text="이벤트"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/filter_setting"
+            app:layout_constraintRight_toLeftOf="@id/filter_shop"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/filter_shop"
-                style="@style/text_color"
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/background_button"
-                android:drawableLeft="@drawable/ic_moon"
-                android:gravity="center"
-                android:padding="4dp"
-                android:text="15"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/filter_setting"
-                app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/filter_shop"
+            style="@style/filter_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_shop"
+            android:drawableTint="@color/main_color_inactive"
+            android:text="상점"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/filter_event"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/filter_setting"
-                style="@style/text_color"
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:background="@drawable/background_button"
-                android:gravity="center"
-                android:padding="4dp"
-                android:text="필터"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/filter_shop"
-                app:layout_constraintRight_toLeftOf="@id/filter_event"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/filter_event"
-                style="@style/text_color"
-                android:layout_width="60dp"
-                android:layout_height="match_parent"
-                android:background="@drawable/background_button"
-                android:gravity="center"
-                android:padding="4dp"
-                android:text="이벤트"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/filter_setting" />
-        </android.support.constraint.ConstraintLayout>
+    <FrameLayout
+        android:id="@+id/fl_new_story"
+        style="@style/bottom_card_button"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="bottom"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/tv_new_story"
-            style="@style/style_button"
-            android:layout_width="match_parent"
+            style="@style/bottom_card_button"
+            android:layout_width="wrap_content"
             android:layout_height="45dp"
-            android:gravity="center"
-            android:text="새로운 이야기 시작하기"
-            android:visibility="gone" />
-    </LinearLayout>
+            android:layout_gravity="center"
+            android:drawableLeft="@drawable/mic_white"
+            android:drawablePadding="8dp"
+            android:text="내 이야기 보내기" />
+    </FrameLayout>
 
 
-    <ProgressBar
-        android:id="@+id/activity_main_progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        tools:visibility="visible" />
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

@@ -2,16 +2,20 @@ package com.square.renov.swipevoicechat.Activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -27,14 +31,17 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
+import com.onesignal.OneSignal;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.network.ProgressHandler;
 import com.square.renov.swipevoicechat.Network.network.RequestManager;
 import com.square.renov.swipevoicechat.Network.network.VolleyMultipartRequest;
 import com.square.renov.swipevoicechat.R;
+import com.square.renov.swipevoicechat.Util.AdbrixUtil;
 import com.square.renov.swipevoicechat.Util.ImageUtil;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
+import com.square.renov.swipevoicechat.Util.Utils;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -58,8 +65,8 @@ public class ProfileActivity extends AppCompatActivity {
     ImageView ivCrop;
     @BindView(R.id.btn_complete)
     TextView btnComplete;
-    @BindView(R.id.btn_profile_register)
-    ImageButton btnProfileRegister;
+    @BindView(R.id.tv_upload)
+    TextView tvUpload;
 
     Unbinder unbinder;
     User myinfo;
@@ -75,14 +82,22 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        View decorView = getWindow().getDecorView();
+        // Hide the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+        // Remember that you should never show the action bar if the
+        // status bar is hidden, so hide that too if necessary.
 
         setContentView(R.layout.activity_profile);
 
         unbinder = ButterKnife.bind(this);
 
+        AdbrixUtil.setFirstTimeExperience(this, SharedPrefHelper.PROFILE);
+
 //        Uri profileUri = Uri.parse();
         String profilePath = null;
-        if(getIntent().hasCategory("profile")){
+        if (getIntent().hasCategory("profile")) {
             Log.e("profile", getIntent().getStringExtra("profile"));
             profilePath = getIntent().getStringExtra("profile");
         }
@@ -90,7 +105,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         Glide.with(getApplicationContext())
                 .load(profilePath)
-                .apply(RequestOptions.placeholderOf(R.drawable.button_profile))
+                .apply(RequestOptions.placeholderOf(R.drawable.crop_image))
                 .apply(RequestOptions.bitmapTransform(multiTransformation))
                 .into(ivCrop);
     }
@@ -99,11 +114,6 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
-    }
-
-    @OnClick(R.id.iv_back)
-    public void onClickBack() {
-        finish();
     }
 
     @OnClick(R.id.btn_complete)
@@ -121,64 +131,32 @@ public class ProfileActivity extends AppCompatActivity {
     private void ImageUpload(Uri mCropImageUri) {
 //        File imageFile = new File(mCropImageUri.getPath());
 
-        File imageFile = new File(ImageUtil.getFilePathFromUri(mCropImageUri, getApplicationContext()));
+        //TODO 블러처리
+        Uri blurImageUri = ImageUtil.cropImageToBlurImage(mCropImageUri, getApplicationContext());
+        File imageFile = new File(ImageUtil.getFilePathFromUri(blurImageUri, getApplicationContext()));
+
 //        int fileSize = Integer.parseInt(String.valueOf(imageFile.length()/1024));
         int fileSize = (int) imageFile.length();
         Call<Map> call = NetRetrofit.getInstance(this).getService().getUploadMetaData("image", fileSize);
         call.enqueue(new Callback<Map>() {
             @Override
             public void onResponse(Call<Map> call, Response<Map> response) {
-                try {
-                    Log.d(TAG, "response raw: " + response.raw());
-                    Log.d(TAG, "response headers: " + response.headers());
-                    Log.d(TAG, "response body: " + response.body());
 
-                    if (response.errorBody() != null)
-                        Log.d(TAG, "response error body: " + response.errorBody().string());
+                if (response.isSuccessful()) {
+                    String key = (String) response.body().get("key");
+                    String Host = (String) response.body().get("Host");
 
+                    Log.d(TAG, "key: " + key);
+                    Log.d(TAG, "Host: " + Host);
 
-                    if (response.isSuccessful()) {
-                        String key = (String) response.body().get("key");
-                        String Host = (String) response.body().get("Host");
-
-                        Log.d(TAG, "key: " + key);
-                        Log.d(TAG, "Host: " + Host);
-                        
-                        String fileName = key.replace("image/", "");
-                        uploadImage(response.body(), imageFile);
-
-//                        fileName = fileName.replace(".jpg", "");
-
-
-//                        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", fileName, RequestBody.create(MediaType.parse("image/*"), imageFile));
-//                        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", fileName, RequestBody.create(MediaType.parse("image/*"), imageFile));
-//                        response.body().put("file", imageFile);
-
-//                        Call<String> request = FileUploadRetrofit.getInstance(getApplicationContext()).getService().upload(key, response.body(), filePart);
-//                        request.enqueue(new Callback<String>() {
-//                            @Override
-//                            public void onResponse(Call<String> call, Response<String> response) {
-//                                if(response.isSuccessful()){
-//                                    Log.d(TAG,"body: " + response.body());
-//                                } else {
-//                                    try {
-//                                        Log.d(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onFailure(Call<String> call, Throwable t) {
-//
-//                            }
-//                        });
-                    } else {
-                        Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
+                    String fileName = key.replace("image/", "");
+                    uploadImage(response.body(), imageFile);
+                } else {
+                    try {
+                        Utils.toastError(getApplicationContext(), response);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
 
@@ -192,7 +170,7 @@ public class ProfileActivity extends AppCompatActivity {
     public void uploadImage(Map updateInfo, File imagefile) {
         final String uploadImagePath = "https://" + updateInfo.get("Host") + "/" + updateInfo.get("key");
         Log.d(TAG, uploadImagePath);
-        
+
         String filePath = ImageUtil.getFilePathFromUri(getTempUri(), getApplicationContext());
         if (filePath == null || "".equals(filePath)) {
             return;
@@ -202,7 +180,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest("https://hellovoicebucket.s3.amazonaws.com",
                 response -> {
-                    Log.d(TAG,"onResponse : " + response);
+                    Log.d(TAG, "onResponse : " + response);
 
                     progressHandler.onCancel();
 
@@ -239,12 +217,12 @@ public class ProfileActivity extends AppCompatActivity {
 //                        }
                     moveToMain();
                 }, error -> {
-                    Log.d(TAG,"onErrorResponse : " + error.getMessage());
+            Log.d(TAG, "onErrorResponse : " + error.getMessage());
 
-                    //TODO : 프로그레스 스타트
-                    ImageUtil.deleteImageByUri(getTempUri(), getApplicationContext());
-                    Toast.makeText(ProfileActivity.this, "error", Toast.LENGTH_SHORT).show();
-                });
+            //TODO : 프로그레스 스타트
+            ImageUtil.deleteImageByUri(getTempUri(), getApplicationContext());
+            Toast.makeText(ProfileActivity.this, "error", Toast.LENGTH_SHORT).show();
+        });
 
         updateInfo.remove("Host");
         updateInfo.remove("uploadImagePath");
@@ -260,12 +238,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         //TODO : 프로그레스 종료
         RequestManager.addRequest(multipartRequest, "ProfileMultipart");
-        
-        
+
+
     }
 
     private void moveToMain() {
+        OneSignal.sendTag("userId", String.valueOf(myinfo.getId()));
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("duration",1000);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
@@ -274,20 +254,20 @@ public class ProfileActivity extends AppCompatActivity {
 //        getMyInfo(uploadImagePath);
         User myInfo = (User) getIntent().getParcelableExtra("user");
 
-        Log.e(TAG,"user birth: " + myInfo.getBirth());
+        Log.e(TAG, "user birth: " + myInfo.getBirth());
         myInfo.setProfileImageUrl(uploadImagePath);
 
         Call<User> request = NetRetrofit.getInstance(this).getService().updateUserInfo(myInfo);
         request.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
                     Gson gson = new Gson();
                     SharedPrefHelper.getInstance(ProfileActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(response.body()));
                     moveToMain();
                 } else {
                     try {
-                        Log.e(TAG, "code: " + response.code() + " message: " + response.errorBody().string());
+                        Utils.toastError(getApplicationContext(), response);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -302,34 +282,29 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void getMyInfo(String uploadImagePath) {
-        Call<User> request =  NetRetrofit.getInstance(this).getService().checkCurrentUserInfo();
+        Call<User> request = NetRetrofit.getInstance(this).getService().checkCurrentUserInfo();
         request.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
                     myinfo = response.body();
 
-                    Log.d(TAG,"gender: " + myinfo.getGender() +
+                    Log.d(TAG, "gender: " + myinfo.getGender() +
                             "\nlat: " + myinfo.getLat() +
                             "\nlng: " + myinfo.getLng() +
                             "\nprofileImageUrl: " + myinfo.getProfileImageUrl() +
                             "\nbirth: " + myinfo.getBirth());
 
-                    Log.e(TAG, "profileImageUrl: " + (myinfo.getProfileImageUrl() == null ? "null" : "exist" ));
+                    Log.e(TAG, "profileImageUrl: " + (myinfo.getProfileImageUrl() == null ? "null" : "exist"));
 
                     myinfo.setProfileImageUrl(uploadImagePath);
 
                 } else {
                     try {
-                        Log.e(TAG,"raw: " + response.raw());
-                        Log.e(TAG,"code: " + response.code());
-                        Log.e(TAG,"headers: " + response.headers());
-                        Log.e(TAG,"error body: " + response.errorBody().string());
-                        Toast.makeText(ProfileActivity.this, "code: " + response.code() + "error message: " + response.errorBody().string(), Toast.LENGTH_SHORT).show();
+                        Utils.toastError(getApplicationContext(), response);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                 }
             }
 
@@ -345,7 +320,7 @@ public class ProfileActivity extends AppCompatActivity {
         try {
             uri = Uri.fromFile(ImageUtil.createTempImageFileForProfile());
         } catch (Exception e) {
-            Log.w(TAG,"getTempUri fail : " + e.getMessage());
+            Log.w(TAG, "getTempUri fail : " + e.getMessage());
         }
         return uri;
     }
@@ -381,7 +356,9 @@ public class ProfileActivity extends AppCompatActivity {
 //        권한 요청
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
+                .setMaxCropResultSize(960,1020)
                 .setMinCropResultSize(200, 300)
+                .setAutoZoomEnabled(false)
                 .setFixAspectRatio(true)
                 .setAspectRatio(3, 4)
                 .setAllowFlipping(false)
@@ -389,11 +366,20 @@ public class ProfileActivity extends AppCompatActivity {
                 .start(this);
     }
 
-    @OnClick(R.id.btn_profile_register)
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @OnClick(R.id.tv_upload)
     public void onClickButtonProfileRegister() {
+        if (CropImage.isExplicitCameraPermissionRequired(this)) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CropImage.CAMERA_CAPTURE_PERMISSIONS_REQUEST_CODE);
+            return;
+        }
+
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
+                .setMaxCropResultSize(960,1020)
                 .setMinCropResultSize(200, 300)
+                .setAutoZoomEnabled(false)
                 .setFixAspectRatio(true)
                 .setAspectRatio(3, 4)
                 .setAllowFlipping(false)

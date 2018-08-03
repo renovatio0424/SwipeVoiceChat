@@ -5,31 +5,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:background="@color/black">
+    tools:background="@color/white">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/empty_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        android:fitsSystemWindows="false">
+        android:layout_weight="1"
+        android:visibility="gone">
 
         <TextView
-            android:id="@+id/textView8"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_marginRight="24dp"
+            android:id="@+id/textView5"
             style="@style/text_color"
-            android:text="채팅방" />
-    </android.support.v7.widget.Toolbar>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/empty_chat_room"
+            android:textColor="#9b9b9b"
+            android:textSize="16sp"
+            android:lineSpacingMultiplier="1.2"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
 
-
-    <android.support.v7.widget.RecyclerView
-        android:layout_weight="1"
+    <com.square.renov.swipevoicechat.widget.EmptyRecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:visibility="visible" />
 </LinearLayout>

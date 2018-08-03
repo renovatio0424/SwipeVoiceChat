@@ -1,32 +1,42 @@
 package com.square.renov.swipevoicechat.Model;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 public class Result {
+
+    @SerializedName("message")
+    @Expose
     private String message;
-    private boolean error;
+    @SerializedName("error")
+    @Expose
+    private Boolean error;
+    @SerializedName("code")
+    @Expose
     private String code;
 
     public String getMessage() {
         return message;
     }
 
-    public boolean getError() {
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Boolean getError() {
         return error;
+    }
+
+    public void setError(Boolean error) {
+        this.error = error;
     }
 
     public String getCode() {
         return code;
     }
 
-    public Result setResultFromErrorBody(String ErrorBody){
-        String mJsonString = ErrorBody;
-        JsonParser parser = new JsonParser();
-        JsonElement mJson = parser.parse(mJsonString);
-        Gson gson = new Gson();
-        Result result = gson.fromJson(mJson, Result.class);
-        return result;
+    public void setCode(String code) {
+        this.code = code;
     }
+
 }

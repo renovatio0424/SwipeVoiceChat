@@ -4,57 +4,112 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:background="@color/black">
+    android:background="@color/white"
+    tools:ignore="missingPrefix">
 
-    <ImageView
-        android:id="@+id/iv_profile"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+
+    <FrameLayout
+        android:id="@+id/fl_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/com_facebook_profile_picture_blank_square" />
+        app:layout_constraintVertical_bias="0.0">
+
+        <ImageView
+            android:id="@+id/iv_profile"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="3dp"
+            app:srcCompat="@drawable/com_facebook_profile_picture_blank_square" />
+
+        <TextView
+            android:id="@+id/tv_new_badge"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="bottom|right"
+            android:background="@drawable/background_badge"
+            android:gravity="center"
+            android:text="N"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            android:visibility="visible" />
+    </FrameLayout>
 
     <TextView
-        style="@style/text_color"
         android:id="@+id/tv_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        tools:text="이름"
-        app:layout_constraintStart_toEndOf="@+id/iv_profile"
-        app:layout_constraintTop_toTopOf="@+id/iv_profile" />
-
-    <TextView
         style="@style/text_color"
-        android:id="@+id/tv_chat_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_profile"
-        app:layout_constraintStart_toEndOf="@+id/iv_profile"
-        app:layout_constraintTop_toBottomOf="@+id/tv_name"
-        tools:text="채팅내용" />
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_chat_desc"
+        app:layout_constraintStart_toEndOf="@+id/fl_profile"
+        app:layout_constraintTop_toTopOf="@+id/fl_profile"
+        tools:text="이름" />
 
     <TextView
+        android:id="@+id/tv_chat_desc"
         style="@style/text_color"
-        android:id="@+id/tv_last_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textColor="#6D6D6D"
+        android:textSize="13sp"
+        app:fontName="custom1"
+        app:layout_constraintBottom_toBottomOf="@+id/fl_profile"
+        app:layout_constraintStart_toEndOf="@+id/fl_profile"
+        app:layout_constraintTop_toBottomOf="@+id/tv_name"
+        tools:ignore="MissingPrefix"
+        tools:text="12km" />
+
+    <TextView
+        android:id="@+id/tv_last_time"
+        style="@style/text_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="#6D6D6D"
+        android:textSize="10sp"
+        app:fontName="custom1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/iv_profile"
+        app:layout_constraintStart_toEndOf="@+id/fl_profile"
+        app:layout_constraintTop_toTopOf="@+id/tv_name"
+        tools:ignore="MissingPrefix"
         tools:text="오전 12:39" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/main_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_age"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="21"
+        android:textColor="@color/grey"
+        app:fontName="custom1"
+        app:layout_constraintStart_toEndOf="@+id/tv_name"
+        app:layout_constraintTop_toTopOf="@+id/tv_name"
+        tools:ignore="MissingPrefix" />
+
 </android.support.constraint.ConstraintLayout>

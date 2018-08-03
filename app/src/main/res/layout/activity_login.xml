@@ -4,13 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_sample0"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="false">
+
+    <ImageView
+        android:id="@+id/imageView3"
+        style="@style/background_image_style"
+        app:layout_constraintBottom_toBottomOf="@+id/button2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_moon_logo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.29000002"
+        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintDimensionRatio="H,1:1"
+        android:background="@drawable/a_logo_moon" />
+
+    <ImageView
+        android:elevation="4dp"
+        android:id="@+id/imageView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/sori_white"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_moon_logo"
+        app:layout_constraintEnd_toEndOf="@+id/iv_moon_logo"
+        app:layout_constraintStart_toStartOf="@+id/iv_moon_logo"
+        app:layout_constraintTop_toTopOf="@+id/iv_moon_logo" />
+
 
 
     <Button
         android:id="@+id/facebook_sign_up_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
@@ -18,56 +57,45 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/background_facebook"
-        android:drawableLeft="@drawable/ico_facebook"
+        android:background="@drawable/background_google"
+        android:drawableLeft="@drawable/facebook_logo"
         android:drawablePadding="20dp"
-        android:gravity="center"
-        android:padding="20dp"
-        android:text="Facebook으로 로그인하기"
+        android:gravity="right|center_vertical"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="32dp"
+        android:paddingTop="8dp"
+        android:text="페이스북으로 로그인하기"
         android:textColor="@android:color/white"
-        android:textSize="13sp"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/google_sign_up_button"
+        app:layout_constraintBottom_toTopOf="@+id/button2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
-        app:layout_constraintVertical_bias="0.995" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.8"
+        app:layout_constraintWidth_percent="0.66" />
 
     <Button
         android:id="@+id/google_sign_up_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/background_google"
-        android:drawableLeft="@drawable/googleg_standard_color_18"
+        android:drawableLeft="@drawable/gmail_logo"
         android:drawablePadding="20dp"
-        android:gravity="center"
-        android:padding="20dp"
-        android:text="Google로 로그인하기"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="13sp"
+        android:gravity="right|center_vertical"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="32dp"
+        android:paddingTop="8dp"
+        android:text="G mail로 로그인하기"
+        android:textColor="@android:color/white"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/sign_in_facebook"
         app:layout_constraintEnd_toEndOf="@+id/facebook_sign_up_button"
-        app:layout_constraintStart_toStartOf="@+id/facebook_sign_up_button" />
-
-    <com.facebook.login.widget.LoginButton
-        android:id="@+id/sign_in_facebook"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/sign_in_google"
-        app:layout_constraintEnd_toEndOf="@+id/sign_in_google"
-        app:layout_constraintStart_toStartOf="@+id/sign_in_google"
-        android:visibility="gone"/>
+        app:layout_constraintHorizontal_bias="0.318"
+        app:layout_constraintStart_toStartOf="@+id/facebook_sign_up_button"
+        app:layout_constraintTop_toBottomOf="@+id/facebook_sign_up_button" />
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_google"
@@ -79,12 +107,12 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/button2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_button"
-        android:visibility="gone"/>
+        app:layout_constraintTop_toBottomOf="@+id/login_button" />
 
     <Button
         android:id="@+id/button2"
@@ -94,22 +122,94 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:text="메인화면 바로가기"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/sign_in_google"
         app:layout_constraintStart_toStartOf="@+id/sign_in_google" />
 
+
+
     <TextView
-        android:id="@+id/textView5"
+        style="@style/text_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:textColor="#24307a"
+        android:textSize="11sp"
+        android:text="! 페이스북 로그인을 통해 어떠한 흔적도 남지 않습니다 !"
+        app:layout_constraintBottom_toTopOf="@+id/facebook_sign_up_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TableRow
+        android:id="@+id/tableRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintLeft_toLeftOf="@id/google_sign_up_button"
+        app:layout_constraintRight_toRightOf="@id/google_sign_up_button"
+        app:layout_constraintTop_toBottomOf="@+id/google_sign_up_button">
+
+        <TextView
+            android:id="@+id/textView34"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="지금 시작하시면 "
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/tv_terms_policy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/terms_use"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/textView36"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" 및 "
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/tv_terms_privacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/private_user_info"
+            android:textColor="@color/white" />
+    </TableRow>
+
+    <TableRow
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="108dp"
-        style="@style/text_color"
-        android:text="로고"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="@+id/tableRow"
+        app:layout_constraintStart_toStartOf="@+id/tableRow"
+        app:layout_constraintTop_toBottomOf="@+id/tableRow">
+
+        <TextView
+            android:id="@+id/tv_terms_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/terms_location"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/textView39"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="에 동의하시는 것으로 간주됩니다."
+            android:textColor="@color/white"/>
+    </TableRow>
+
+
 </android.support.constraint.ConstraintLayout>

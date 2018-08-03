@@ -9,11 +9,11 @@
          "profileImageUrl":"https://pbs.twimg.com/profile_images/572905100960485376/GK09QnNG.jpeg"
       },
       "voiceUrl":"https://hellovoicebucket.s3.amazonaws.com/voice/13_022b9c34-7c27-4749-8268-acdcd0f6ff40.m4a",
-      "sendTime":1529988788102
+      "sendTime":1530584220607
    },
    {
       "user":{
-         "name": "Jung Won  Kim",
+         "name": "김정원",
          "lat": "37.513513513513516",
          "lng": "127.02410453605984",
          "birth": 1992,
@@ -21,7 +21,7 @@
          "profileImageUrl": "https://hellovoicebucket.s3.amazonaws.com/image/25_3f56303a-616c-4889-9a10-077f06c60f00.jpg"
       },
       "voiceUrl":"https://hellovoicebucket.s3.amazonaws.com/voice/13_022b9c34-7c27-4749-8268-acdcd0f6ff40.m4a",
-      "sendTime":1529988788102
+      "sendTime":1530584220607
    },
    {
       "user":{
@@ -33,11 +33,11 @@
          "profileImageUrl":"https://pbs.twimg.com/profile_images/572905100960485376/GK09QnNG.jpeg"
       },
       "voiceUrl":"https://hellovoicebucket.s3.amazonaws.com/voice/13_022b9c34-7c27-4749-8268-acdcd0f6ff40.m4a",
-      "sendTime":1529988788102
+      "sendTime":1530584220607
    },
    {
       "user":{
-         "name": "Jung Won  Kim",
+         "name": "김정원",
          "lat": "37.513513513513516",
          "lng": "127.02410453605984",
          "birth": 1992,
@@ -45,6 +45,6 @@
          "profileImageUrl": "https://hellovoicebucket.s3.amazonaws.com/image/25_3f56303a-616c-4889-9a10-077f06c60f00.jpg"
       },
       "voiceUrl":"https://hellovoicebucket.s3.amazonaws.com/voice/13_022b9c34-7c27-4749-8268-acdcd0f6ff40.m4a",
-      "sendTime":1529988788102
+      "sendTime":1530584220607
    }
 ]

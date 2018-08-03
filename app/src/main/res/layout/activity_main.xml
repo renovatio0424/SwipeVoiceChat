@@ -1,35 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.MainActivity"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".Activity.MainActivity">
 
-    <ImageView
-        style="@style/background_image_style"/>
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:orientation="horizontal"
+        android:theme="?attr/actionBarTheme">
 
-        <com.square.renov.swipevoicechat.widget.NonSwipeViewPager
-            android:id="@+id/frame_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+        <ImageView
+            android:id="@+id/title_user"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintHeight_percent="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:padding="16dp"
+            app:srcCompat="@drawable/a_user" />
 
-        <android.support.design.widget.BottomNavigationView
-            android:id="@+id/navigation"
-            android:layout_gravity="bottom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/windowBackground"
-            app:menu="@menu/navigation" />
+        <ImageView
+            android:id="@+id/title_main"
+            style="@style/text_color"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/title_chat_room"
+            app:layout_constraintStart_toEndOf="@+id/title_user"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/a_title_sori" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/title_chat_room"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center_vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="1.0"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/a_chat" />
 
-</FrameLayout>
+    </android.support.constraint.ConstraintLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/main_background" />
+
+    <com.square.renov.swipevoicechat.widget.NonSwipeViewPager
+        android:id="@+id/frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+</LinearLayout>

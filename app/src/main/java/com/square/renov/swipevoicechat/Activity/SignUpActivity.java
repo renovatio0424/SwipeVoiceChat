@@ -1,9 +1,9 @@
 package com.square.renov.swipevoicechat.Activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,28 +11,34 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ListPopupWindow;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.simplelist.MaterialSimpleListAdapter;
-import com.afollestad.materialdialogs.simplelist.MaterialSimpleListItem;
 import com.square.renov.swipevoicechat.Model.Result;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.R;
+import com.square.renov.swipevoicechat.Util.AdbrixUtil;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.square.renov.swipevoicechat.Util.Utils;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Map;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,16 +52,19 @@ public class SignUpActivity extends AppCompatActivity {
 
     private static final String TAG = SignUpActivity.class.getSimpleName();
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    @BindView(R.id.tv_birthday)
-    TextView tvBirthday;
-    @BindView(R.id.group_gender)
-    RadioGroup groupGender;
-    @BindView(R.id.radio_male)
-    RadioButton radioMale;
+
+    @BindView(R.id.tv_male)
+    TextView tvMale;
+    @BindView(R.id.tv_female)
+    TextView tvFemale;
+    boolean isMale = true;
     @BindView(R.id.group_y_n)
-    RadioGroup groupYN;
+    Button locationAgreement;
+    boolean isAgreeLocationTerms = false;
     @BindView(R.id.tv_start)
     TextView tvStart;
+    @BindView(R.id.spinner)
+    Spinner spinner;
 
 
     private FusedLocationProviderClient mFusedLocationClient;
@@ -63,52 +72,104 @@ public class SignUpActivity extends AppCompatActivity {
 
     Unbinder unbinder;
 
-    MaterialSimpleListAdapter adapter = new MaterialSimpleListAdapter((dialog, index, item) -> {
-        Toast.makeText(this, "click[" + index + "]: " + item.getContent(), Toast.LENGTH_SHORT).show();
-        tvBirthday.setText(item.getContent());
-        if (isCompleteForm())
-            tvStart.setActivated(true);
-        dialog.dismiss();
-    });
-
-    int birthday = 0;
-
     MaterialDialog birthdayDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up3);
+        setContentView(R.layout.activity_sign_up);
         unbinder = ButterKnife.bind(this);
+
+        //adbrix facebook , google 계정 확인을 위한 코드
+        SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, getIntent().getStringExtra("type"));
+
+        AdbrixUtil.setFirstTimeExperience(this, SharedPrefHelper.SIGNUP);
 
         tvStart.setActivated(false);
 
-        int year = Calendar.getInstance().get(Calendar.YEAR);
 
-        for (int i = year - 14 + 1; i > year - 44 + 1; i--) {
-            adapter.add(new MaterialSimpleListItem.Builder(this)
-                    .content(String.valueOf(i))
-                    .backgroundColor(Color.WHITE)
-                    .build());
-
+        try {
+            setSpinner();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
 
-        groupGender.setOnCheckedChangeListener(((group, checkedId) -> {
-            if (isCompleteForm()) tvStart.setActivated(true);
-        }));
-
-        groupYN.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.radio_yes) {
-                getLocation();
-                if (isCompleteForm())
-                    tvStart.setActivated(true);
-            }
-
+        tvMale.setOnClickListener(v -> {
+            isMale = true;
+            tvMale.setBackgroundResource(R.drawable.a_gender_full);
+            tvFemale.setBackgroundResource(R.drawable.a_gender_empty);
         });
 
-        setBirthdayDialog(birthday);
+        tvFemale.setOnClickListener(v -> {
+            isMale = false;
+            tvFemale.setBackgroundResource(R.drawable.a_gender_full);
+            tvMale.setBackgroundResource(R.drawable.a_gender_empty);
+        });
+
+        locationAgreement.setAlpha(0.6f);
+
+        locationAgreement.setOnClickListener(v -> {
+            if (isAgreeLocationTerms) {
+//                locationAgreement.setSelected(isAgreeLocationTerms);
+//                locationAgreement.setBackgroundResource(R.drawable.background_google);
+                isAgreeLocationTerms = false;
+                v.post(() -> v.setAlpha(0.6f));
+            } else {
+//                locationAgreement.setSelected(isAgreeLocationTerms);
+//                locationAgreement.setBackgroundResource(R.drawable.background_spinner);
+                isAgreeLocationTerms = true;
+                v.post(() -> v.setAlpha(1f));
+                getLocation();
+            }
+        });
+
+//        setBirthdayDialog(birthday);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    }
+
+    int pastPosition = -1;
+
+    private void setSpinner() throws NoSuchFieldException, IllegalAccessException {
+        setSpinnerHeight(200);
+
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+
+        ArrayList<String> birthList = new ArrayList<>();
+
+        for (int i = year - 14 + 1; i > year - 44 + 1; i--) {
+            birthList.add(String.valueOf(i));
+        }
+
+        CustomSpinnerAdapter spinnerAdapter = new CustomSpinnerAdapter(this, birthList);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (pastPosition == -1) {
+                    ((TextView) parent.findViewById(R.id.spinnerText)).setTextColor(getResources().getColor(R.color.color_spinner_inactive));
+                } else {
+                    ((TextView) parent.findViewById(R.id.spinnerText)).setTextColor(getResources().getColor(R.color.main_color));
+                }
+
+                pastPosition = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        spinner.setAdapter(spinnerAdapter);
+    }
+
+    private void setSpinnerHeight(int spinnerHeight) throws NoSuchFieldException, IllegalAccessException {
+        Field popup = Spinner.class.getDeclaredField("mPopup");
+        popup.setAccessible(true);
+
+        ListPopupWindow window = (ListPopupWindow) popup.get(spinner);
+        window.setHeight(Utils.dpToPx(spinnerHeight));
     }
 
 
@@ -162,7 +223,8 @@ public class SignUpActivity extends AppCompatActivity {
                     getLocation();
                 else {
                     Toast.makeText(this, "위치 권한 설정에 동의하셔야 서비스 이용이 가능합니다.", Toast.LENGTH_SHORT).show();
-                    groupYN.check(R.id.radio_no);
+                    locationAgreement.setAlpha(1.f);
+                    isAgreeLocationTerms = false;
                 }
 
 //                if (grantResults.length > 0
@@ -182,24 +244,6 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.iv_back)
-    public void onClickBack() {
-        finish();
-    }
-
-    @OnClick(R.id.tv_birthday)
-    public void showBirthdayDialog() {
-        birthdayDialog.show();
-    }
-
-    private void setBirthdayDialog(int birthday) {
-        birthdayDialog = new MaterialDialog.Builder(this)
-                .title("생년월일")
-                .adapter(adapter, null)
-                .limitIconToDefaultSize()
-                .build();
-    }
-
     String name;
     String profile;
     String type;
@@ -215,19 +259,13 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        String result = "result: " + tvBirthday.getText() + "\n"
-                + (groupGender.getCheckedRadioButtonId() == R.id.radio_male ? "male" : "female") + "\n"
-                + (groupYN.getCheckedRadioButtonId() == R.id.radio_yes ? 'y' : 'n');
-
-        Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
-
-//        TODO: 회원가입 ㄱㄱ 이름, 프로필 사진 등록
+        //TODO: 회원가입 ㄱㄱ 이름, 프로필 사진 등록
         name = getIntent().getStringExtra("name");
         profile = getIntent().getStringExtra("profile");
         type = getIntent().getStringExtra("type");
         token = getIntent().getStringExtra("token");
-        gender = (groupGender.getCheckedRadioButtonId() == R.id.radio_male ? "M" : "F");
-        birth = tvBirthday.getText().toString();
+        gender = (isMale ? "M" : "F");
+        birth = spinner.getSelectedItem().toString();
         lat = String.valueOf(mlocation.getLatitude());
         lng = String.valueOf(mlocation.getLongitude());
 
@@ -245,7 +283,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
-                    if(response.code() == 200){
+                    if (response.code() == 200) {
                         String token = response.headers().get("HelloVoiceAuth");
                         Log.d(TAG, "token: " + token);
                         SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, token);
@@ -255,18 +293,20 @@ public class SignUpActivity extends AppCompatActivity {
                         moveToProfile(response.body());
                     }
 
-
                 } else {
                     try {
-                        String error = response.errorBody().string();
-                        Toast.makeText(SignUpActivity.this, "error body: " + error, Toast.LENGTH_SHORT).show();
-                        Gson gson = new Gson();
-                        Map<String,String> message = gson.fromJson(error, Map.class);
-                        if("이미 가입한 유저입니다.".equals(message.get("message"))){
-                            User me = SharedPrefHelper.getInstance(SignUpActivity.this).getUserInfo();
-                            moveToProfile(me);
+                        Result result = Utils.parseError(response);
+                        if ("이미 가입한 유저입니다.".equals(result.getMessage())) {
+                            String token = response.headers().get("HelloVoiceAuth");
+                            Log.d(TAG, "token: " + token);
+                            SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, token);
+                            SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, getIntent().getStringExtra("type"));
+                            Gson gson = new Gson();
+                            SharedPrefHelper.getInstance(SignUpActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(response.body()));
+                            moveToProfile(response.body());
+                        } else {
+                            Utils.toastError(getApplicationContext(), response);
                         }
-                        Log.e(TAG, "error body: " + response.errorBody().string());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -290,24 +330,83 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private boolean isCompleteForm() {
-        if (!tvBirthday.getText().equals("클릭해주세요") &&
-                groupGender.getCheckedRadioButtonId() != -1 &&
-                groupYN.getCheckedRadioButtonId() != -1)
+        if (isAgreeLocationTerms &&
+                mlocation != null) {
+
             return true;
-
-        if (tvBirthday.getText().equals("클릭해주세요"))
-            Toast.makeText(this, "출생 연도를 선택해주세요", Toast.LENGTH_SHORT).show();
-        else if (groupGender.getCheckedRadioButtonId() == -1)
-            Toast.makeText(this, "성별을 선택해주세요", Toast.LENGTH_SHORT).show();
-        else if (groupYN.getCheckedRadioButtonId() == -1)
-            Toast.makeText(this, "위치 정보 이용을 선택해주세요", Toast.LENGTH_SHORT).show();
-
-        return false;
+        } else {
+            if (!isAgreeLocationTerms)
+                Toast.makeText(this, "disagree", Toast.LENGTH_SHORT).show();
+            if (mlocation == null)
+                Toast.makeText(this, "location null", Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+    }
+
+    /**
+     * 스피너 커스텀을 위한 클래스
+     * 누르기전 layout = spinner_custom_layout
+     * 드롭다운 layout = spinner_dropdown_layout
+     */
+    public class CustomSpinnerAdapter extends BaseAdapter {
+        Context context;
+        List<String> data;
+        LayoutInflater inflater;
+        TextView selectTv;
+
+        public CustomSpinnerAdapter(Context context, List<String> data) {
+            this.context = context;
+            this.data = data;
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public int getCount() {
+            if (data != null)
+                return data.size();
+            else
+                return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return data.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.spinner_custom_layout, parent, false);
+            }
+
+            if (data != null) {
+                String text = data.get(position);
+                ((TextView) convertView.findViewById(R.id.spinnerText)).setText(text);
+            }
+            return convertView;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.spinner_dropdown_layout, parent, false);
+            }
+            //데이터세팅
+            String text = data.get(position);
+            ((TextView) convertView.findViewById(R.id.spinnerText)).setText(text);
+
+            return convertView;
+        }
     }
 }

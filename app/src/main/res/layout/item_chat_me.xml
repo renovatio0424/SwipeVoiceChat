@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:background="@color/black"
+    android:paddingTop="4dp">
+
+    <com.square.renov.swipevoicechat.widget.VoiceBubble
+        android:id="@+id/chat_bubble"
+        android:layout_width="200dp"
+        android:layout_height="32dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="4dp"
+        app:bg="@drawable/my_bubble_line"
+        app:progress_background_tint="@color/my_progress_background_color"
+        app:progress_tint="@color/my_progress_color"
+        app:play_button_tint="@color/my_play_button_tint"
+        app:time_color="@color/my_time_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_chat_time"
+        style="@style/chat_time_text_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="오후 1:30"
+        android:textColor="#919191"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_bubble"
+        app:layout_constraintEnd_toStartOf="@+id/chat_bubble"
+        tools:text="오후 1:30" />
+
+</android.support.constraint.ConstraintLayout>

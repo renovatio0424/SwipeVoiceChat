@@ -115,7 +115,7 @@ public class Base64 {
             -1, // Equals sign at decimal 61
             -9, -9, -9, // Decimal 62 - 64
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, // Letters 'A' through 'N'
-            14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, // Letters 'O' through 'Z'
+            14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, // Letters 'accept_normal' through 'Z'
             -9, -9, -9, -9, -9, -9, // Decimal 91 - 96
             26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, // Letters 'a' through 'm'
             39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, // Letters 'n' through 'z'
@@ -151,7 +151,7 @@ public class Base64 {
                     -1, // Equals sign at decimal 61
                     -9, -9, -9, // Decimal 62 - 64
                     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, // Letters 'A' through 'N'
-                    14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, // Letters 'O' through 'Z'
+                    14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, // Letters 'accept_normal' through 'Z'
                     -9, -9, -9, -9, // Decimal 91-94
                     63, // Underscore '_' at decimal 95
                     -9, // Decimal 96
@@ -181,7 +181,7 @@ public class Base64 {
     private Base64() {
     }
 
-    /* ********  E N C O D I N G   M E T H O D S  ******** */
+    /* ********  E N C accept_normal D I N G   M E T H accept_normal D S  ******** */
 
     /**
      * Encodes up to three bytes of the array <var>source</var>
@@ -358,7 +358,7 @@ public class Base64 {
     }
 
 
-    /* ********  D E C O D I N G   M E T H O D S  ******** */
+    /* ********  D E C accept_normal D I N G   M E T H accept_normal D S  ******** */
 
 
     /**

@@ -1,27 +1,30 @@
 package com.square.renov.swipevoicechat.Activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.igaworks.IgawCommon;
+import com.igaworks.adbrix.IgawAdbrix;
+import com.onesignal.OneSignal;
 import com.square.renov.swipevoicechat.Handler.BackPressCloseHandler;
 import com.square.renov.swipevoicechat.Model.Result;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.ApiService;
 import com.square.renov.swipevoicechat.R;
+import com.square.renov.swipevoicechat.Util.AdbrixUtil;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
-import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
@@ -34,11 +37,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.square.renov.swipevoicechat.Util.Utils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -51,15 +50,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LogInActivity extends AppCompatActivity {
+public class LogInActivity extends Activity {
 
     private static final int GOOGLE_SIGN_IN = 1000;
     private static final String TAG = LogInActivity.class.getSimpleName();
     private static final int FACEBOOK_SIGN_IN = 64206;
     GoogleSignInClient mGoogleSignInClient;
+    GoogleSignInAccount account;
 
     public String SNSTYPE_GOOGLE = "GOOGLE";
     public String SNSTYPE_FACEBOOK = "FACEBOOK";
+
+    private FirebaseAnalytics firebaseAnalytics;
 
     @BindView(R.id.facebook_sign_up_button)
     Button facebookSignUpButton;
@@ -73,7 +75,6 @@ public class LogInActivity extends AppCompatActivity {
 
     ApiService Service = NetRetrofit.getInstance(this).getService();
 
-    GoogleSignInAccount account;
 
     boolean isOurUser = false;
     private BackPressCloseHandler backPressCloseHandler = new BackPressCloseHandler(this);
@@ -84,57 +85,48 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login2);
-
+        setContentView(R.layout.activity_login);
+        onNewIntent(LogInActivity.this.getIntent());
         unbinder = ButterKnife.bind(this);
+
+        initFirebaseAnalystics();
+        AdbrixUtil.setFirstTimeExperience(this, SharedPrefHelper.LOGIN);
 
         initGoogleSignIn();
         initFacebookSignIn();
 //        TODO : 로그인 유저 정보 받아서 넘기기
-        AutoLogIn();
+
+//        goToTutorial();
     }
 
-    private void AutoLogIn() {
-//        TODO: 로그인시 토큰값 발행 -> 어플 재실행시 토큰값 확인후 바로 로그인
-//        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+    private void goToTutorial() {
+        Intent intent = new Intent(this, TutorialActivity.class);
+        startActivity(intent);
+    }
 
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
-        account = GoogleSignIn.getLastSignedInAccount(this);
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        IgawCommon.registerReferrer(LogInActivity.this);
+    }
 
-        //
-//        // Check for existing Google Sign In account, if the user is already signed in
-//        // the GoogleSignInAccount will be non-null.
-//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-//        boolean isFacebookLoggedIn = accessToken != null && !accessToken.isExpired();
-//        boolean isGoogleLoggedIn = account != null;
-//
-//        if (isFacebookLoggedIn && isOurUser | isGoogleLoggedIn && isOurUser) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-        String accessToken = SharedPrefHelper.getInstance(LogInActivity.this).getSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, null);
-        String snsType = SharedPrefHelper.getInstance(LogInActivity.this).getSharedPreferences(SharedPrefHelper.SNS_TYPE, null);
-
-        if (accessToken != null && snsType != null) {
-            if (snsType.equals(SNSTYPE_FACEBOOK))
-                accessToken = AccessToken.getCurrentAccessToken().getToken();
-            else if (snsType.equals(SNSTYPE_GOOGLE)){
-                accessToken = GoogleSignIn.getLastSignedInAccount(this).getIdToken();
-            } else {
-                Toast.makeText(this, "로그인 한적 없는 유저입니다", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Call<User> call = NetRetrofit.getInstance(this).getService().login(accessToken, snsType);
-            call.enqueue(returnCallback(snsType, accessToken));
+    private void initAdbrix() {
+        if (SharedPrefHelper.getInstance(this).hadExperiencedSignUpStep(SharedPrefHelper.LOGIN)) {
+            SharedPrefHelper.getInstance(this).setSharedPreferences(SharedPrefHelper.SIGN_UP_STEP, SharedPrefHelper.LOGIN);
+            IgawAdbrix.firstTimeExperience(getString(R.string.login));
         }
     }
+
+    private void initFirebaseAnalystics() {
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "test id");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "test name");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
 
     /**
      * <public_profile>
@@ -163,7 +155,7 @@ public class LogInActivity extends AppCompatActivity {
         callbackManager = CallbackManager.Factory.create();
 //        signInFacebook.setReadPermissions(Arrays.asList("public_profile ", "user_status"));
         LoginManager.getInstance().logInWithReadPermissions(LogInActivity.this,
-                Arrays.asList("public_profile", "email","user_birthday"));
+                Arrays.asList("public_profile", "email", "user_birthday"));
     }
 
     private Callback<User> returnCallback(String snsType, String Token) {
@@ -184,7 +176,7 @@ public class LogInActivity extends AppCompatActivity {
                     SharedPrefHelper.getInstance(LogInActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, snsType);
                     SharedPrefHelper.getInstance(LogInActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(myInfo));
 
-                    Log.d(TAG,"gender: " + myInfo.getGender() +
+                    Log.d(TAG, "gender: " + myInfo.getGender() +
                             "\nlat: " + myInfo.getLat() +
                             "\nlng: " + myInfo.getLng() +
                             "\nprofileImageUrl: " + myInfo.getProfileImageUrl() +
@@ -192,42 +184,38 @@ public class LogInActivity extends AppCompatActivity {
 
                     Log.e(TAG, "user.tostring(): " + gson.toJson(myInfo));
 
-                    if(myInfo.getProfileImageUrl() == null || "".equals(myInfo.getProfileImageUrl()))
+                    if (myInfo.getProfileImageUrl() == null || "".equals(myInfo.getProfileImageUrl()))
                         moveToProfile(myInfo);
-                    else
+                    else {
                         moveToMain();
+                        OneSignal.sendTag("userId", String.valueOf(myInfo.getId()));
+                    }
                 } else {
                     switch (response.code()) {
                         case 400://회원 가입해야 하는 유저
-                            String errorBody = null;
+
+                            Result result = null;
                             try {
-                                errorBody = response.errorBody().string();
+                                result = Utils.parseError(response);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            Log.d(TAG, "header:" + response.headers() + "\nbody: " + errorBody);
-                            String mJsonString = errorBody;
-                            JsonParser parser = new JsonParser();
-                            JsonElement mJson = parser.parse(mJsonString);
-                            Gson gson = new Gson();
-                            Result result = gson.fromJson(mJson, Result.class);
 
-                            if (!"회원 가입을 먼저 진행해주세요.".equals(result.getMessage())){
+                            if (!"회원 가입을 먼저 진행해주세요.".equals(result.getMessage())) {
                                 Toast.makeText(LogInActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                                 break;
                             }
 
-                            if(snsType.equals(SNSTYPE_FACEBOOK)) {
+                            if (snsType.equals(SNSTYPE_FACEBOOK)) {
                                 Profile profile = Profile.getCurrentProfile();
 
-                                moveToSignUp(snsType, Token, profile.getName(), profile.getProfilePictureUri(200,300).toString());
+                                moveToSignUp(snsType, Token, profile.getName(), profile.getProfilePictureUri(200, 300).toString());
                                 Log.e("facebook", "first name: " + profile.getFirstName());
                                 Log.e("facebook", "Last name: " + profile.getLastName());
                                 Log.e("facebook", "Middle name: " + profile.getMiddleName());
                                 Log.e("facebook", "name: " + profile.getName());
-                                Log.e("facebook", "picture uri: " + profile.getProfilePictureUri(200,300).toString());
+                                Log.e("facebook", "picture uri: " + profile.getProfilePictureUri(200, 300).toString());
                             } else if (snsType.equals(SNSTYPE_GOOGLE)) {
-
                                 String googleToken = account.getIdToken();
                                 String userName = account.getDisplayName();
                                 Uri personPhoto = account.getPhotoUrl();
@@ -238,11 +226,10 @@ public class LogInActivity extends AppCompatActivity {
                                 Log.e("google", "personPhoto: " + personPhoto.getPath());
                                 moveToSignUp(snsType, Token, userName, personPhoto.toString());
                             }
-
+                            break;
                         default:
                             try {
-                                Toast.makeText(LogInActivity.this, "error body: " + response.errorBody().string(), Toast.LENGTH_SHORT).show();
-                                Log.e(TAG, "error body: " + response.errorBody().string());
+                                Utils.toastError(getApplicationContext(), response);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -261,8 +248,13 @@ public class LogInActivity extends AppCompatActivity {
     }
 
 
-
     private void initGoogleSignIn() {
+        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
+        account = GoogleSignIn.getLastSignedInAccount(this);
         // Set the dimensions of the sign-in button.
         signInGoogle.setSize(SignInButton.SIZE_WIDE);
         signInGoogle.setOnClickListener(v -> signIn());
@@ -277,6 +269,10 @@ public class LogInActivity extends AppCompatActivity {
 
     @OnClick(R.id.facebook_sign_up_button)
     public void onClickFacebookSignUpButton() {
+        //TODO UI TEST
+//        moveToSignUp(null,null,null,null);
+//        return;
+
         callbackManager = CallbackManager.Factory.create();
 //        signInFacebook.setReadPermissions(Arrays.asList("public_profile ", "user_status"));
         LoginManager.getInstance().logInWithReadPermissions(LogInActivity.this,
@@ -310,7 +306,6 @@ public class LogInActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Toast.makeText(this, "onActivityResult(): " + requestCode + ", " + resultCode, Toast.LENGTH_SHORT).show();
         Log.e(TAG, "onActivityResult(): " + requestCode + ", " + resultCode);
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == GOOGLE_SIGN_IN) {
@@ -355,14 +350,25 @@ public class LogInActivity extends AppCompatActivity {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             // https://developers.google.com/android/reference/com/google/android/gms/auth/api/signin/GoogleSignInStatusCodes
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+            int errorCode = e.getStatusCode();
+            String errorMessage = "";
+            switch (errorCode) {
+                case GoogleSignInStatusCodes.NETWORK_ERROR:
+                    errorMessage = "인터넷 연결을 확인해주세요";
+                    break;
+                default:
+                    errorMessage = GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode());
+                    break;
+            }
+            Toast.makeText(this, errorMessage + ": " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+            Log.w(TAG, "signInResult:failed code=" + errorCode);
 
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void moveToMain() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("duration", 1000);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
@@ -372,12 +378,12 @@ public class LogInActivity extends AppCompatActivity {
         String type = SharedPrefHelper.getInstance(LogInActivity.this).getSharedPreferences(SharedPrefHelper.SNS_TYPE, null);
         Intent intent = new Intent(this, ProfileActivity.class);
 
-        if("GOOGLE".equals(type)){
+        if ("GOOGLE".equals(type)) {
 //            intent.putExtra("profile", account.getPhotoUrl().toString());
-            Log.e(TAG,"google profile: " + account.getPhotoUrl().toString());
-        } else if ("FACEBOOK".equals(type)){
-            intent.putExtra("profile", Profile.getCurrentProfile().getProfilePictureUri(200,300).toString());
-            Log.e(TAG,"facebook profile: " + Profile.getCurrentProfile().getProfilePictureUri(200,300).toString());
+            Log.e(TAG, "google profile: " + account.getPhotoUrl().toString());
+        } else if ("FACEBOOK".equals(type)) {
+            intent.putExtra("profile", Profile.getCurrentProfile().getProfilePictureUri(200, 300).toString());
+            Log.e(TAG, "facebook profile: " + Profile.getCurrentProfile().getProfilePictureUri(200, 300).toString());
         }
 
         intent.putExtra("user", user);
@@ -386,8 +392,8 @@ public class LogInActivity extends AppCompatActivity {
 
     private void moveToSignUp(String SnsType, String token, String name, String profileImagePath) {
         Log.e(TAG, "sns Type: " + SnsType + "\ntoken: " + token);
-        Toast.makeText(this, "name: " + name, Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "profile: " + profileImagePath, Toast.LENGTH_SHORT).show();
+        Log.e(TAG, "name: " + name);
+        Log.e(TAG, "profile: " + profileImagePath);
 
         Intent intent = new Intent(this, SignUpActivity.class);
         intent.putExtra("type", SnsType);
@@ -407,5 +413,26 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         backPressCloseHandler.onBackPressed();
+    }
+
+    @OnClick(R.id.tv_terms_location)
+    public void onClickTermsLocation() {
+        Intent intent = new Intent(this, WebActivity.class);
+        intent.putExtra("name", "location");
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.tv_terms_policy)
+    public void onClickTermsPolicy() {
+        Intent intent = new Intent(this, WebActivity.class);
+        intent.putExtra("name", "policy");
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.tv_terms_privacy)
+    public void onClickTermsPrivacy() {
+        Intent intent = new Intent(this, WebActivity.class);
+        intent.putExtra("name", "privacy");
+        startActivity(intent);
     }
 }

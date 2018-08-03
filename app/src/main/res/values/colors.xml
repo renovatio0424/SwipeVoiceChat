@@ -6,12 +6,31 @@
     <color name="grey">#CACCCE</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-
+    <color name="shadow_color">#335c5c5c</color>
     <color name="moon_color">#FFEB33</color>
 
-    <color name="main_color">#364B6A</color>
+    <color name="other_progress_background_color">#565758</color>
+    <color name="other_progress_color">#D2D2D2</color>
+    <color name="other_play_button_tint">#373F4C</color>
+    <color name="other_time_color">#919090</color>
+    <color name="my_progress_background_color">#555659</color>
+    <color name="my_progress_color">#D2D2D2</color>
+    <color name="my_play_button_tint">#F1F0F0</color>
+    <color name="my_time_color">#91959C</color>
+
+    <color name="main_background">#f1f1f1</color>
+
+    <color name="text_color_grey">#B3B2B6D9</color>
+    <color name="title_color">#000000</color>
+    <color name="sub_title_color">#f1f1f1</color>
+
+    <color name="main_color">#9013fe</color>
+    <color name="main_color_inactive">#BD72FF</color>
+    <color name="sub_color">#4e44c3</color>
+    <color name="indicator_unselect">#B7ADBE</color>
+
+
     <color name="button_color">#364B6A</color>
-    <color name="sub_color">#0067FF</color>
     <color name="complementary_color">#FFA900</color>
 
     <color name="transparent">#00000000</color>
@@ -19,6 +38,14 @@
     <color name="story_progress">#f2503b</color>
     <color name="alpha_0">#00000000</color>
     <color name="main_grey_color">#E4E2E1</color>
-    <color name="text_color">#FFFFFF</color>
+    <color name="text_color">#000000</color>
     <color name="grey_alpha">#33CACCCE</color>
+    <color name="red">#FF5563</color>
+    <color name="green">#57C56A</color>
+    <color name="color_spinner_inactive">#cacaca</color>
+    <color name="age_white_color">#99FFFFFF</color>
+    <color name="age_black_color">#99000000</color>
+    <color name="shop_luna_color">#726CDC</color>
+    <color name="shope_luna_color">#726CDC</color>
+    <color name="edit_background_color">#C889FF</color>
 </resources>

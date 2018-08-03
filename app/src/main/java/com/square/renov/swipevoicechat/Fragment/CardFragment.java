@@ -1,27 +1,43 @@
 package com.square.renov.swipevoicechat.Fragment;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.LinearInterpolator;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,20 +47,24 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.square.renov.swipevoicechat.Activity.FilterActivity;
 import com.square.renov.swipevoicechat.Activity.InviteActivity;
+import com.square.renov.swipevoicechat.Activity.PointLogActivity;
+import com.square.renov.swipevoicechat.Activity.RecordActivity;
 import com.square.renov.swipevoicechat.Activity.ShopActivity;
 import com.square.renov.swipevoicechat.Event.RefreshEvent;
+import com.square.renov.swipevoicechat.Model.Filter;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Model.VoiceCard;
+import com.square.renov.swipevoicechat.Model.VoiceChat;
 import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.ApiService;
 import com.square.renov.swipevoicechat.R;
 import com.square.renov.swipevoicechat.Util.AgeUtil;
+import com.square.renov.swipevoicechat.Util.DialogUtils;
 import com.square.renov.swipevoicechat.Util.DistanceUtil;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.square.renov.swipevoicechat.Util.Utils;
 import com.square.renov.swipevoicechat.widget.VoicePlayerManager;
-import com.square.renov.swipevoicechat.widget.VoicePlayerView;
 import com.yuyakaido.android.cardstackview.CardStackView;
 import com.yuyakaido.android.cardstackview.SwipeDirection;
 
@@ -52,36 +72,51 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import jp.wasabeef.glide.transformations.BlurTransformation;
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rm.com.audiowave.AudioWaveView;
+
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 
 public class CardFragment extends Fragment {
 
     private static final String TAG = CardFragment.class.getSimpleName();
-    @BindView(R.id.activity_main_progress_bar)
-    public ProgressBar progressBar;
+
     @BindView(R.id.activity_main_card_stack_view)
     public CardStackView cardStackView;
-    @BindView(R.id.tv_new_story)
-    public TextView btnNewStory;
+    @BindView(R.id.fl_new_story)
+    public FrameLayout btnNewStory;
     @BindView(R.id.tr_filter)
     public ConstraintLayout filterRow;
+    @BindView(R.id.filter_luna)
+    TextView filterLuna;
+    @BindView(R.id.ib_reject)
+    ImageButton rejectButton;
+    @BindView(R.id.ib_accept)
+    ImageButton acceptButton;
+    @BindView(R.id.tv_empty)
+    TextView tvEmpty;
+
     //    private TouristSpotCardAdapter adapter;
     private UserCardAdapter adapter;
 
     private String[] permissions = {Manifest.permission.RECORD_AUDIO};
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+    int recordRequestCode = 1234;
 
     ApiService service = NetRetrofit.getInstance(getContext()).getService();
 
@@ -89,6 +124,7 @@ public class CardFragment extends Fragment {
 
     public Unbinder unbinder;
     public VoiceCard pastCard;
+    private boolean isActive;
 
 
     public static CardFragment newInstance(User myInfo) {
@@ -102,10 +138,22 @@ public class CardFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
         Gson gson = new Gson();
-        String jsonUserInfo = SharedPrefHelper.getInstance(getContext()).getSharedPreferences(SharedPrefHelper.USER_INFO,null);
+        String jsonUserInfo = SharedPrefHelper.getInstance(getContext()).getSharedPreferences(SharedPrefHelper.USER_INFO, null);
         myInfo = gson.fromJson(jsonUserInfo, User.class);
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        isActive = true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        isActive = false;
     }
 
     @Override
@@ -125,32 +173,45 @@ public class CardFragment extends Fragment {
         return view;
     }
 
-
-    @Subscribe
-    public void onRefreshEvent(RefreshEvent refreshEvent){
-        Log.e("event bus","onRefreshEvent(): " + CardFragment.class.getSimpleName());
-
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
         unbinder.unbind();
     }
 
     private void createUserCardAdapter() {
+        if (adapter == null)
+            adapter = new UserCardAdapter(getContext());
 
-        for(VoiceCard card : Utils.loadCards(getContext())){
-            adapter.add(card);
+//        for(VoiceCard card : Utils.loadCards(getContext())){
+//            adapter.add(card);
+//        }
+        adapter.addAll(Utils.loadCards(getContext()));
+        cardStackView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+        cardStackView.setVisibility(View.VISIBLE);
+        btnNewStory.setVisibility(View.VISIBLE);
+        filterRow.setVisibility(View.VISIBLE);
+        filterRow.setVisibility(View.VISIBLE);
+
+        try {
+            int currentPosition = cardStackView.getTopIndex();
+            pastCard = adapter.getItem(currentPosition);
+            Log.d("CardStackView", "topIndex: " + cardStackView.getTopIndex());
+            Log.d("CardStackView", "past card id: " + pastCard.getId());
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            pastCard = null;
+            tvEmpty.setVisibility(View.VISIBLE);
         }
-
 //        for (Profile profile : Utils.loadProfiles(getContext())) {
 //            adapter.add(profile);
 //        }
     }
 
     private void setup() {
+        filterLuna.setText("" + myInfo.getLuna());
         cardStackView.setSwipeThreshold(0.5f);
         cardStackView.setSwipeDirection(SwipeDirection.HORIZONTAL);
         cardStackView.setCardEventListener(new CardStackView.CardEventListener() {
@@ -162,19 +223,58 @@ public class CardFragment extends Fragment {
             @Override
             public void onCardSwiped(SwipeDirection direction) {
                 Log.d("CardStackView", "onCardSwiped: " + direction.toString());
-                int currentPosition = cardStackView.getTopIndex();
-                pastCard = adapter.getItem(currentPosition);
-                Log.d("CardStackView", "topIndex: " + cardStackView.getTopIndex());
+
                 if (direction == SwipeDirection.Right) {
-                    showRecordDialog(false);
+//                    showRecordDialog(false);
+                    moveToRecordActivity(pastCard.getId());
+                    int currentPosition = cardStackView.getTopIndex();
+                    try {
+                        pastCard = adapter.getItem(currentPosition);
+                        Log.d("CardStackView", "on card swiped topIndex: " + cardStackView.getTopIndex());
+                    }catch (IndexOutOfBoundsException e){
+                        tvEmpty.setVisibility(View.VISIBLE);
+                        acceptButton.setVisibility(View.GONE);
+                        rejectButton.setVisibility(View.GONE);
+                    }
+                } else if (direction == SwipeDirection.Left) {
+                    Call<VoiceCard> request = NetRetrofit.getInstance(getContext()).getService().passVoice(pastCard.getId(), "Pass", null);
+                    request.enqueue(new Callback<VoiceCard>() {
+                        @Override
+                        public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
+                            if (response.isSuccessful()) {
+                                int currentPosition = cardStackView.getTopIndex();
+                                try {
+                                    pastCard = adapter.getItem(currentPosition);
+                                    Log.d("CardStackView", "on card swiped topIndex: " + cardStackView.getTopIndex());
+                                }catch (IndexOutOfBoundsException e){
+                                    tvEmpty.setVisibility(View.VISIBLE);
+                                    acceptButton.setVisibility(View.GONE);
+                                    rejectButton.setVisibility(View.GONE);
+                                }
+                                adapter.remove(pastCard);
+                            } else {
+                                try {
+                                    Utils.parseError(response);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<VoiceCard> call, Throwable t) {
+                            t.printStackTrace();
+                        }
+                    });
                 }
 
-
-                if (cardStackView.getTopIndex() == adapter.getCount() - 5) {
+                /**
+                 * 5장 남았을 경우 새로 불러오기
+                 * */
+                if (adapter.getCount() - cardStackView.getTopIndex() < 5) {
                     Log.d("CardStackView", "Paginate: " + cardStackView.getTopIndex());
-                    paginate();
+//                    loadCard();
                 }
-
             }
 
             @Override
@@ -194,224 +294,62 @@ public class CardFragment extends Fragment {
         });
     }
 
-    private void showRecordDialog(boolean isNewStory) {
-        ResultReceiver resultReceiver = new ResultReceiver(new Handler()) {
-            @Override
-            protected void onReceiveResult(int resultCode, Bundle resultData) {
-                int OK_CODE = 1000;
-                if (resultCode == OK_CODE && getActivity() != null) {
-                    Toast.makeText(getActivity(), "음성이 발송되었습니다", Toast.LENGTH_SHORT).show();
+    private void moveToRecordActivity(Integer chatId) {
+        Intent intent = new Intent(getActivity(), RecordActivity.class);
+        intent.putExtra("chatId", chatId);
+        startActivityForResult(intent, recordRequestCode);
+//        startActivity(intent);
+    }
 
-                    String voice_url_path = resultData.getString(VoiceDialogFragment.EXTRA_RESULT_DATA);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-                    if(isNewStory){
-                        Log.d(TAG,"voice Url : " + voice_url_path);
-                        Call<VoiceCard> request = service.sendNewVoice(voice_url_path);
-                        request.enqueue(new Callback<VoiceCard>() {
-                            @Override
-                            public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
-                                if(response.isSuccessful()){
-                                    Toast.makeText(getContext(), "성공적으로 전송했습니다.", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    try {
-                                        Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
+        if (requestCode == recordRequestCode && resultCode == RESULT_CANCELED) {
+            cardStackView.reverse();
+        }
+    }
 
-                            @Override
-                            public void onFailure(Call<VoiceCard> call, Throwable t) {
-                                t.printStackTrace();
-                                Log.e(TAG,t.getMessage());
-                            }
-                        });
-                    } else {
+    private void setMyChat(long currentTime, String voiceUrl) {
+        User me = SharedPrefHelper.getInstance(getContext()).getUserInfo();
+        VoiceChat myChat = new VoiceChat();
+        myChat.setSendTime(currentTime);
+        myChat.setVoiceUser(me);
+        myChat.setVoiceUrl(voiceUrl);
+        SharedPrefHelper.getInstance(getContext()).setMyChat(myChat);
+    }
 
-//                        request = service.sendChatVoice(currentCard.getId() ,voice_url_path);
-                        Call<VoiceChatRoom> request = service.makeVoiceChatRoom(pastCard.getId());
-                        request.enqueue(new Callback<VoiceChatRoom>() {
-                            @Override
-                            public void onResponse(Call<VoiceChatRoom> call, Response<VoiceChatRoom> response) {
-                                Log.e(TAG, "" + response.body());
+    private void setOtherChat() {
+        VoiceChat otherChat = new VoiceChat();
+        otherChat.setSendTime(1530584220607L);
+        otherChat.setVoiceUrl(pastCard.getVoiceUrl());
+        otherChat.setVoiceUser(pastCard.getUser());
 
-                                if(response.isSuccessful()){
-                                    int id = response.body().getId();
+        SharedPrefHelper.getInstance(getContext()).setOtherChat(otherChat);
+    }
 
-                                    Call<VoiceCard> request = service.sendChatVoice(id, voice_url_path);
-                                    request.enqueue(new Callback<VoiceCard>() {
-                                        @Override
-                                        public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
-                                            if(response.isSuccessful()){
-                                                Toast.makeText(getContext(), "성공적으로 전송했습니다.", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                try {
-                                                    Log.e(TAG, "error code: " + response.code() + " error body: " + response.errorBody().string());
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<VoiceCard> call, Throwable t) {
-                                            t.printStackTrace();
-                                            Log.e(TAG,t.getMessage());
-                                        }
-                                    });
-                                } else {
-                                    try {
-                                        Log.e(TAG, "code: " + response.code() + "error: " + response.errorBody().string());
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<VoiceChatRoom> call, Throwable t) {
-                                t.printStackTrace();
-                                Log.e(TAG, t.getMessage());
-                            }
-                        });
-                    }
-
-
-
-
-//                    user.setVoice(voice_url_path);
-//
-//                    LogUtil.d("voice resultCode: " + resultCode);
-//                    LogUtil.d("voice url path: " + voice_url_path);
-//
-//                    voiceImageView.setImageResource(R.drawable.btn_play_profile);
-//
-//                    confirmButton.setVisibility(View.VISIBLE);
-                }
-//                List<NameValuePair> paramInfo = new ArrayList<>();
-//                paramInfo.add(new BasicNameValuePair("userId", user.getId()));
-//                paramInfo.add(new BasicNameValuePair("urlPath", fileUrl));
-//                HttpRequestVO httpRequestVO = HttpUtil.getHttpRequestVO(Constants.URL_STORY_NEW_START;, StoryUpdate.class, paramInfo, HttpMethod.POST, getApplicationContext());
-//                RequestFactory requestFactory = new RequestFactory();
-//                requestFactory.setProgressHandler(new ProgressHandler(activity, false));
-//                requestFactory.create(httpRequestVO, new HttpResponseCallback<StoryUpdate>() {
-//                    @Override
-//                    public void onResponse(StoryUpdate result) {
-//                        // reponse: {"code":"OK"}
-//                        LogUtil.d("result: " + result.toString());
-////                        Log.e(TAG, result.toString());
-//
-//                        updateTime = result.getUpdateTime();
-//                        SharedPrefHelper.getInstance(getApplicationContext()).setSharedPreferences(SharedPrefHelper.STORY_UPDATE_TIME, updateTime);
-//                    }
-//
-//                    @Override
-//                    public void onError(HttpNetworkError error) {
-//                        LogUtil.e("onClickBtnNewStory", error);
-////                        Log.e(TAG, "onClickBtnNewStory", error);
-//                    }
-//                }).execute();
-            }
-        };
-        VoiceDialogFragment voiceDialogFragment = VoiceDialogFragment.newInstance(null, resultReceiver);
-        String title;
-        if(isNewStory)
-             title = "새로운 이야기 시작하기";
-        else
-             title = "답장하기";
-        voiceDialogFragment.setTitle(title);
-        voiceDialogFragment.setDescription("3초 이상 녹음해주세요!");
-        voiceDialogFragment.setExample("오늘 집에서 쉬는데, 저처럼 \n 평일인데 쉬시는분 있나요?");
-        voiceDialogFragment.show(getFragmentManager(),"VoiceDialogFragment");
-
-//        boolean wrapInScrollView = false;
-//        MaterialDialog materialDialog = new MaterialDialog.Builder(getContext())
-//                .title(isNewStory ? "새이야기 시작하기" : "답장하기")
-//                .customView(R.layout.dialog_record, wrapInScrollView)
-//                .positiveText("보내기")
-//                .onPositive((dialog, which) -> {
-//                    int currentPosition = cardStackView.getTopIndex() > 0 ? cardStackView.getTopIndex() - 1 : 0;
-//                    EventBus.getDefault().post(new RefreshEvent(RefreshEvent.Action.SEND_NEW_STORY, currentPosition));
-//                    Toast.makeText(getContext(), "정상적으로 답장을 보냈습니다.", Toast.LENGTH_SHORT).show();
-//                })
-//                .negativeText("취소")
-//                .onNegative((dialog, which) -> {
-//                    if(!isNewStory)
-//                        reverse();
-//                    else
-//                        dialog.dismiss();
-//                })
-//                .show();
-//
-//
-//
-//        View view = materialDialog.getView();
-//        TextView tvRecordAgain = (TextView) view.findViewById(R.id.tv_record_again);
-//        tvRecordAgain.setVisibility(View.GONE);
-//        tvRecordAgain.setText("다시하기");
-//        TextView tvRecordDesc = (TextView) view.findViewById(R.id.tv_record_desc);
-//        tvRecordDesc.setVisibility(View.VISIBLE);
-//        tvRecordDesc.setText("3초 이상 녹음해주세요");
-//        TextView tvExampleDesc = (TextView) view.findViewById(R.id.tv_example_desc);
-//        tvExampleDesc.setText("오늘 집에서 쉬는데, 저처럼 평일인데 쉬시는 분 있나요?");
-//        VoicePlayerManager voicePlayerManager = VoicePlayerManager.getInstance();
-//        VoicePlayerView voicePlayerView = view.findViewById(R.id.voice_player_view);
-//        voicePlayerView.setVoiceRecordListener(new VoicePlayerView.VoiceRecordListener() {
-//            @Override
-//            public void onRecord() {
-////                voicePlayerManager.voicePlayStop();
-////                voicePlayerManager.voiceRecord(getContext());
-//                voicePlayerView.startRecordProgress(30000);
-//            }
-//
-//            @Override
-//            public void onStopRecord() {
-////                voicePlayerManager.voiceRecordStop();
-//                voicePlayerView.prepareVoicePlay();
-//            }
-//
-//            @Override
-//            public void onPlay() {
-//                String url = "http://s3-ap-northeast-1.amazonaws.com/pesofts-image/voiceChat/20180528/3359781527498366440.m4a";
-//                int duration = voicePlayerManager.voicePlay(url);
-//                voicePlayerView.startVoicePlayProgress(duration);
-//            }
-//
-//            @Override
-//            public void onStopPlay() {
-//                voicePlayerManager.voicePlayStop();
-//            }
-//        });
+    private VoiceChatRoom setChatRoom(long currentTime) {
+        VoiceChatRoom voiceChatRoom = new VoiceChatRoom();
+        voiceChatRoom.setId(1);
+        voiceChatRoom.setLastChatDate(currentTime);
+        voiceChatRoom.setOpponentUser(pastCard.getUser());
+        voiceChatRoom.setLeaved(false);
+        return voiceChatRoom;
     }
 
     private void reload() {
         cardStackView.setVisibility(View.GONE);
         btnNewStory.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-        filterRow.setVisibility(View.GONE);
-
-
-
-        new Handler().postDelayed(() -> {
-//                adapter = createTouristSpotCardAdapter();
-            adapter = new UserCardAdapter(getContext());
-            
-            loadCard();
-//            createUserCardAdapter();
-
-
-            cardStackView.setAdapter(adapter);
-            cardStackView.setVisibility(View.VISIBLE);
-//            TODO: 새로운 이야기 시작 버튼 보이는 시점
-            btnNewStory.setVisibility(View.VISIBLE);
-            filterRow.setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.GONE);
-            filterRow.setVisibility(View.VISIBLE);
-        }, 1000);
+//        filterRow.setVisibility(View.GONE);
+        filterRow.setVisibility(View.VISIBLE);
+        acceptButton.setVisibility(View.GONE);
+        rejectButton.setVisibility(View.GONE);
+//        createUserCardAdapter();
+        loadCard();
     }
 
-    //TODO: API 구현중
+    Call<ArrayList<VoiceCard>> cardRequest;
+
     private void loadCard() {
         Log.e(TAG, "load card start");
 //        Call<VoiceCard> request = service.getRandomVoiceCard();
@@ -441,21 +379,71 @@ public class CardFragment extends Fragment {
 //
 //            }
 //        });
-        Call<List<VoiceCard>> response = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
-        response.enqueue(new Callback<List<VoiceCard>>() {
+        Call<Filter> request = NetRetrofit.getInstance(getContext()).getService().checkFilter();
+        request.enqueue(new Callback<Filter>() {
             @Override
-            public void onResponse(Call<List<VoiceCard>> call, Response<List<VoiceCard>> response) {
-                if(response.isSuccessful()){
-                    for(VoiceCard randomCard : response.body()){
-                        adapter.add(randomCard);
-                    }
-                    adapter.notifyDataSetChanged();
-                    Log.e(TAG, "load card success");
+            public void onResponse(Call<Filter> call, Response<Filter> response) {
+                if (response.isSuccessful()) {
+//                    TODO : 버그 수정후 주석 제거
+//                    Filter filter = response.body();
+//                    if (filter == null || (filter.getAgeMax() == 0 && filter.getAgeMin() == 0 && filter.getGender() == null && !filter.getActiveUser())) {
+//                        cardRequest = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
+//                    } else {
+//                        cardRequest = NetRetrofit.getInstance(getContext()).getService().getFilteredRandomVoiceCard();
+//                    }
+                    cardRequest = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
+                    cardRequest.enqueue(new Callback<ArrayList<VoiceCard>>() {
+                        @Override
+                        public void onResponse(Call<ArrayList<VoiceCard>> call, Response<ArrayList<VoiceCard>> response) {
+                            if (response.isSuccessful()) {
+                                if (adapter == null) {
+                                    adapter = new UserCardAdapter(getContext());
+                                    cardStackView.setAdapter(adapter);
+                                }
+
+                                adapter.addAll(response.body());
+                                Log.e(TAG, "voice card size: " + response.body().size());
+
+//                                adapter.notifyDataSetChanged();
+
+                                cardStackView.setVisibility(View.VISIBLE);
+                                btnNewStory.setVisibility(View.VISIBLE);
+                                filterRow.setVisibility(View.VISIBLE);
+                                filterRow.setVisibility(View.VISIBLE);
+                                acceptButton.setVisibility(View.VISIBLE);
+                                rejectButton.setVisibility(View.VISIBLE);
+                                Log.e(TAG, "load card success");
+
+                                try {
+                                    int currentPosition = cardStackView.getTopIndex();
+                                    pastCard = adapter.getItem(currentPosition);
+                                    Log.d("CardStackView", "load card topIndex: " + cardStackView.getTopIndex());
+                                } catch (IndexOutOfBoundsException e) {
+                                    e.printStackTrace();
+                                    pastCard = null;
+                                    tvEmpty.setVisibility(View.VISIBLE);
+                                    acceptButton.setVisibility(View.GONE);
+                                    rejectButton.setVisibility(View.GONE);
+                                }
+
+                            } else {
+                                try {
+                                    Utils.toastError(getContext(), response);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ArrayList<VoiceCard>> call, Throwable t) {
+                            Log.e(TAG, t.getMessage());
+                            t.printStackTrace();
+                        }
+                    });
                 } else {
-                    Log.e(TAG, "load card error");
-                    Log.e(TAG, "error code: " + response.code());
                     try {
-                        Log.e(TAG, "error body: " + response.errorBody().string());
+                        Utils.toastError(getContext(), response);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -463,20 +451,20 @@ public class CardFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<List<VoiceCard>> call, Throwable t) {
+            public void onFailure(Call<Filter> call, Throwable t) {
                 Log.e(TAG, t.getMessage());
                 t.printStackTrace();
             }
         });
     }
 
-    private LinkedList<VoiceCard> extractRemainingProfiles() {
-        LinkedList<VoiceCard> voiceCards = new LinkedList<>();
-        for (int i = cardStackView.getTopIndex(); i < adapter.getCount(); i++) {
-            voiceCards.add(adapter.getItem(i));
-        }
-        return voiceCards;
-    }
+//    private LinkedList<VoiceCard> extractRemainingProfiles() {
+//        LinkedList<VoiceCard> voiceCards = new LinkedList<>();
+//        for (int i = cardStackView.getTopIndex(); i < adapter.getCount(); i++) {
+//            voiceCards.add(adapter.getItem(i));
+//        }
+//        return voiceCards;
+//    }
 
 //    private void addFirst() {
 //        LinkedList<TouristSpot> spots = extractRemainingProfiles();
@@ -519,84 +507,81 @@ public class CardFragment extends Fragment {
 //    }
 //
 
-    @OnClick(R.id.tv_new_story)
+    @OnClick(R.id.fl_new_story)
     public void onClickNewStory() {
-        showRecordDialog(true);
+        moveToRecordActivity(-1);
     }
 
     @OnClick(R.id.filter_shop)
-    public void onClickFilterShop(){
+    public void onClickFilterShop() {
         Toast.makeText(getContext(), "click filter shop", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(getActivity(), ShopActivity.class);
         startActivity(intent);
     }
 
     @OnClick(R.id.filter_setting)
-    public void onClickFilterSetting(){
+    public void onClickFilterSetting() {
         Intent intent = new Intent(getActivity(), FilterActivity.class);
         startActivity(intent);
-
-//        boolean wrapInScrollView = true;
-//        new MaterialDialog.Builder(getContext())
-//                .title(R.string.filter_title)
-//                .customView(R.layout.dialog_filter, wrapInScrollView)
-//                .positiveText("확인")
-//                .show();
     }
 
     @OnClick(R.id.filter_event)
-    public void onClickFilterEvent(){
+    public void onClickFilterEvent() {
         Intent intent = new Intent(getActivity(), InviteActivity.class);
         startActivity(intent);
     }
 
-    private void paginate() {
-        cardStackView.setPaginationReserved();
-        for (VoiceCard voiceCard: Utils.loadCards(this.getContext())) {
-            adapter.add(voiceCard);
-        }
-//        adapter.addAll();
-//        adapter.addAll(createTouristSpots());
-        adapter.notifyDataSetChanged();
+    @OnClick(R.id.filter_luna)
+    public void onClickPointLog() {
+        Intent intent = new Intent(getActivity(), PointLogActivity.class);
+        startActivity(intent);
     }
 
-    public void swipeTop() {
-        List<VoiceCard> spots = extractRemainingProfiles();
-        if (spots.isEmpty()) {
-            return;
-        }
-
-        View target = cardStackView.getTopView();
-        View targetOverlay = cardStackView.getTopView().getOverlayContainer();
-
-        ValueAnimator rotation = ObjectAnimator.ofPropertyValuesHolder(
-                target, PropertyValuesHolder.ofFloat("rotation", -10f));
-        rotation.setDuration(500);
-        ValueAnimator translateX = ObjectAnimator.ofPropertyValuesHolder(
-                target, PropertyValuesHolder.ofFloat("translationX", 0f, -2000f));
-        ValueAnimator translateY = ObjectAnimator.ofPropertyValuesHolder(
-                target, PropertyValuesHolder.ofFloat("translationY", 0f, -2000f));
-        translateX.setStartDelay(100);
-        translateY.setStartDelay(100);
-        translateX.setDuration(500);
-        translateY.setDuration(500);
-        AnimatorSet cardAnimationSet = new AnimatorSet();
-        cardAnimationSet.playTogether(translateY);
-
-        ObjectAnimator overlayAnimator = ObjectAnimator.ofFloat(targetOverlay, "alpha", 0f, 1f);
-        overlayAnimator.setDuration(200);
-        AnimatorSet overlayAnimationSet = new AnimatorSet();
-        overlayAnimationSet.playTogether(overlayAnimator);
-
-        cardStackView.swipe(SwipeDirection.Top, cardAnimationSet, overlayAnimationSet);
+    @OnClick(R.id.ib_accept)
+    public void onClickAccept() {
+        swipeRight();
     }
+
+    @OnClick(R.id.ib_reject)
+    public void onClickReject() {
+        swipeLeft();
+    }
+
+    /**
+     * 위로 스와이핑 하는 기능이 필요할 경우 사용 할것
+     * */
+//    public void swipeTop() {
+//        List<VoiceCard> spots = extractRemainingProfiles();
+//        if (spots.isEmpty()) {
+//            return;
+//        }
+//
+//        View target = cardStackView.getTopView();
+//        View targetOverlay = cardStackView.getTopView().getOverlayContainer();
+//
+//        ValueAnimator rotation = ObjectAnimator.ofPropertyValuesHolder(
+//                target, PropertyValuesHolder.ofFloat("rotation", -10f));
+//        rotation.setDuration(500);
+//        ValueAnimator translateX = ObjectAnimator.ofPropertyValuesHolder(
+//                target, PropertyValuesHolder.ofFloat("translationX", 0f, -2000f));
+//        ValueAnimator translateY = ObjectAnimator.ofPropertyValuesHolder(
+//                target, PropertyValuesHolder.ofFloat("translationY", 0f, -2000f));
+//        translateX.setStartDelay(100);
+//        translateY.setStartDelay(100);
+//        translateX.setDuration(500);
+//        translateY.setDuration(500);
+//        AnimatorSet cardAnimationSet = new AnimatorSet();
+//        cardAnimationSet.playTogether(translateY);
+//
+//        ObjectAnimator overlayAnimator = ObjectAnimator.ofFloat(targetOverlay, "alpha", 0f, 1f);
+//        overlayAnimator.setDuration(200);
+//        AnimatorSet overlayAnimationSet = new AnimatorSet();
+//        overlayAnimationSet.playTogether(overlayAnimator);
+//
+//        cardStackView.swipe(SwipeDirection.Top, cardAnimationSet, overlayAnimationSet);
+//    }
 
     public void swipeLeft() {
-        List<VoiceCard> spots = extractRemainingProfiles();
-        if (spots.isEmpty()) {
-            return;
-        }
-
         View target = cardStackView.getTopView();
         View targetOverlay = cardStackView.getTopView().getOverlayContainer();
 
@@ -609,9 +594,6 @@ public class CardFragment extends Fragment {
 
         ValueAnimator translateY = ObjectAnimator.ofPropertyValuesHolder(
                 target, PropertyValuesHolder.ofFloat("translationY", 0f, 500f));
-
-//        translateX.setStartDelay(100);
-//        translateY.setStartDelay(100);
         translateX.setDuration(1000);
         translateY.setDuration(1000);
         AnimatorSet cardAnimationSet = new AnimatorSet();
@@ -626,11 +608,6 @@ public class CardFragment extends Fragment {
     }
 
     public void swipeRight() {
-        List<VoiceCard> spots = extractRemainingProfiles();
-        if (spots.isEmpty()) {
-            return;
-        }
-
         View target = cardStackView.getTopView();
         View targetOverlay = cardStackView.getTopView().getOverlayContainer();
 
@@ -641,8 +618,6 @@ public class CardFragment extends Fragment {
                 target, PropertyValuesHolder.ofFloat("translationX", 0f, 2000f));
         ValueAnimator translateY = ObjectAnimator.ofPropertyValuesHolder(
                 target, PropertyValuesHolder.ofFloat("translationY", 0f, -500f));
-//        translateX.setStartDelay(100);
-//        translateY.setStartDelay(100);
         translateX.setDuration(1000);
         translateY.setDuration(1000);
         AnimatorSet cardAnimationSet = new AnimatorSet();
@@ -662,13 +637,17 @@ public class CardFragment extends Fragment {
     }
 
     public class UserCardAdapter extends ArrayAdapter<VoiceCard> {
-
-        VoicePlayerManager voicePlayerManager = VoicePlayerManager.getInstance();
+        int duration;
+        int CURRENT_STATE = 2;
+        final int STATE_PLAY = 1;
+        final int STATE_STOP = 2;
+        byte[] sample = Utils.getSampleWave();
 
         public UserCardAdapter(@NonNull Context context) {
             super(context, 0);
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -685,57 +664,151 @@ public class CardFragment extends Fragment {
 
             VoiceCard voiceCard = getItem(position);
             User cardUser = voiceCard.getUser();
-            holder.nameAgeTxt.setText(cardUser.getName() + ", " + AgeUtil.getAgeFromBirth(cardUser.getBirth()));
 
-            if(myInfo != null)
-                holder.locationNameTxt.setText("" + DistanceUtil.getDistanceFromLatLng(cardUser, myInfo) + "km");
+            SpannableStringBuilder s = Utils.setNameAndAge(cardUser.getName(), AgeUtil.getAgeFromBirth(cardUser.getBirth()));
+            s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.age_white_color)), cardUser.getName().length(), s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            holder.nameAgeTxt.setText(s);
+
+            if (myInfo != null)
+                holder.tvDistance.setText("" + DistanceUtil.getDistanceFromLatLng(cardUser, myInfo) + "km");
 
             Glide.with(getContext())
                     .load(cardUser.getProfileImageUrl())
-                    .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
+//                    .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
                     .into(holder.profileImage);
 
-            holder.rejectBtn.setOnClickListener(v -> swipeLeft());
-            holder.acceptBtn.setOnClickListener(v -> swipeRight());
             holder.ivReport.setOnClickListener(v -> {
-                new MaterialDialog.Builder(getContext())
-                        .title("신고하기")
-                        .items(R.array.report)
-                        .itemsCallbackSingleChoice(0, (dialog, itemView, which, text) -> {
-                            Toast.makeText(getContext(), "신고가 접수되었습니다", Toast.LENGTH_SHORT).show();
-                            return true;
-                        })
-                        .positiveText("신고하기")
-                        .negativeText("취소")
+                MaterialDialog reportDialog = new MaterialDialog.Builder(getActivity())
+                        .customView(R.layout.dialog_report, false)
                         .show();
+
+                DialogUtils.initDialogView(reportDialog, getContext());
+                RadioGroup radioGroup = (RadioGroup) reportDialog.findViewById(R.id.radioGroup);
+                TextView cancelButton = (TextView) reportDialog.findViewById(R.id.tv_cancel);
+                cancelButton.setOnClickListener(v1 -> reportDialog.dismiss());
+                TextView reportButton = (TextView) reportDialog.findViewById(R.id.tv_report);
+                reportButton.setOnClickListener(v1 -> {
+                    int currentPosition = cardStackView.getTopIndex();
+                    VoiceCard reportCard = adapter.getItem(currentPosition);
+                    RadioButton selectButton = radioGroup.findViewById(radioGroup.getCheckedRadioButtonId());
+
+                    if (selectButton == null) {
+                        Toast.makeText(getContext(), "이유를 선택해주세요", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Call<VoiceCard> request = service.passVoice(reportCard.getId(), "Report", selectButton.getText().toString());
+                    request.enqueue(new Callback<VoiceCard>() {
+                        @Override
+                        public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "신고가 접수되었습니다", Toast.LENGTH_SHORT).show();
+                                reportDialog.dismiss();
+                            } else {
+                                try {
+                                    Utils.toastError(getActivity(), response);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<VoiceCard> call, Throwable t) {
+                            t.printStackTrace();
+                        }
+                    });
+                });
             });
+            holder.tvCreateTime.setText(Html.fromHtml(Utils.getCardCreatedAt(voiceCard.getCreatedAt())));
+            holder.waveView.setScaledData(sample);
+            holder.waveView.setEnabled(false);
 
-            holder.voicePlayerView.prepareVoicePlay();
-            holder.voicePlayerView.setVoiceRecordListener(new VoicePlayerView.VoiceRecordListener() {
+            duration = VoicePlayerManager.getInstance().voicePlay(voiceCard.getVoiceUrl());
+            Log.e(TAG, "duration: " + duration);
+            VoicePlayerManager.getInstance().voicePlayStop();
+
+            ObjectAnimator progressAnim = ObjectAnimator.ofFloat(holder.waveView, "progress", 0F, 100F);
+            progressAnim.setInterpolator(new LinearInterpolator());
+            progressAnim.addListener(new Animator.AnimatorListener() {
                 @Override
-                public void onRecord() {
+                public void onAnimationStart(Animator animation) {
 
                 }
 
                 @Override
-                public void onStopRecord() {
+                public void onAnimationEnd(Animator animation) {
+                    CURRENT_STATE = STATE_STOP;
+                    holder.playButton.post(() -> {
+                        holder.playButton.setImageResource(R.drawable.ic_reload_white);
+                    });
+                    holder.tvPlayState.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
 
                 }
 
                 @Override
-                public void onPlay() {
-//                    String url = "http://s3-ap-northeast-1.amazonaws.com/pesofts-image/voiceChat/20180528/3359781527498366440.m4a";
-                    String url = voiceCard.getVoiceUrl();
-                    Log.e("VoiceCard", "url: " + url);
-                    int duration = voicePlayerManager.voicePlay(url);
-                    holder.voicePlayerView.startVoicePlayProgress(duration);
-                }
+                public void onAnimationRepeat(Animator animation) {
 
-                @Override
-                public void onStopPlay() {
-                    voicePlayerManager.voicePlayStop();
                 }
             });
+            progressAnim.setDuration(duration);
+
+            holder.playButton.setOnClickListener((View v) -> {
+
+                switch (CURRENT_STATE) {
+                    case STATE_STOP:
+                        CURRENT_STATE = STATE_PLAY;
+                        //PLAY
+
+                        getActivity().runOnUiThread(()->{
+                            if(holder.waveView.getVisibility() == View.INVISIBLE){
+                                holder.waveView.setVisibility(View.VISIBLE);
+                                holder.tvTimeStart.setVisibility(View.VISIBLE);
+                                holder.tvTimeEnd.setVisibility(View.VISIBLE);
+                            }
+                            holder.tvPlayState.setVisibility(View.VISIBLE);
+                            holder.tvPlayState.setText("터치하여 일시 정지하기");
+                            holder.playButton.setImageResource(R.drawable.ic_pause);
+                        });
+
+
+                        if (progressAnim.isPaused()) {
+                            progressAnim.resume();
+                            VoicePlayerManager.getInstance().voicePlayResume();
+                        } else {
+                            progressAnim.start();
+                            VoicePlayerManager.getInstance().voicePlay(voiceCard.getVoiceUrl());
+                        }
+
+                        break;
+
+                    case STATE_PLAY:
+                        CURRENT_STATE = STATE_STOP;
+                        if (progressAnim != null) {
+//                            progressAnim.cancel();
+                            progressAnim.pause();
+                        }
+
+                        getActivity().runOnUiThread(()->{
+                            holder.tvTimeStart.setText(Utils.getPlayTimeFormat(0));
+                            holder.tvPlayState.setVisibility(View.VISIBLE);
+                            holder.tvPlayState.setText("터치하여 재생하기");
+                            holder.playButton.setImageResource(R.drawable.ic_play);
+                        });
+
+                        VoicePlayerManager.getInstance().voicePlayPause();
+                        break;
+                }
+
+            });
+            holder.tvTimeStart.setText(Utils.getPlayTimeFormat(0));
+            holder.tvTimeEnd.setText(Utils.getPlayTimeFormat(duration));
+            holder.tvPlayState.setVisibility(View.INVISIBLE);
+
 
             return convertView;
         }
@@ -758,19 +831,25 @@ public class CardFragment extends Fragment {
 
         public class ViewHolder {
             @BindView(R.id.profileImageView)
-            public ImageView profileImage;
-            @BindView(R.id.voice_player_view)
-            VoicePlayerView voicePlayerView;
+            ImageView profileImage;
             @BindView(R.id.nameAgeTxt)
-            public TextView nameAgeTxt;
-            @BindView(R.id.locationNameTxt)
-            public TextView locationNameTxt;
-            @BindView(R.id.rejectBtn)
-            public ImageView rejectBtn;
-            @BindView(R.id.acceptBtn)
-            public ImageView acceptBtn;
-            @BindView(R.id.iv_report)
-            public ImageView ivReport;
+            TextView nameAgeTxt;
+            @BindView(R.id.tv_distance)
+            TextView tvDistance;
+            @BindView(R.id.tv_create_time)
+            TextView tvCreateTime;
+            @BindView(R.id.tv_report)
+            TextView ivReport;
+            @BindView(R.id.wave)
+            AudioWaveView waveView;
+            @BindView(R.id.iv_play_button)
+            ImageView playButton;
+            @BindView(R.id.tv_time_start)
+            TextView tvTimeStart;
+            @BindView(R.id.tv_time_end)
+            TextView tvTimeEnd;
+            @BindView(R.id.tv_play_state)
+            TextView tvPlayState;
 
             private ViewHolder(View view) {
                 ButterKnife.bind(this, view);

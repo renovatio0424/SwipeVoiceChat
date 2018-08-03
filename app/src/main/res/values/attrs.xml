@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="VoiceBubble">
+        <attr name="bg" format="reference|integer" />
+        <attr name="progress_background_tint" format="color"/>
+        <attr name="progress_tint" format="color"/>
+        <attr name="thumb_tint" format="color"/>
+        <attr name="play_button_tint" format="color"/>
+        <attr name="time_color" format="color"/>
+    </declare-styleable>
+</resources>

@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,38 +16,42 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.gson.Gson;
 import com.square.renov.swipevoicechat.Activity.ChatActivity;
 import com.square.renov.swipevoicechat.Adapter.SwipeController;
 import com.square.renov.swipevoicechat.Adapter.SwipeControllerActions;
 import com.square.renov.swipevoicechat.Event.RefreshEvent;
 import com.square.renov.swipevoicechat.Model.User;
-import com.square.renov.swipevoicechat.Model.VoiceCard;
-import com.square.renov.swipevoicechat.Model.VoiceChat;
 import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.ApiService;
 import com.square.renov.swipevoicechat.R;
 import com.square.renov.swipevoicechat.Util.AgeUtil;
 import com.square.renov.swipevoicechat.Util.DistanceUtil;
+import com.square.renov.swipevoicechat.Util.RealmHelper;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.square.renov.swipevoicechat.Util.Utils;
+import com.square.renov.swipevoicechat.widget.EmptyRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import jp.wasabeef.glide.transformations.BlurTransformation;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -57,7 +62,10 @@ public class ChatRoomFragment extends Fragment {
     public Unbinder unbinder;
 
     @BindView(R.id.recyclerview)
-    RecyclerView recyclerView;
+    EmptyRecyclerView recyclerView;
+    @BindView(R.id.empty_view)
+    ConstraintLayout emptyView;
+    private boolean isActive;
 
     ApiService service = NetRetrofit.getInstance(getContext()).getService();
 
@@ -73,7 +81,7 @@ public class ChatRoomFragment extends Fragment {
         Log.e("event bus", "onstart()");
     }
 
-    CardAdapter cardAdapter;
+    ChatRoomAdapter cardAdapter;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -83,14 +91,55 @@ public class ChatRoomFragment extends Fragment {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-//        cardAdapter = new CardAdapter(Utils.loadProfiles(getContext()));
-        cardAdapter = new CardAdapter(Utils.loadRooms(getContext()));
+        //TODO: 샘플 데이터 삽입
 
-//        loadChatRooms();
+//        cardAdapter = new ChatRoomAdapter(Utils.loadRooms(getContext())){
+//            @NonNull
+//            @Override
+//            public viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+//                viewHolder viewHolder = super.onCreateViewHolder(parent, viewType);
+//                viewHolder.itemView.setOnClickListener(v -> {
+//                    int position = viewHolder.getAdapterPosition();
+//                    int chatRoomId = cardAdapter.getChatRoomId(position);
+//                    Intent intent = new Intent(getContext(), ChatActivity.class);
+//                    intent.putExtra("chatRoomId", chatRoomId);
+//                    startActivity(intent);
+//                });
+//
+//                return viewHolder;
+//            }
+//        };
 
         SwipeController swipeController = new SwipeController(new SwipeControllerActions() {
             @Override
             public void onRightClicked(int position) {
+                int chatRoomId = cardAdapter.getChatRoomId(position);
+
+                Call<VoiceChatRoom> request = NetRetrofit.getInstance(getContext()).getService().leaveVoiceChatRoom(chatRoomId);
+                request.enqueue(new Callback<VoiceChatRoom>() {
+                    @Override
+                    public void onResponse(Call<VoiceChatRoom> call, Response<VoiceChatRoom> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "방나가기", Toast.LENGTH_SHORT).show();
+                            realm.executeTransactionAsync(realm1 -> {
+                                RealmResults<VoiceChatRoom> result = realm1.where(VoiceChatRoom.class).equalTo("id", chatRoomId).findAll();
+                                result.deleteAllFromRealm();
+                            });
+                        } else {
+                            try {
+                                Utils.toastError(getContext(), response);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<VoiceChatRoom> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+
                 cardAdapter.rooms.remove(position);
                 cardAdapter.notifyItemRemoved(position);
                 cardAdapter.notifyItemRangeChanged(position, cardAdapter.getItemCount());
@@ -99,12 +148,14 @@ public class ChatRoomFragment extends Fragment {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeController);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
                 swipeController.onDraw(c);
             }
         });
+
 
 //        Bundle args = getArguments();
 //        if(args != null){
@@ -115,7 +166,6 @@ public class ChatRoomFragment extends Fragment {
 //                cardAdapter.addItem(add);
 //            }
 //        }
-        recyclerView.setAdapter(cardAdapter);
 
 //        Main Logic here
 //        materialLeanBack.setCustomizer(textView -> textView.setTypeface(null, Typeface.BOLD));
@@ -188,43 +238,137 @@ public class ChatRoomFragment extends Fragment {
 //        });
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        isActive = true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadChatRooms();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        isActive = false;
+    }
+
+    Realm realm = RealmHelper.getRealm(RealmHelper.CHAT_ROOM);
+
     private void loadChatRooms() {
-        Call<ArrayList<VoiceChatRoom>> request = service.loadVoiceChatRoomList();
-        request.enqueue(new Callback<ArrayList<VoiceChatRoom>>() {
-            @Override
-            public void onResponse(Call<ArrayList<VoiceChatRoom>> call, Response<ArrayList<VoiceChatRoom>> response) {
-                if (response.isSuccessful()) {
+        RealmResults<VoiceChatRoom> results = realm.where(VoiceChatRoom.class).findAllSorted("createdAt", Sort.DESCENDING);
 
-                    for (VoiceChatRoom itRoom : response.body()) {
-                        int position = response.body().indexOf(itRoom);
-                        List<VoiceChatRoom> rooms = Utils.loadRooms(getContext());
-                        if(rooms.size() > response.body().size())
-                            itRoom.setOpponentUser(rooms.get(position).getOpponentUser());
+        if (results.size() > 0 & !Utils.needToDataUpdate(getContext(), SharedPrefHelper.CHAT_ROOM_DATA_UPDATE_TIME)) {
+            Log.d(TAG, "load realm");
+            RealmQuery<VoiceChatRoom> newRoomQuery = realm.where(VoiceChatRoom.class);
+            newRoomQuery.equalTo("isNewRoom", true)
+                    .findAll();
+            RealmResults<VoiceChatRoom> newRoomResults = newRoomQuery.findAll();
+            newRoomResults = newRoomResults.sort("createdAt", Sort.DESCENDING);
+
+            RealmQuery<VoiceChatRoom> oldRoomQuery = realm.where(VoiceChatRoom.class);
+            oldRoomQuery.equalTo("isNewRoom", false)
+                    .findAll();
+            RealmResults<VoiceChatRoom> oldRoomResults = oldRoomQuery.findAll();
+            oldRoomResults.sort("createdAt", Sort.DESCENDING);
+
+            ArrayList<VoiceChatRoom> roomList = new ArrayList<>();
+
+            roomList.addAll(newRoomResults);
+            roomList.addAll(oldRoomResults);
+
+            if (cardAdapter == null) {
+                cardAdapter = new ChatRoomAdapter(roomList) {
+                    @NonNull
+                    @Override
+                    public viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        viewHolder viewHolder = super.onCreateViewHolder(parent, viewType);
+
+                        viewHolder.itemView.setOnClickListener(v -> {
+                            int position = viewHolder.getAdapterPosition();
+                            int chatRoomId = cardAdapter.getChatRoomId(position);
+                            String OpponentUserName = cardAdapter.getChatRoom(position).getOpponentUser().getName();
+                            moveToChatActivity(chatRoomId, OpponentUserName);
+                        });
+                        return viewHolder;
                     }
+                };
+            } else {
+                cardAdapter.setList(roomList);
+            }
 
-                    if (cardAdapter == null) {
-                        cardAdapter = new CardAdapter(response.body());
+            recyclerView.setEmptyView(emptyView);
+            recyclerView.setAdapter(cardAdapter);
+            cardAdapter.notifyDataSetChanged();
+        } else {
+            Log.d(TAG, "load server data");
+            Call<ArrayList<VoiceChatRoom>> request = service.loadVoiceChatRoomList();
+            request.enqueue(new Callback<ArrayList<VoiceChatRoom>>() {
+                @Override
+                public void onResponse(Call<ArrayList<VoiceChatRoom>> call, Response<ArrayList<VoiceChatRoom>> response) {
+                    if (response.isSuccessful()) {
+                        if (cardAdapter == null) {
+                            cardAdapter = new ChatRoomAdapter(response.body()) {
+                                @NonNull
+                                @Override
+                                public viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                                    viewHolder viewHolder = super.onCreateViewHolder(parent, viewType);
+
+                                    viewHolder.itemView.setOnClickListener(v -> {
+                                        int position = viewHolder.getAdapterPosition();
+                                        int chatRoomId = cardAdapter.getChatRoomId(position);
+                                        String OpponentUserName = cardAdapter.getChatRoom(position).getOpponentUser().getName();
+                                        moveToChatActivity(chatRoomId, OpponentUserName);
+
+                                    });
+
+                                    return viewHolder;
+                                }
+                            };
+                        } else {
+                            cardAdapter.setList(response.body());
+                        }
+
+                        recyclerView.setEmptyView(emptyView);
+                        recyclerView.setAdapter(cardAdapter);
+                        cardAdapter.notifyDataSetChanged();
+
+                        for (VoiceChatRoom itRoom : response.body()) {
+                            realm.executeTransaction(realm -> realm.copyToRealmOrUpdate(itRoom));
+                        }
+
+                        SharedPrefHelper.getInstance(getContext()).setSharedPreferences(SharedPrefHelper.CHAT_ROOM_DATA_UPDATE_TIME, System.currentTimeMillis());
+
                     } else {
-                        cardAdapter.addList(response.body());
-                    }
-                    for (VoiceChatRoom itRoom : response.body())
-                        Log.e(TAG, "Room id: " + itRoom.getId());
-                    cardAdapter.notifyDataSetChanged();
-                } else {
-                    try {
-                        Log.e(TAG, "error code: " + response.code());
-                        Log.e(TAG, "error message: " + response.errorBody().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        try {
+                            Utils.toastError(getContext(), response);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ArrayList<VoiceChatRoom>> call, Throwable t) {
-                t.printStackTrace();
-                Log.e(TAG, "message: " + t.getMessage());
-            }
+                @Override
+                public void onFailure(Call<ArrayList<VoiceChatRoom>> call, Throwable t) {
+                    t.printStackTrace();
+                    Log.e(TAG, "message: " + t.getMessage());
+                }
+            });
+        }
+
+    }
+
+    private void moveToChatActivity(int chatRoomId, String opponentUserName) {
+        Intent intent = new Intent(getContext(), ChatActivity.class);
+        intent.putExtra("chatRoomId", chatRoomId);
+        intent.putExtra("opponentName", opponentUserName);
+        startActivity(intent);
+        realm.executeTransactionAsync(realm1 -> {
+            VoiceChatRoom oldRoom = realm1.where(VoiceChatRoom.class).equalTo("id", chatRoomId).findFirst();
+            oldRoom.setNewRoom(false);
         });
     }
 
@@ -239,13 +383,24 @@ public class ChatRoomFragment extends Fragment {
     @Subscribe
     public void onRefreshEvent(RefreshEvent refreshEvent) {
         Log.e("event bus", "onRefreshEvent(): " + ChatRoomFragment.class.getSimpleName());
-        if (refreshEvent.action == RefreshEvent.Action.SEND_NEW_STORY) {
-            int sendPosition = refreshEvent.position;
-            if (sendPosition != -1) {
-                VoiceChatRoom add = Utils.loadRooms(getContext()).get(sendPosition);
-                cardAdapter.addItem(add);
-                cardAdapter.notifyDataSetChanged();
-            }
+//        if (refreshEvent.action == RefreshEvent.Action.SEND_NEW_STORY) {
+//            int sendPosition = refreshEvent.position;
+//            if (sendPosition != -1) {
+//                VoiceChatRoom add = Utils.loadRooms(getContext()).get(sendPosition);
+//                cardAdapter.addItem(add);
+//                cardAdapter.notifyDataSetChanged();
+//            }
+//        } else if(refreshEvent.action == RefreshEvent.Action.NEW_CHAT_ROOM) {
+//            VoiceChatRoom newRoom = refreshEvent.voiceChatRoom;
+//            if (newRoom != null){
+//                cardAdapter.addItem(newRoom);
+//                cardAdapter.notifyDataSetChanged();
+//            }
+//        }
+        if (refreshEvent.action == RefreshEvent.Action.STATUS_CHANGE &&
+                RefreshEvent.TYPE_REPLY.equals(refreshEvent.type) &&
+                isActive) {
+            loadChatRooms();
         }
     }
 
@@ -255,23 +410,30 @@ public class ChatRoomFragment extends Fragment {
         EventBus.getDefault().unregister(this);
         Log.e("event bus", "onstop()");
         unbinder.unbind();
+
     }
 
-
-    public class CardAdapter extends RecyclerView.Adapter<viewHolder> {
+    public class ChatRoomAdapter extends RecyclerView.Adapter<viewHolder> {
 
         private ArrayList<VoiceChatRoom> rooms;
 
-        public CardAdapter() {
+        public ChatRoomAdapter() {
             rooms = new ArrayList<>();
         }
 
-        public CardAdapter(ArrayList rooms) {
+        public ChatRoomAdapter(ArrayList<VoiceChatRoom> rooms) {
+            if (this.rooms == null) {
+                this.rooms = new ArrayList<VoiceChatRoom>();
+            }
+            this.rooms = rooms;
+        }
+
+        public void setList(ArrayList<VoiceChatRoom> rooms) {
             this.rooms = rooms;
         }
 
         MultiTransformation multiTransformation = new MultiTransformation(new BlurTransformation(25, 3),
-                new CircleCrop());
+                new FitCenter(), new CircleCrop());
 
         @NonNull
         @Override
@@ -281,10 +443,6 @@ public class ChatRoomFragment extends Fragment {
 //            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
 //            layoutParams.width = layoutParams.width - 5;
 //            view.requestLayout();
-            view.setOnClickListener(v -> {
-                Intent intent = new Intent(getContext(), ChatActivity.class);
-                startActivity(intent);
-            });
             viewHolder viewHolder = new viewHolder(view);
 
             return viewHolder;
@@ -292,24 +450,26 @@ public class ChatRoomFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull viewHolder holder, int position) {
-            VoiceChatRoom currentProfile = rooms.get(position);
+            VoiceChatRoom currentRoom = rooms.get(position);
 
-            User opponentUser = currentProfile.getOpponentUser();
-            String myInfo = SharedPrefHelper.getInstance(getContext()).getSharedPreferences(SharedPrefHelper.USER_INFO, null);
-            Gson gson = new Gson();
-            User me = gson.fromJson(myInfo, User.class);
+            long time = (currentRoom.getLastChatDate() == 0L ? currentRoom.getCreatedAt() : currentRoom.getLastChatDate());
+            User opponentUser = currentRoom.getOpponentUser();
+            User me = SharedPrefHelper.getInstance(getContext()).getUserInfo();
 
-            holder.lastTime.setText("오전 12:39");
-//            holder.chatDesc.setText(DistanceUtil.getDistanceFromLatLng(opponentUser, me) + "km");
-            holder.chatDesc.setText("10 km");
-//            holder.name.setText(opponentUser.getName() + ", " + AgeUtil.getAgeFromBirth(opponentUser.getBirth()));
-            holder.name.setText("test name, test age");
-            Glide.with(getContext())
-//                    .load(opponentUser.getProfileImageUrl())
-                    .load(R.drawable.common_google_signin_btn_icon_dark_focused)
-                    .apply(RequestOptions.bitmapTransform(multiTransformation))
-                    .into(holder.profileImage);
-
+            holder.lastTime.setText(Utils.setChatTime(time));
+            if(opponentUser != null){
+                holder.chatDesc.setText(DistanceUtil.getDistanceFromLatLng(opponentUser, me) + "km");
+                holder.name.setText(opponentUser.getName());
+                holder.age.setText("" + AgeUtil.getAgeFromBirth(opponentUser.getBirth()));
+                Glide.with(getContext())
+                        .load(opponentUser.getProfileImageUrl())
+                        .apply(RequestOptions.bitmapTransform(multiTransformation))
+                        .into(holder.profileImage);
+            }
+            if (currentRoom.isNewRoom())
+                holder.newBadge.setVisibility(View.VISIBLE);
+            else
+                holder.newBadge.setVisibility(View.GONE);
         }
 
         @Override
@@ -317,13 +477,18 @@ public class ChatRoomFragment extends Fragment {
             return rooms.size();
         }
 
-        public void addList(ArrayList<VoiceChatRoom> rooms) {
-            this.rooms = rooms;
+        public VoiceChatRoom getChatRoom(int position) {
+            return this.rooms.get(position);
+        }
+
+        public int getChatRoomId(int position) {
+            return this.rooms.get(position).getId();
         }
 
         public void addItem(VoiceChatRoom addItem) {
             rooms.add(addItem);
         }
+
     }
 
     public class viewHolder extends RecyclerView.ViewHolder {
@@ -335,6 +500,10 @@ public class ChatRoomFragment extends Fragment {
         TextView chatDesc;
         @BindView(R.id.tv_last_time)
         TextView lastTime;
+        @BindView(R.id.tv_age)
+        TextView age;
+        @BindView(R.id.tv_new_badge)
+        TextView newBadge;
 
         public viewHolder(View view) {
             super(view);

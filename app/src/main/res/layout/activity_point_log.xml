@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="@color/white">
+
+    <include layout="@layout/layout_title_bar"/>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/main_background" />
+
+    <android.support.percent.PercentRelativeLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="37dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@android:color/transparent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/date_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:text="@string/date"
+            android:textColor="@color/grey"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            app:layout_widthPercent="20%" />
+
+        <TextView
+            android:id="@+id/desc_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_toRightOf="@+id/date_title_text"
+            android:gravity="center"
+            android:text="@string/log_desc"
+            android:textColor="@color/grey"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            app:layout_widthPercent="50%"/>
+
+        <TextView
+            android:id="@+id/point_diff_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/desc_title_text"
+            android:gravity="center"
+            android:text="@string/change"
+            android:textColor="@color/grey"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            app:layout_widthPercent="15%" />
+
+        <TextView
+            android:id="@+id/adjust_point_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/point_diff_title_text"
+            android:gravity="center"
+            android:text="@string/accumulate"
+            android:textColor="@color/grey"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            app:layout_widthPercent="15%" />
+
+    </android.support.percent.PercentRelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="1"/>
+
+</LinearLayout>
+
+
+

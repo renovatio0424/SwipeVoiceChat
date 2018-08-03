@@ -3,6 +3,7 @@ package com.square.renov.swipevoicechat.Network;
 import android.support.annotation.Nullable;
 
 import com.square.renov.swipevoicechat.Model.Filter;
+import com.square.renov.swipevoicechat.Model.PointLog;
 import com.square.renov.swipevoicechat.Model.Result;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Model.VoiceCard;
@@ -61,42 +62,68 @@ public interface ApiService {
     @PUT("user")
     Call<User> updateUserInfo(@Body User updateUserInfo);
 
-
-
-
+    @DELETE("user/withdraw")
+    Call<Result> withdrawUser(@Field("reason") String reason);
 
 
     @GET("voice")
-    Call<List<VoiceCard>> getRandomVoiceCard();
+    Call<ArrayList<VoiceCard>> getRandomVoiceCard();
+
+    @GET("voice/filtered")
+    Call<ArrayList<VoiceCard>> getFilteredRandomVoiceCard();
 
     /**
      * ChatId가 있으면 챗방으로
      * 없으면 새이야기
-     * */
+     */
     @FormUrlEncoded
     @POST("voice")
-    Call<VoiceCard> sendChatVoice(@Field("chatId") int chatId, @Field("url") String url);
+    Call<VoiceCard> sendChatVoice(@Field("chatId") int chatId, @Field("url") String url, @Field("seconds") int seconds);
 
     @FormUrlEncoded
     @POST("voice")
-    Call<VoiceCard> sendNewVoice(@Field("url") String url);
+    Call<VoiceCard> sendNewVoice(@Field("url") String url, @Field("seconds") int seconds);
 
     @GET("voice/chat/list")
     Call<ArrayList<VoiceChatRoom>> loadVoiceChatRoomList();
 
     @GET("voice/chat/{chatId}/list")
-    Call<ArrayList<VoiceChat>> loadVoiceChatList(@Path("chatId") String chatId);
+    Call<ArrayList<VoiceChat>> loadVoiceChatList(@Path("chatId") int chatId,@Query("limit") int limit, @Query("offset") int offset);
 
+    /**
+     * 첫 답장하기 (답장하면서 채팅방 생성)
+     * @param voiceId 답장할 새이야기 id (VoiceCard)
+     * @param VoiceUrl 음성 파일 경로*/
     @FormUrlEncoded
     @POST("voice/chat/start")
-    Call<VoiceChatRoom> makeVoiceChatRoom(@Field("voiceId") int voiceId);
+    Call<VoiceChatRoom> makeVoiceChatRoom(@Field("voiceId") int voiceId, @Field("url") String VoiceUrl, @Field("seconds") int seconds);
 
+    @FormUrlEncoded
+    @POST("voice/chat/leave")
+    Call<VoiceChatRoom> leaveVoiceChatRoom(@Field("chatId") int chatId);
+    /**
+     * 보이스 넘기기 / 보이스 신고하기
+     * @param id       신고 / 넘길 voiceCard id
+     * @param passType Pass -> 보이스 넘기기 / Report -> 신고하기
+     * @param reason   신고하기 -> 신고 사유
+     */
     @FormUrlEncoded
     @POST("voice/pass")
     Call<VoiceCard> passVoice(@Field("id") int id, @Field("type") String passType, @Field("reason") @Nullable String reason);
 
+    /**
+     * @param type image / voice
+     * @param size file size*/
     @GET("upload")
     Call<Map> getUploadMetaData(@Query("type") String type, @Query("size") int size);
 
 
+    @GET("cash/log")
+    Call<ArrayList<PointLog>> loadLunaLogList(@Query("limit") int limit, @Query("offset") int offset);
+
+    @GET("voice/count")
+    Call<Integer> getNewVoiceCount();
+
+    @POST("cash/charge/android")
+    Call<JsonObject> payInAppProduct(@Field("originalJson") String originalJson, @Field("signature") String signature);
 }

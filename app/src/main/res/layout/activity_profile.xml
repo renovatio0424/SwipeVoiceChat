@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
 
     <ImageView
         style="@style/background_image_style"
@@ -15,10 +14,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center_horizontal"
+        android:fitsSystemWindows="true"
         android:orientation="vertical">
 
         <android.support.v7.widget.Toolbar
@@ -33,135 +32,75 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-
             <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_arrow_back"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="16dp" />
-
-            <TextView
                 android:id="@+id/textView8"
                 style="@style/text_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="24dp"
                 android:gravity="center_horizontal"
-                android:text="보이스톡" />
+                app:srcCompat="@drawable/logo_sori_text"/>
         </android.support.v7.widget.Toolbar>
 
         <TextView
+            style="@style/expand_line_extra"
             android:id="@+id/textView3"
-            style="@style/text_color"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:text="상대방에겐 블러로 보여집니다\n안심하고 대표 사진 하나만 올려주세요"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@+id/iv_crop"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintVertical_bias="0.35000002" />
 
         <ImageView
             android:id="@+id/iv_crop"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:src="@drawable/button_profile"
-            app:layout_constraintBottom_toTopOf="@+id/btn_profile_register"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/crop_image"
+            app:layout_constraintBottom_toTopOf="@+id/btn_complete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView3"/>
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-
-        <!--<ImageButton-->
-        <!--android:id="@+id/btn_profile_register"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:background="@drawable/round_main_button"-->
-        <!--android:paddingBottom="8dp"-->
-        <!--android:paddingLeft="56dp"-->
-        <!--android:paddingRight="56dp"-->
-        <!--android:paddingTop="8dp"-->
-        <!--android:src="@drawable/plus_button"-->
-        <!--app:layout_constraintBottom_toTopOf="@+id/text_desc"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/iv_crop"-->
-        <!--app:layout_constraintVertical_chainStyle="packed"-->
-        <!--app:layout_constraintVertical_bias="0.3" />-->
-
-        <android.support.constraint.ConstraintLayout
+        <TextView
+            android:id="@+id/tv_upload"
+            android:layout_width="160dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <!--<Button-->
-                <!--android:id="@+id/btn_profile_register"-->
-                <!--style="@style/style_button"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginBottom="8dp"-->
-                <!--android:layout_marginEnd="8dp"-->
-                <!--android:layout_marginLeft="16dp"-->
-                <!--android:layout_marginRight="16dp"-->
-                <!--android:layout_marginStart="8dp"-->
-                <!--android:layout_marginTop="8dp"-->
-                <!--android:background="@drawable/round_main_button"-->
-                <!--android:drawableTop="@drawable/plus_button"-->
-                <!--android:drawablePadding="10dp"-->
-                <!--android:padding="20dp"-->
-                <!--android:text="프로필 사진 등록하기"-->
-                <!--app:layout_constraintBottom_toBottomOf="parent"-->
-                <!--app:layout_constraintEnd_toEndOf="parent"-->
-                <!--app:layout_constraintStart_toStartOf="parent"-->
-                <!--app:layout_constraintTop_toTopOf="parent"-->
-                <!--app:layout_constraintVertical_bias="0.17000002" />-->
-
-            <ImageButton
-                android:id="@+id/btn_profile_register"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/round_main_button"
-                android:paddingBottom="8dp"
-                android:paddingLeft="64dp"
-                android:paddingRight="64dp"
-                android:paddingTop="8dp"
-                android:src="@drawable/plus_button"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.497"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.156" />
-
-            <TextView
-                android:id="@+id/text_desc"
-                style="@style/text_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="대표 사진 올리기"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_profile_register" />
-        </android.support.constraint.ConstraintLayout>
-
-
+            android:background="@drawable/background_google"
+            android:drawableLeft="@drawable/plus_circle"
+            android:drawablePadding="8dp"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="대표 사진 올리기"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toTopOf="@+id/btn_complete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_crop"
+            app:layout_constraintVertical_bias="0.19" />
 
         <TextView
             android:id="@+id/btn_complete"
@@ -170,6 +109,18 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-    </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView24"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:text="+ 대표 사진"
+            android:textColor="@color/text_color_grey"
+            app:layout_constraintBottom_toTopOf="@+id/iv_crop"
+            app:layout_constraintStart_toStartOf="@+id/textView3" />
+    </android.support.constraint.ConstraintLayout>
 
 </FrameLayout>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/toolbar2"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@color/white"
+    android:minHeight="?attr/actionBarSize"
+    android:theme="?attr/actionBarTheme"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal">
+
+
+    <ImageButton
+        android:id="@+id/iv_back"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/button_back"
+        android:background="@color/transparent"
+        app:layout_constraintDimensionRatio="W,1:1.6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_title_bar"
+        style="@style/text_color"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center_vertical"
+        android:gravity="center"
+        android:text="타이틀"
+        android:textColor="@color/main_color"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_back2"
+        app:layout_constraintStart_toEndOf="@+id/iv_back"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/iv_back2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/button_back"
+        android:background="@color/transparent"
+        app:layout_constraintDimensionRatio="W,1:1.6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="invisible"/>
+
+</android.support.constraint.ConstraintLayout>

@@ -8,6 +8,8 @@ import android.support.v7.widget.helper.ItemTouchHelper.Callback;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.square.renov.swipevoicechat.R;
+
 import static android.support.v7.widget.helper.ItemTouchHelper.*;
 
 enum ButtonsState {
@@ -158,9 +160,9 @@ public class SwipeController extends Callback {
 //        drawText("EDIT", c, leftButton, p);
 
         RectF rightButton = new RectF(itemView.getRight() - buttonWidthWithoutPadding, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-        p.setColor(Color.RED);
+        p.setColor(R.color.main_color_inactive);
         c.drawRoundRect(rightButton, corners, corners, p);
-        drawText("DELETE", c, rightButton, p);
+        drawText("나가기", c, rightButton, p);
 
         buttonInstance = null;
 //        if (buttonShowedState == ButtonsState.LEFT_VISIBLE) {

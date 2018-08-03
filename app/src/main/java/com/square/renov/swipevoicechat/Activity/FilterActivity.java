@@ -3,20 +3,28 @@ package com.square.renov.swipevoicechat.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.appyvet.rangebar.RangeBar;
+import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
+import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.square.renov.swipevoicechat.Model.Filter;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.ApiService;
 import com.square.renov.swipevoicechat.R;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
+import com.square.renov.swipevoicechat.Util.Utils;
 
 import java.io.IOException;
 
@@ -30,10 +38,16 @@ import retrofit2.Response;
 
 public class FilterActivity extends AppCompatActivity {
     private static final String TAG = FilterActivity.class.getSimpleName();
+    @BindView(R.id.tv_title_bar)
+    TextView titleBar;
+
     @BindView(R.id.rangebar_age)
-    RangeBar rangeBarAge;
+    CrystalRangeSeekbar rangeBarAge;
     @BindView(R.id.sw_gender)
-    Switch swGender;
+    ImageView swGender;
+    boolean isCheckedGender;
+    @BindView(R.id.tv_gender_desc)
+    TextView tvGenderDesc;
     @BindView(R.id.radio_group_gender)
     RadioGroup rgGender;
     @BindView(R.id.radio_male)
@@ -41,11 +55,16 @@ public class FilterActivity extends AppCompatActivity {
     @BindView(R.id.radio_female)
     RadioButton radioFemale;
     @BindView(R.id.sw_active_user)
-    Switch swActiveUser;
+    ImageView swActiveUser;
+    boolean isCheckedActiveUser;
     @BindView(R.id.sw_age_range)
-    Switch swAgeRange;
+    ImageView swAgeRange;
+    boolean isCheckedAgeRange;
     @BindView(R.id.tv_age_range)
     TextView tvAgeRange;
+
+
+    int AgeLeftValue = 0, AgeRightValue = 0, ageGap = 5;
 
     ApiService service = NetRetrofit.getInstance(this).getService();
 
@@ -57,25 +76,74 @@ public class FilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filter);
         unbinder = ButterKnife.bind(this);
 
+        titleBar.setText("필터");
+
         initFilter();
 
-
-        swGender.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked)
+        swGender.setOnClickListener(v -> {
+            if (!isCheckedGender) {
                 rgGender.setVisibility(View.VISIBLE);
-            else
+                if(rgGender.getCheckedRadioButtonId() != -1)
+                    tvGenderDesc.setVisibility(View.VISIBLE);
+                else
+                    tvGenderDesc.setVisibility(View.GONE);
+                checkRadioButton(swGender, true);
+            } else {
                 rgGender.setVisibility(View.GONE);
+                tvGenderDesc.setVisibility(View.GONE);
+                checkRadioButton(swGender, false);
+            }
         });
 
-        swAgeRange.setOnCheckedChangeListener(((buttonView, isChecked) -> {
-            if (isChecked)
+        rgGender.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radio_male) {
+                setGenderDesc("M");
+            } else if (checkedId == R.id.radio_female) {
+                setGenderDesc("F");
+            }
+        });
+
+        swActiveUser.setOnClickListener(v -> {
+            if (!isCheckedActiveUser){
+                checkRadioButton(swActiveUser, true);
+            } else {
+                checkRadioButton(swActiveUser, false);
+            }
+        });
+
+        swAgeRange.setOnClickListener(v -> {
+            if (!isCheckedAgeRange) {
                 rangeBarAge.setVisibility(View.VISIBLE);
-            else
+                tvAgeRange.setVisibility(View.VISIBLE);
+                checkRadioButton(swAgeRange, true);
+            } else {
                 rangeBarAge.setVisibility(View.GONE);
-        }));
+                tvAgeRange.setVisibility(View.GONE);
+                checkRadioButton(swAgeRange, false);
+            }
+        });
 
+        rangeBarAge.setOnRangeSeekbarChangeListener((minValue, maxValue) -> tvAgeRange.setText(String.valueOf(minValue) + "~" + String.valueOf(maxValue) + "세"));
+    }
 
-        rangeBarAge.setOnRangeBarChangeListener((rangeBar, leftPinIndex, rightPinIndex, leftPinValue, rightPinValue) -> tvAgeRange.setText(leftPinValue + "~" + rightPinValue + "세"));
+    public void checkRadioButton(ImageView radioView, boolean isChecked){
+        if(isChecked)
+            radioView.setBackgroundResource(R.drawable.radio_on);
+        else
+            radioView.setBackgroundResource(R.drawable.radio_off);
+
+        int id = radioView.getId();
+        switch (id){
+            case R.id.sw_gender:
+                isCheckedGender = isChecked;
+                break;
+            case R.id.sw_active_user:
+                isCheckedActiveUser = isChecked;
+                break;
+            case R.id.sw_age_range:
+                isCheckedAgeRange = isChecked;
+                break;
+        }
     }
 
     private void initFilter() {
@@ -86,40 +154,40 @@ public class FilterActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     Filter filter = response.body();
 
-                    if (filter == null){
-                        swActiveUser.setChecked(false);
-                        swAgeRange.setChecked(false);
-                        swGender.setChecked(false);
+                    if (filter == null) {
+                        checkRadioButton(swActiveUser, false);
+                        checkRadioButton(swAgeRange, false);
+                        checkRadioButton(swGender, false);
                         return;
                     }
 
-                    swActiveUser.setChecked(filter.getActiveUser());
+                    checkRadioButton(swActiveUser, filter.getActiveUser());
 
-
-
-
-                    if(filter.getAgeMin() == 0 && filter.getAgeMax() == 0){
-                        swAgeRange.setChecked(false);
+                    if (filter.getAgeMin() == 0 && filter.getAgeMax() == 0) {
+                        checkRadioButton(swAgeRange, false);
                     } else {
-                        swAgeRange.setChecked(true);
+                        checkRadioButton(swAgeRange, true);
                         int minAge = 12, maxAge = 44;
-
-                        if (filter.getAgeMin() < 12 && filter.getAgeMax() > 44) {
+                        if (filter.getAgeMin() > 12 && filter.getAgeMax() < 44) {
                             minAge = filter.getAgeMin();
                             maxAge = filter.getAgeMax();
                         }
-                        rangeBarAge.setRangePinsByValue((float) minAge, (float) maxAge);
+                        AgeLeftValue = minAge;
+                        AgeRightValue = maxAge;
+                        rangeBarAge.setVisibility(View.VISIBLE);
+                        tvAgeRange.setVisibility(View.VISIBLE);
+                        rangeBarAge.setMinStartValue(minAge);
+                        rangeBarAge.setMaxStartValue(maxAge);
                     }
 
-
-
-
                     //TODO: 성별 선택? 이성 보이스 듣기?
-                    if(filter.getGender() != null){
-                        swGender.setChecked(true);
+                    if (filter.getGender() != null) {
+                        rgGender.setVisibility(View.VISIBLE);
+                        tvGenderDesc.setVisibility(View.VISIBLE);
+                        checkRadioButton(swGender, true);
                         isCheckedSameGender(filter.getGender());
                     } else {
-                        swGender.setChecked(false);
+                        checkRadioButton(swGender, false);
                     }
 
                     Log.e(TAG, "filter\n" +
@@ -129,7 +197,7 @@ public class FilterActivity extends AppCompatActivity {
                             "\ngender: " + filter.getGender());
                 } else {
                     try {
-                        Log.e(TAG, "code: " + response.code() + "\nerror body: " + response.errorBody().string());
+                        Utils.toastError(getApplicationContext(), response);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -146,34 +214,44 @@ public class FilterActivity extends AppCompatActivity {
     private void isCheckedSameGender(String gender) {
         User me = SharedPrefHelper.getInstance(this).getUserInfo();
         RadioButton myGenderButton;
-        if(gender.equals(me.getGender())){
-          myGenderButton = "F".equals(me.getGender()) ? radioFemale : radioMale;
-        } else {
-          myGenderButton = "F".equals(me.getGender()) ? radioMale : radioFemale;
-        }
+
+        myGenderButton = "F".equals(gender) ? radioFemale : radioMale;
+
+        setGenderDesc(gender);
         myGenderButton.setChecked(true);
+    }
+
+    private void setGenderDesc(String gender) {
+        tvGenderDesc.setVisibility(View.VISIBLE);
+        String oppenentGender = "F".equals(gender) ? "'여성'" : "'남성'";
+        String genderDesc = oppenentGender + "의 이야기를 5개 가져옵니다";
+        tvGenderDesc.setText(genderDesc);
     }
 
     @OnClick(R.id.sw_gender)
     public void onClickSwitchGender() {
-
     }
 
     @OnClick(R.id.sw_age_range)
     public void onClickSwitchAgeRange() {
-
     }
 
     @Override
     protected void onDestroy() {
         //TODO: 필터 업데이트
         Filter filter = setFilter();
-        Call<Filter> resqeust = service.updateFilter(filter);
-        resqeust.enqueue(new Callback<Filter>() {
+        Call<Filter> request = service.updateFilter(filter);
+        request.enqueue(new Callback<Filter>() {
             @Override
             public void onResponse(Call<Filter> call, Response<Filter> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG, "update filter success");
+                } else {
+                    try {
+                        Utils.toastError(getApplicationContext(), response);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -191,19 +269,19 @@ public class FilterActivity extends AppCompatActivity {
     private Filter setFilter() {
         Filter result = new Filter();
 
-        result.setActiveUser(swActiveUser.isChecked());
+        result.setActiveUser(isCheckedActiveUser);
 
-        if (swAgeRange.isChecked()) {
-            result.setAgeMin(Integer.valueOf(rangeBarAge.getLeftPinValue()));
-            result.setAgeMax(Integer.valueOf(rangeBarAge.getRightPinValue()));
+        if (isCheckedAgeRange) {
+            result.setAgeMin((int) rangeBarAge.getSelectedMinValue());
+            result.setAgeMax((int) rangeBarAge.getSelectedMaxValue());
         } else {
             result.setAgeMin(0);
             result.setAgeMax(0);
         }
-        //TODO: 상대방 이성 보기?
-        if (swGender.isChecked()){
+
+        if (isCheckedGender) {
             User me = SharedPrefHelper.getInstance(this).getUserInfo();
-            if("F".equals(me.getGender())){
+            if ("F".equals(me.getGender())) {
                 result.setGender("M");
             } else {
                 result.setGender("F");
@@ -211,11 +289,16 @@ public class FilterActivity extends AppCompatActivity {
         } else {
             result.setGender(null);
         }
-        Log.e(TAG, "is active user: " + result.getActiveUser());
-        Log.e(TAG, "max Age: " + result.getAgeMax());
-        Log.e(TAG, "min Age: " + result.getAgeMin());
-        Log.e(TAG, "gender: " + result.getGender());
+        Log.e(TAG, "setFilter] is active user: " + result.getActiveUser());
+        Log.e(TAG, "setFilter] max Age: " + result.getAgeMax());
+        Log.e(TAG, "setFilter] min Age: " + result.getAgeMin());
+        Log.e(TAG, "setFilter] gender: " + result.getGender());
 
         return result;
+    }
+
+    @OnClick(R.id.iv_back)
+    public void onClickBack(){
+        finish();
     }
 }
