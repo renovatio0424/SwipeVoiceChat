@@ -146,7 +146,7 @@
         <item name="android:minHeight">4dip</item>
         <item name="android:maxHeight">4dip</item>
         <item name="android:thumbOffset">3dip</item>
-        <item name="android:thumb">@drawable/thumb_image</item>
+        <item name="android:thumb">@drawable/thumb_image_voice_bubble</item>
         <item name="android:focusable">true</item>
     </style>
 

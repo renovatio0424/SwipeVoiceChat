@@ -4,16 +4,19 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 public class RealmHelper {
-    private static Realm instance;
+    private static Realm instanceChatRoom;
+    private static Realm instanceChat;
+    private static Realm instanceFilterCard;
 
     public static String CHAT_ROOM = "chatroom.realm";
     public static String CHAT = "chat.realm";
+    public static String FILTER_CARD = "filtercard.realm";
 
-    public RealmHelper(){
+    public RealmHelper() {
 
     }
 
-    public static RealmConfiguration getRealmConfig(String configName){
+    public static RealmConfiguration getRealmConfig(String configName) {
         RealmConfiguration resultConfig = new RealmConfiguration.Builder()
                 .name(configName)
                 .schemaVersion(0)
@@ -21,7 +24,13 @@ public class RealmHelper {
         return resultConfig;
     }
 
-    public static Realm getRealm(String configName){
-        return instance.getInstance(getRealmConfig(configName));
+    public static Realm getRealm(String configName) {
+        if (CHAT_ROOM.equals(configName))
+            return instanceChatRoom.getInstance(getRealmConfig(configName));
+        else if (CHAT.equals(configName))
+            return instanceChat.getInstance(getRealmConfig(configName));
+        else if (FILTER_CARD.equals(configName))
+            return instanceFilterCard.getInstance(getRealmConfig(configName));
+        else return null;
     }
 }

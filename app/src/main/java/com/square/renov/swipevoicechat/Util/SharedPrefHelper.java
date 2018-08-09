@@ -10,24 +10,20 @@ import com.square.renov.swipevoicechat.Model.VoiceChat;
 
 import java.util.ArrayList;
 
+import io.realm.Realm;
+
 public class SharedPrefHelper {
     private static SharedPrefHelper instance;
 
     public static final String PREFERENCE_NAME = "PUBLIC_ENEMY_PREF";
     public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
-    public static final String USER_STATUS = "USER_STATUS";
-    public static final String USER_ID = "USER_ID";
-    public static final String POINT = "POINT";
     //	출석일자 체크 2018-02-05 김정원
-    public static final String LOGGED_DAY_COUNT = "LOGGED_DAY_COUNT";
     public static final String SNS_TYPE = "SNS_TYPE";
     public static final String USER_INFO = "USER_INFO";
-
-    public static final String MY_CHAT = "MY_CHAT";
-    public static final String OTHER_CHAT = "OTHER_CHAT";
-
+    //    public static final String MY_CHAT = "MY_CHAT";
     public static final String TUTORAIL = "TUTORIAL";
-    public static final String BADGE_COUNT = "BADGE_COUNT";
+    //    public static final String OTHER_CHAT = "OTHER_CHAT";
+    public static final String NEW_CHAT_ROOM_ID = "NEW_CHAT_ROOM_ID";
     public static final String CHAT_ROOM_DATA_UPDATE_TIME = "CHAT_ROOM_DATA_UPDATE_TIME";
     public static final String CHAT_DATA_UPDATE_TIME = "CHAT_DATA_UPDATE_TIME";
 
@@ -81,31 +77,31 @@ public class SharedPrefHelper {
         return me;
     }
 
-    public void setMyChat(VoiceChat voiceChat){
-        Gson gson = new Gson();
-        String json = gson.toJson(voiceChat);
-        setSharedPreferences(MY_CHAT, json);
-    }
-
-    public void setOtherChat(VoiceChat voicechat){
-        Gson gson = new Gson();
-        String json = gson.toJson(voicechat);
-        setSharedPreferences(OTHER_CHAT, json);
-    }
-
-    public ArrayList<VoiceChat> getChatList(){
-        Gson gson = new Gson();
-        ArrayList<VoiceChat> result = new ArrayList<>();
-        String myjson = getSharedPreferences(MY_CHAT, null);
-        VoiceChat myChat = gson.fromJson(myjson, VoiceChat.class);
-
-        String otherjson = getSharedPreferences(OTHER_CHAT, null);
-        VoiceChat otherChat = gson.fromJson(otherjson, VoiceChat.class);
-
-        result.add(otherChat);
-        result.add(myChat);
-        return result;
-    }
+//    public void setMyChat(VoiceChat voiceChat){
+//        Gson gson = new Gson();
+//        String json = gson.toJson(voiceChat);
+//        setSharedPreferences(MY_CHAT, json);
+//    }
+//
+//    public void setOtherChat(VoiceChat voicechat){
+//        Gson gson = new Gson();
+//        String json = gson.toJson(voicechat);
+//        setSharedPreferences(OTHER_CHAT, json);
+//    }
+//
+//    public ArrayList<VoiceChat> getChatList(){
+//        Gson gson = new Gson();
+//        ArrayList<VoiceChat> result = new ArrayList<>();
+//        String myjson = getSharedPreferences(MY_CHAT, null);
+//        VoiceChat myChat = gson.fromJson(myjson, VoiceChat.class);
+//
+//        String otherjson = getSharedPreferences(OTHER_CHAT, null);
+//        VoiceChat otherChat = gson.fromJson(otherjson, VoiceChat.class);
+//
+//        result.add(otherChat);
+//        result.add(myChat);
+//        return result;
+//    }
 
     public void setSharedPreferences(String key, boolean val) {
         SharedPreferences.Editor edit = prefs.edit();
@@ -145,8 +141,15 @@ public class SharedPrefHelper {
 
     public void removeAllSharedPreferences() {
         removeSharedPreferences(ACCESS_TOKEN);
-        removeSharedPreferences(USER_STATUS);
         removeSharedPreferences(USER_INFO);
+        removeSharedPreferences(SNS_TYPE);
+        removeSharedPreferences(CHAT_DATA_UPDATE_TIME);
+        removeSharedPreferences(CHAT_ROOM_DATA_UPDATE_TIME);
+        removeSharedPreferences(NEW_CHAT_ROOM_ID);
+        Realm realm = RealmHelper.getRealm(RealmHelper.CHAT_ROOM);
+        realm.executeTransactionAsync(realm1 -> realm1.deleteAll());
+        Realm realm1 = RealmHelper.getRealm(RealmHelper.CHAT);
+        realm1.executeTransactionAsync(realm2 -> realm2.deleteAll());
     }
 
     public boolean hadExperiencedSignUpStep(int user_sign_up_step){

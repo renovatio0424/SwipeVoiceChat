@@ -119,8 +119,10 @@ public class VoiceBubble extends TableRow {
                     this.post(() -> {
                         tvPlayTime.setText(Utils.getPlayTimeFormat(playTime));
                     });
+
                     if (voicePlayListener != null) {
                         voicePlayListener.onPause();
+                        Log.d(TAG, "onPause");
                         if (timer != null)
                             timerTask.pause();
                     }
@@ -134,10 +136,13 @@ public class VoiceBubble extends TableRow {
                         if (timerTask != null && timerTask.isPause()) {
                             timerTask.resume();
                             voicePlayListener.onResume();
+                            Log.d(TAG, "onResume");
                         } else {
                             voicePlayListener.onPlay();
+                            Log.d(TAG, "onPlay");
                         }
                     }
+
                     if (timer == null) {
                         timerTask = new BubbleTimerTask(playTime);
                         timer = new Timer();
@@ -148,6 +153,7 @@ public class VoiceBubble extends TableRow {
 
         });
     }
+
     private void getAttrs(AttributeSet attrs) {
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.VoiceBubble);
         setTypeArray(typedArray);
@@ -170,67 +176,71 @@ public class VoiceBubble extends TableRow {
         typedArray.recycle();
     }
 
-
-public class BubbleTimerTask extends TimerTask {
-    long maxRecordTime = 30 * 1000;
-    long recordTime;
-    long time = 0L;
-    boolean isPause = false;
-
-    public BubbleTimerTask(@Nullable long myRecordTime) {
-        this.recordTime = myRecordTime;
+    public void clickPlayButton(){
+        playButton.performClick();
     }
 
+    public class BubbleTimerTask extends TimerTask {
+        long maxRecordTime = 30 * 1000;
+        long recordTime;
+        long time = 0L;
+        boolean isPause = false;
 
-    /**
-     * record time == 0 -> 아직 녹음을 안한 상태에는 녹음 타이머
-     * record time != 0 -> 녹음을 한상태
-     * time >= recordTime -> 재생이 끈난 상태
-     * else -> 재생중
-     */
-    @Override
-    public void run() {
-        if (isPause) {
-            return;
+        public BubbleTimerTask(@Nullable long myRecordTime) {
+            this.recordTime = myRecordTime;
         }
 
-        if (startTime >= playTime) {
-            timer.cancel();
-            startTime = 0;
-            playButton.post(() -> playButton.setImageResource(R.drawable.ic_reload_white));
-            tvPlayTime.post(() -> tvPlayTime.setText(Utils.getPlayTimeFormat(playTime)));
-            progressBar.setProgress(0);
-            timer = null;
-            mState = STATE_STOP;
-            return;
+
+        /**
+         * record time == 0 -> 아직 녹음을 안한 상태에는 녹음 타이머
+         * record time != 0 -> 녹음을 한상태
+         * time >= recordTime -> 재생이 끈난 상태
+         * else -> 재생중
+         */
+        @Override
+        public void run() {
+            if (isPause) {
+                mState = STATE_STOP;
+                return;
+            }
+
+            if (startTime >= playTime) {
+                timer.cancel();
+                startTime = 0;
+                playButton.post(() -> playButton.setImageResource(R.drawable.ic_reload_white));
+                tvPlayTime.post(() -> tvPlayTime.setText(Utils.getPlayTimeFormat(playTime)));
+                progressBar.setProgress(0);
+                timer = null;
+                mState = STATE_STOP;
+                return;
+            }
+
+            Log.e(TAG, "start time: " + startTime);
+            Log.e(TAG, "play time: " + playTime);
+
+            progressBar.post(() -> {
+                progressBar.setProgress(startTime);
+            });
+
+            tvPlayTime.post(() -> {
+                tvPlayTime.setText(Utils.getPlayTimeFormat(startTime));
+            });
+
+            startTime += 100;
         }
 
-        Log.e(TAG, "start time: " + startTime);
-        Log.e(TAG, "play time: " + playTime);
+        public void pause() {
+            isPause = true;
+        }
 
-        progressBar.post(() -> {
-            progressBar.setProgress(startTime);
-        });
+        public void resume() {
+            isPause = false;
+        }
 
-        tvPlayTime.post(() -> {
-            tvPlayTime.setText(Utils.getPlayTimeFormat(startTime));
-        });
-
-        startTime += 100;
+        public boolean isPause() {
+            return isPause;
+        }
     }
-
-    public void pause() {
-        isPause = true;
-    }
-
-    public void resume() {
-        isPause = false;
-    }
-
-    public boolean isPause() {
-        return isPause;
-    }
-}
 
 
 }

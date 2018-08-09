@@ -159,11 +159,7 @@ public class ShopActivity extends AppCompatActivity {
                 String[] permissions = new String[permissionList.size()];
                 permissions = permissionList.toArray(permissions);
                 ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
-            } else {
-                Toast.makeText(this, "권한 요청 완료", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(this, "권한 요청 완료", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -259,7 +255,7 @@ public class ShopActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Tapjoy.onActivityStart(this);
+//        Tapjoy.onActivityStart(this);
     }
 
     @Override
@@ -277,7 +273,7 @@ public class ShopActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Tapjoy.onActivityStop(this);
+//        Tapjoy.onActivityStop(this);
     }
 
 
@@ -391,6 +387,8 @@ public class ShopActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1001) {
 //            int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
+
+            Log.d(TAG, "data : " + data.toString());
             String originalJson = data.getStringExtra("INAPP_PURCHASE_DATA");
             String signature = data.getStringExtra("INAPP_DATA_SIGNATURE");
 
@@ -410,7 +408,9 @@ public class ShopActivity extends AppCompatActivity {
                         public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                             if(response.isSuccessful()){
                                 JsonObject pointJsonObject = response.body();
+                                Log.d(TAG, pointJsonObject.toString());
                                 int point = pointJsonObject.get("point").getAsInt();
+                                Log.d(TAG, "point : " + point);
                                 //TODO: 포인트 업데이트 방식 어떻게??
                             } else {
                                 try {

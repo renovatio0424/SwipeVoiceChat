@@ -6,11 +6,15 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.cunoraz.gifview.library.GifView;
 import com.facebook.AccessToken;
 import com.facebook.Profile;
@@ -21,7 +25,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.gson.Gson;
 import com.onesignal.OneSignal;
 import com.square.renov.swipevoicechat.Model.Result;
+import com.square.renov.swipevoicechat.Model.SystemCheck;
 import com.square.renov.swipevoicechat.Model.User;
+import com.square.renov.swipevoicechat.MyApplication;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.R;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
@@ -57,11 +63,15 @@ public class LoadingActivity extends AppCompatActivity {
         setBadge(getApplicationContext(), 0);
 
         String tutorial = SharedPrefHelper.getInstance(this).getSharedPreferences(SharedPrefHelper.TUTORAIL, null);
+
+        moon.setVisibility(View.INVISIBLE);
+
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.anim_rotate);
         animation.setDuration(duration);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
+                moon.setVisibility(View.VISIBLE);
                 AutoLogIn();
             }
 
@@ -72,7 +82,7 @@ public class LoadingActivity extends AppCompatActivity {
                 if (tutorial == null) {
                     intent = new Intent(LoadingActivity.this, TutorialActivity.class);
                     SharedPrefHelper.getInstance(LoadingActivity.this).setSharedPreferences(SharedPrefHelper.TUTORAIL, "true");
-                } else if(isLogged){
+                } else if (isLogged) {
                     intent = new Intent(LoadingActivity.this, MainActivity.class);
                 } else {
                     intent = new Intent(LoadingActivity.this, LogInActivity.class);
@@ -86,7 +96,57 @@ public class LoadingActivity extends AppCompatActivity {
 
             }
         });
-        moon.startAnimation(animation);
+
+        Call<SystemCheck> request = NetRetrofit.getInstance(this).getService().checkSystem();
+        request.enqueue(new Callback<SystemCheck>() {
+            @Override
+            public void onResponse(Call<SystemCheck> call, Response<SystemCheck> response) {
+                if (response.isSuccessful()) {
+                    if (!response.body().isUsableVersion(MyApplication.getInstance().getAppVersionName())) {
+                        MaterialDialog logoutDialog = new MaterialDialog.Builder(getApplicationContext())
+                                .customView(R.layout.dialog_code, false)
+                                .cancelable(false)
+                                .show();
+
+                        TextView tvTitle = (TextView) logoutDialog.findViewById(R.id.tv_title);
+                        TextView tvContent = (TextView) logoutDialog.findViewById(R.id.tv_content);
+                        TextView tvSend = (TextView) logoutDialog.findViewById(R.id.tv_send_code);
+                        TextView tvCancel = (TextView) logoutDialog.findViewById(R.id.tv_cancel);
+                        EditText etReason = (EditText) logoutDialog.findViewById(R.id.et_code);
+
+                        etReason.setVisibility(View.GONE);
+                        tvTitle.setText("앱이 업데이트 되었습니다!");
+                        tvContent.setText("지금 바로 최신 버전으로 업데이트 해주세요 :)");
+                        tvCancel.setText("Sori 종료");
+                        tvSend.setText("바로 업데이트");
+
+                        tvCancel.setOnClickListener(v -> {
+                            finish();
+                        });
+                        tvSend.setOnClickListener(v -> {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName()));
+                            startActivity(intent);
+                        });
+
+                    } else {
+                        moon.startAnimation(animation);
+                    }
+                } else {
+                    try {
+                        moon.startAnimation(animation);
+                        Utils.toastError(getApplicationContext(), response);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SystemCheck> call, Throwable t) {
+
+            }
+        });
+
     }
 
     @Override
@@ -97,54 +157,35 @@ public class LoadingActivity extends AppCompatActivity {
 
     private void AutoLogIn() {
 //        TODO: 로그인시 토큰값 발행 -> 어플 재실행시 토큰값 확인후 바로 로그인
-//        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
 
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
-        account = GoogleSignIn.getLastSignedInAccount(this);
-//        // Check for existing Google Sign In account, if the user is already signed in
-//        // the GoogleSignInAccount will be non-null.
-//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-//        boolean isFacebookLoggedIn = accessToken != null && !accessToken.isExpired();
-//        boolean isGoogleLoggedIn = account != null;
-//
-//        if (isFacebookLoggedIn && isOurUser | isGoogleLoggedIn && isOurUser) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-        String accessToken = SharedPrefHelper.getInstance(LoadingActivity.this).getSharedPreferences(SharedPrefHelper.ACCESS_TOKEN, null);
+
+        String snsAccessToken = null;
+
         String snsType = SharedPrefHelper.getInstance(LoadingActivity.this).getSharedPreferences(SharedPrefHelper.SNS_TYPE, null);
 
-        if (accessToken != null && snsType != null) {
-            if (snsType.equals(SNSTYPE_FACEBOOK))
-                accessToken = AccessToken.getCurrentAccessToken().getToken();
-            else if (snsType.equals(SNSTYPE_GOOGLE)){
-                accessToken = GoogleSignIn.getLastSignedInAccount(this).getIdToken();
-            } else {
-                Toast.makeText(this, "로그인 한적 없는 유저입니다", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        if (SNSTYPE_GOOGLE.equals(snsType)) {
+            account = GoogleSignIn.getLastSignedInAccount(this);
+            snsAccessToken = account.getIdToken();
+        } else if (SNSTYPE_FACEBOOK.equals(snsType)) {
+            snsAccessToken = AccessToken.getCurrentAccessToken().getToken();
+        }
 
-            Call<User> call = NetRetrofit.getInstance(this).getService().login(accessToken, snsType);
-            call.enqueue(returnCallback(snsType, accessToken));
+        if (snsAccessToken != null && snsType != null) {
+            Call<User> call = NetRetrofit.getInstance(this).getService().login(snsAccessToken, snsType);
+            call.enqueue(returnCallback(snsType, snsAccessToken));
         }
     }
 
-    private Callback<User> returnCallback(String snsType, String Token) {
+    private Callback<User> returnCallback(String snsType, String snsAccessToken) {
         return new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 // Signed in successfully, show authenticated UI.
                 if (response.isSuccessful()) {
 //                    hellovoiceauth token set
-                    Log.d(TAG, "header: " + response.headers());
+//                    Log.d(TAG, "header: " + response.headers());
                     String token = response.headers().get("HelloVoiceAuth");
-                    Log.d(TAG, "token: " + token);
+//                    Log.d(TAG, "token: " + token);
 
                     User myInfo = response.body();
 
@@ -153,7 +194,7 @@ public class LoadingActivity extends AppCompatActivity {
                     SharedPrefHelper.getInstance(LoadingActivity.this).setSharedPreferences(SharedPrefHelper.SNS_TYPE, snsType);
                     SharedPrefHelper.getInstance(LoadingActivity.this).setSharedPreferences(SharedPrefHelper.USER_INFO, gson.toJson(myInfo));
 
-                    Log.d(TAG,"gender: " + myInfo.getGender() +
+                    Log.d(TAG, "gender: " + myInfo.getGender() +
                             "\nlat: " + myInfo.getLat() +
                             "\nlng: " + myInfo.getLng() +
                             "\nprofileImageUrl: " + myInfo.getProfileImageUrl() +
@@ -161,7 +202,7 @@ public class LoadingActivity extends AppCompatActivity {
 
                     Log.e(TAG, "user.tostring(): " + gson.toJson(myInfo));
 
-                    if(myInfo.getProfileImageUrl() != null && !"".equals(myInfo.getProfileImageUrl())){
+                    if (myInfo.getProfileImageUrl() != null && !"".equals(myInfo.getProfileImageUrl())) {
                         isLogged = true;
                         OneSignal.sendTag("userId", String.valueOf(myInfo.getId()));
                     }
@@ -196,9 +237,6 @@ public class LoadingActivity extends AppCompatActivity {
         intent.putExtra("badge_count", count);
         intent.putExtra("badge_count_package_name", packageName);
         intent.putExtra("badge_count_class_name", launcherClassName);
-
-        if(count == 0)
-            SharedPrefHelper.getInstance(this).setSharedPreferences(SharedPrefHelper.BADGE_COUNT, count);
 
         context.sendBroadcast(intent);
     }

@@ -17,10 +17,13 @@ import java.lang.reflect.Type;
 import io.realm.Realm;
 
 public class MyApplication extends Application {
+    private static MyApplication mInstance;
+
     @Override
     public void onCreate() {
         super.onCreate();
 
+        mInstance = this;
 //        OneSignal.setLogLevel(OneSignal.LOG_LEVEL.DEBUG, OneSignal.LOG_LEVEL.DEBUG);
 
         RequestManager.initialize(this);
@@ -40,6 +43,19 @@ public class MyApplication extends Application {
                 .addCustom1(Typekit.createFromAsset(this,"yoongodic_310.ttf"));
 
         Realm.init(this);
+    }
+
+    public static synchronized MyApplication getInstance() {
+        return mInstance;
+    }
+
+    public String getAppVersionName() {
+        String versionName = "0.0.1";
+        try {
+            versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception e) {
+        }
+        return versionName;
     }
 
 }

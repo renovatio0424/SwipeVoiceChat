@@ -3,7 +3,9 @@ package com.square.renov.swipevoicechat.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class VoiceCard {
+import io.realm.RealmObject;
+
+public class VoiceCard extends RealmObject{
 
     @SerializedName("id")
     @Expose

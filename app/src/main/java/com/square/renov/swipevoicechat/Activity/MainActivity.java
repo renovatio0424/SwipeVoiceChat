@@ -1,12 +1,17 @@
 package com.square.renov.swipevoicechat.Activity;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -17,9 +22,11 @@ import com.square.renov.swipevoicechat.Fragment.ChatRoomFragment;
 import com.square.renov.swipevoicechat.Fragment.SettingFragment;
 import com.square.renov.swipevoicechat.Handler.BackPressCloseHandler;
 import com.square.renov.swipevoicechat.Model.User;
+import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.R;
 import com.square.renov.swipevoicechat.Util.AdbrixUtil;
+import com.square.renov.swipevoicechat.Util.RealmHelper;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.square.renov.swipevoicechat.Util.Utils;
 import com.square.renov.swipevoicechat.widget.NonSwipeViewPager;
@@ -29,11 +36,19 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,19 +63,24 @@ public class MainActivity extends AppCompatActivity {
     ImageView titleUser;
     @BindView(R.id.title_main)
     ImageView titleMain;
-    @BindView(R.id.title_chat_room)
+    @BindView(R.id.iv_chat_room)
     ImageView titleChatRoom;
+
+    public static ImageView newBadge;
 
     User myinfo;
     private Unbinder unbinder;
 
     public static boolean isActive;
 
+    // Const
+    private static final int PERMISSION_REQUEST_CODE = 8100;
+
     BackPressCloseHandler backPressCloseHandler = new BackPressCloseHandler(this);
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void moveTitleMenu(int i) {
-        switch (i){
+        switch (i) {
             case 0:
                 viewPager.setCurrentItem(0);
                 titleUser.setAlpha(1.0f);
@@ -84,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @OnClick(R.id.title_user)
-    public void moveToUserPage(){
+    public void moveToUserPage() {
         moveTitleMenu(0);
 
     }
@@ -92,16 +112,15 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @OnClick(R.id.title_main)
-    public void moveToMainPage(){
+    public void moveToMainPage() {
         moveTitleMenu(1);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @OnClick(R.id.title_chat_room)
-    public void moveToChatRoom(){
+    public void moveToChatRoom() {
         moveTitleMenu(2);
     }
-
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -111,11 +130,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         EventBus.getDefault().register(this);
-
-        if(getIntent().hasExtra("push")){
-            moveTitleMenu(getIntent().getIntExtra("push",1));
-            Log.d(TAG, "move to chat room");
-        }
 
         unbinder = ButterKnife.bind(this);
 
@@ -151,8 +165,43 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setPagingEnabled(false);
         viewPager.setCurrentItem(1);
         moveTitleMenu(1);
+
+        if (getIntent().hasExtra("push")) {
+            moveTitleMenu(getIntent().getIntExtra("push", 1));
+            Log.d(TAG, "move to chat room");
+        }
+
+//        setChatNewBadgeChangeListener();
+        newBadge = (ImageView) findViewById(R.id.iv_new_badge);
+        checkPermissions();
     }
 
+    public static void chatNewBadge(boolean isNew){
+        if(isNew)
+            newBadge.setVisibility(View.VISIBLE);
+        else
+            newBadge.setVisibility(View.GONE);
+    }
+
+//    private void setChatNewBadgeChangeListener() {
+//
+//        RealmResults<VoiceChatRoom> results = realm.where(VoiceChatRoom.class).equalTo("isNewRoom",true).findAll();
+//
+//        if(results.size() > 0)
+//            newBadge.setVisibility(View.VISIBLE);
+//        else
+//            newBadge.setVisibility(View.GONE);
+//
+//        results.addChangeListener(voiceChatRooms -> {
+//            if(newBadge == null)
+//                return;
+//
+//            if(voiceChatRooms.size() > 0)
+//                newBadge.setVisibility(View.VISIBLE);
+//            else
+//                newBadge.setVisibility(View.GONE);
+//        });
+//    }
 
     @Override
     public void onStart() {
@@ -164,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onRefreshEvent(RefreshEvent refreshEvent) {
         Log.e("event bus", "onRefreshEvent(): " + MainActivity.class.getSimpleName());
-        if(refreshEvent.action == RefreshEvent.Action.PUSH && isActive){
+        if (refreshEvent.action == RefreshEvent.Action.PUSH && isActive) {
             moveTitleMenu(2);
         }
     }
@@ -229,5 +278,63 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ArrayList<String> permissionList = new ArrayList<String>();
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.INTERNET);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.READ_PHONE_STATE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.ACCESS_WIFI_STATE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.ACCESS_NETWORK_STATE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.RECORD_AUDIO);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.RECORD_AUDIO);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.READ_CONTACTS);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.CAMERA);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_BOOT_COMPLETED) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.RECEIVE_BOOT_COMPLETED);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                permissionList.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+
+            if (permissionList.size() > 0) {
+                String[] permissions = new String[permissionList.size()];
+                permissions = permissionList.toArray(permissions);
+                ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    @Override
+    @SuppressLint("NewApi")
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            boolean allGranted = true;
+            for (int i = 0; i < permissions.length; ++i) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                }
+                if (allGranted) {
+                    Toast.makeText(this, "all granted", Toast.LENGTH_SHORT).show();
+                    //TODO init nas
+                } else {
+                    Toast.makeText(this, "not all granted", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }

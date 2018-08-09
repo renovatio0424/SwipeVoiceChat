@@ -13,10 +13,10 @@ public class Filter {
     private String gender;
     @SerializedName("ageMin")
     @Expose
-    private int ageMin;
+    private Integer ageMin;
     @SerializedName("ageMax")
     @Expose
-    private int ageMax;
+    private Integer ageMax;
 
     public Boolean getActiveUser() {
         return activeUser;
@@ -34,19 +34,19 @@ public class Filter {
         this.gender = gender;
     }
 
-    public int getAgeMin() {
+    public Integer getAgeMin() {
         return ageMin;
     }
 
-    public void setAgeMin(int ageMin) {
+    public void setAgeMin(Integer ageMin) {
         this.ageMin = ageMin;
     }
 
-    public int getAgeMax() {
+    public Integer getAgeMax() {
         return ageMax;
     }
 
-    public void setAgeMax(int ageMax) {
+    public void setAgeMax(Integer ageMax) {
         this.ageMax = ageMax;
     }
 

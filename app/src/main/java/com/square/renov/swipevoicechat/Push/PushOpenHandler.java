@@ -38,14 +38,20 @@ public class PushOpenHandler implements OneSignal.NotificationOpenedHandler{
             //TODO 푸시 타입에 따라 할일 들 ...
             JSONObject data = result.notification.payload.additionalData;
 
+//                TODO : N 표시 띄우기
             if(isAppRunning(context)){
+//                TODO : 데이터 갱신 요청
                 Log.d(TAG, "app is not running");
                 EventBus.getDefault().post(new RefreshEvent(RefreshEvent.Action.PUSH));
-            } else if(!isAppRunning(context)){
-                Log.d(TAG, "app is running");
                 Intent intent = new Intent(context, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("push",2);
+                context.startActivity(intent);
+            } else if(!isAppRunning(context)){
+//                TODO : 앱 실행
+                Log.d(TAG, "app is running");
+                Intent intent = new Intent(context, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(intent);
             }
 

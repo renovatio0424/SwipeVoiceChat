@@ -43,18 +43,39 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/a_title_sori" />
 
-        <ImageView
+
+        <FrameLayout
             android:id="@+id/title_chat_room"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_gravity="center_vertical"
-            android:padding="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="H,1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="1.0"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/a_chat" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_chat_room"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:padding="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent="1.0"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/a_chat" />
+
+            <ImageView
+                android:id="@+id/iv_new_badge"
+                android:layout_width="4.5dp"
+                android:layout_height="4.5dp"
+                app:srcCompat="@drawable/chat_new_badge"
+                android:layout_margin="14dp"
+                android:visibility="gone"/>
+        </FrameLayout>
+
 
     </android.support.constraint.ConstraintLayout>
 

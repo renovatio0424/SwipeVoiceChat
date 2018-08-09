@@ -25,8 +25,7 @@ public class VoiceChatRoom extends RealmObject{
     @Expose
     private User opponentUser;
 
-
-    private boolean isNewRoom = true;
+    private boolean isNewRoom;
 
     public int getId() {
         return id;

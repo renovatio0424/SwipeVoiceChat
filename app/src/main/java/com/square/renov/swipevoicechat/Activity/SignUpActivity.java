@@ -72,8 +72,6 @@ public class SignUpActivity extends AppCompatActivity {
 
     Unbinder unbinder;
 
-    MaterialDialog birthdayDialog;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,7 +137,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         ArrayList<String> birthList = new ArrayList<>();
 
-        for (int i = year - 14 + 1; i > year - 44 + 1; i--) {
+        for (int i = year - 12 + 1; i > year - 44 + 1; i--) {
             birthList.add(String.valueOf(i));
         }
 

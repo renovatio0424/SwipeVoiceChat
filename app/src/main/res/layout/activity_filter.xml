@@ -195,119 +195,120 @@
             app:layout_constraintTop_toBottomOf="@+id/textView7" />
     </android.support.constraint.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:background="@color/white">
+    <!--<android.support.constraint.ConstraintLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="1dp"-->
+        <!--android:background="@color/white"-->
+        <!--android:visibility="gone">-->
 
 
-        <TextView
-            android:id="@+id/textView7"
-            style="@style/text_color"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:padding="10dp"
-            android:text="연령 선택"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <!--<TextView-->
+            <!--android:id="@+id/textView7"-->
+            <!--style="@style/text_color"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--android:layout_marginStart="8dp"-->
+            <!--android:layout_marginTop="8dp"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="연령 선택"-->
+            <!--android:textStyle="bold"-->
+            <!--android:textSize="16sp"-->
+            <!--app:layout_constraintStart_toStartOf="parent"-->
+            <!--app:layout_constraintTop_toTopOf="parent" />-->
 
-        <TextView
-            android:id="@+id/textView11"
-            style="@style/text_color"
-            android:elevation="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:background="@drawable/background_grey_stroke"
-            android:drawableLeft="@drawable/luna_count"
-            android:drawablePadding="5dp"
-            android:drawableTint="@color/main_color"
-            android:paddingBottom="1dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="1dp"
-            android:text="5"
-            android:textColor="@color/main_color"
-            app:layout_constraintBottom_toBottomOf="@+id/textView7"
-            app:layout_constraintStart_toEndOf="@+id/textView7"
-            app:layout_constraintTop_toTopOf="@+id/textView7"
-            tools:text="5" />
+        <!--<TextView-->
+            <!--android:id="@+id/textView11"-->
+            <!--style="@style/text_color"-->
+            <!--android:elevation="5dp"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:background="@drawable/background_grey_stroke"-->
+            <!--android:drawableLeft="@drawable/luna_count"-->
+            <!--android:drawablePadding="5dp"-->
+            <!--android:drawableTint="@color/main_color"-->
+            <!--android:paddingBottom="1dp"-->
+            <!--android:paddingLeft="8dp"-->
+            <!--android:paddingRight="8dp"-->
+            <!--android:paddingTop="1dp"-->
+            <!--android:text="5"-->
+            <!--android:textColor="@color/main_color"-->
+            <!--app:layout_constraintBottom_toBottomOf="@+id/textView7"-->
+            <!--app:layout_constraintStart_toEndOf="@+id/textView7"-->
+            <!--app:layout_constraintTop_toTopOf="@+id/textView7"-->
+            <!--tools:text="5" />-->
 
-        <TextView
-            android:id="@+id/tv_age_range"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginTop="10dp"
-            android:text="12~44세"
-            android:textSize="17sp"
-            android:textColor="@color/main_color"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@+id/sw_age_range"
-            app:layout_constraintTop_toBottomOf="@+id/sw_age_range"
-            tools:text="17~32세" />
+        <!--<TextView-->
+            <!--android:id="@+id/tv_age_range"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="0dp"-->
+            <!--android:layout_marginTop="10dp"-->
+            <!--android:text="12~44세"-->
+            <!--android:textSize="17sp"-->
+            <!--android:textColor="@color/main_color"-->
+            <!--android:visibility="gone"-->
+            <!--app:layout_constraintEnd_toEndOf="@+id/sw_age_range"-->
+            <!--app:layout_constraintTop_toBottomOf="@+id/sw_age_range"-->
+            <!--tools:text="17~32세" />-->
 
-        <ImageView
-            android:id="@+id/sw_age_range"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/radio_off"
-            app:layout_constraintBottom_toBottomOf="@+id/textView7"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView7" />
+        <!--<ImageView-->
+            <!--android:id="@+id/sw_age_range"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="8dp"-->
+            <!--android:layout_marginEnd="8dp"-->
+            <!--android:layout_marginRight="8dp"-->
+            <!--android:layout_marginTop="8dp"-->
+            <!--android:background="@drawable/radio_off"-->
+            <!--app:layout_constraintBottom_toBottomOf="@+id/textView7"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintTop_toTopOf="@+id/textView7" />-->
 
-        <com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar
-            xmlns:custom="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/rangebar_age"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            custom:bar_color="@color/grey"
-            custom:bar_highlight_color="@color/main_color"
-            custom:data_type="_integer"
-            custom:gap="5"
-            custom:layout_constraintBottom_toTopOf="@+id/textView14"
-            custom:layout_constraintEnd_toEndOf="parent"
-            custom:layout_constraintStart_toStartOf="parent"
-            custom:layout_constraintTop_toBottomOf="@+id/tv_age_range"
-            custom:left_thumb_image="@drawable/thumb_image"
-            custom:right_thumb_image="@drawable/thumb_image"
-            custom:max_value="44"
-            custom:min_value="12"/>
+        <!--<com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar-->
+            <!--xmlns:custom="http://schemas.android.com/apk/res-auto"-->
+            <!--android:id="@+id/rangebar_age"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginEnd="8dp"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--android:layout_marginRight="8dp"-->
+            <!--android:layout_marginStart="8dp"-->
+            <!--android:layout_marginTop="8dp"-->
+            <!--android:visibility="gone"-->
+            <!--custom:bar_color="@color/grey"-->
+            <!--custom:bar_highlight_color="@color/main_color"-->
+            <!--custom:data_type="_integer"-->
+            <!--custom:gap="5"-->
+            <!--custom:layout_constraintBottom_toTopOf="@+id/textView14"-->
+            <!--custom:layout_constraintEnd_toEndOf="parent"-->
+            <!--custom:layout_constraintStart_toStartOf="parent"-->
+            <!--custom:layout_constraintTop_toBottomOf="@+id/tv_age_range"-->
+            <!--custom:left_thumb_image="@drawable/thumb_image_voice_bubble"-->
+            <!--custom:right_thumb_image="@drawable/thumb_image_voice_bubble"-->
+            <!--custom:max_value="44"-->
+            <!--custom:min_value="12"/>-->
 
-        <TextView
-            android:id="@+id/textView14"
-            style="@style/text_color"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:padding="10dp"
-            android:text="선택한 연령대의 이야기를 5개 가져옵니다."
-            android:textColor="@color/black"
-            android:textSize="13sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rangebar_age" />
-    </android.support.constraint.ConstraintLayout>
+        <!--<TextView-->
+            <!--android:id="@+id/textView14"-->
+            <!--style="@style/text_color"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="8dp"-->
+            <!--android:layout_marginEnd="8dp"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--android:layout_marginRight="8dp"-->
+            <!--android:layout_marginStart="8dp"-->
+            <!--android:padding="10dp"-->
+            <!--android:text="선택한 연령대의 이야기를 5개 가져옵니다."-->
+            <!--android:textColor="@color/black"-->
+            <!--android:textSize="13sp"-->
+            <!--app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintStart_toStartOf="parent"-->
+            <!--app:layout_constraintTop_toBottomOf="@id/rangebar_age" />-->
+    <!--</android.support.constraint.ConstraintLayout>-->
 
     <TextView
         android:textColor="#7A7A7A"

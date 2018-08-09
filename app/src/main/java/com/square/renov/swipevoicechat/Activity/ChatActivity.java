@@ -38,6 +38,7 @@ import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.network.RequestManager;
 import com.square.renov.swipevoicechat.Network.network.VolleyMultipartRequest;
 import com.square.renov.swipevoicechat.R;
+import com.square.renov.swipevoicechat.Util.DialogUtils;
 import com.square.renov.swipevoicechat.Util.ImageUtil;
 import com.square.renov.swipevoicechat.Util.RealmHelper;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
@@ -107,6 +108,8 @@ public class ChatActivity extends AppCompatActivity {
     RecordTimerTask mTask;
 
     private boolean isActive;
+    private boolean leaved = false;
+
     int chatRoomId;
     User me;
 
@@ -131,6 +134,7 @@ public class ChatActivity extends AppCompatActivity {
 
         //TODO 샘플 데이터 삽입
 //        loadSampleChatList();
+        initLeavedRoom();
         initChatList();
 //        Profile otherProfileData = Utils.loadProfiles(this).get(1);
 //
@@ -149,6 +153,13 @@ public class ChatActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
     }
 
+    private void initLeavedRoom() {
+        Realm realm = RealmHelper.getRealm(RealmHelper.CHAT_ROOM);
+        VoiceChatRoom thisRoom = realm.where(VoiceChatRoom.class).equalTo("id", chatRoomId).findFirst();
+        leaved = thisRoom.getLeaved();
+        realm.close();
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -164,6 +175,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        chatAdapter.stopVoicePlay();
         stopTimer();
     }
 
@@ -197,8 +209,12 @@ public class ChatActivity extends AppCompatActivity {
     @SuppressLint("ClickableViewAccessibility")
     private void initSendDialog() {
         btnReply.setOnTouchListener((v, event) -> {
-
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (leaved) {
+                    Toast.makeText(this, "상대방이 채팅방을 나가서 더이상 대화를 하실 수 없습니다.", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+
                 stopTimer();
 
                 startTime = System.currentTimeMillis();
@@ -221,6 +237,10 @@ public class ChatActivity extends AppCompatActivity {
                 recordTimer.schedule(mTask, 0, 10);
 
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                if(leaved){
+                    return false;
+                }
+
                 endTime = System.currentTimeMillis();
 
                 ((TextView) v).setText("누르고 말하기");
@@ -264,20 +284,19 @@ public class ChatActivity extends AppCompatActivity {
     @Subscribe
     public void onRefreshEvent(RefreshEvent refreshEvent) {
         Log.e("event bus", "onRefreshEvent(): " + ChatRoomFragment.class.getSimpleName());
-        if (refreshEvent.action == RefreshEvent.Action.STATUS_CHANGE &&
-                RefreshEvent.TYPE_REPLY.equals(refreshEvent.type) &&
-                isActive) {
-            SharedPrefHelper.getInstance(getApplicationContext()).setSharedPreferences(SharedPrefHelper.CHAT_DATA_UPDATE_TIME, 0L);
+        if (refreshEvent.action == RefreshEvent.Action.STATUS_CHANGE && isActive) {
             loadChatList(me.getName());
         }
     }
-
 
     private void initChatList() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvChatList.setLayoutManager(linearLayoutManager);
-
+        rvChatList.setHasFixedSize(true);
+        rvChatList.setItemViewCacheSize(50);
+        rvChatList.setDrawingCacheEnabled(true);
+        rvChatList.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         me = SharedPrefHelper.getInstance(getApplicationContext()).getUserInfo();
         String myName = me.getName();
 
@@ -285,43 +304,51 @@ public class ChatActivity extends AppCompatActivity {
 //        loadSampleChatList(myName);
     }
 
-    private void loadSampleChatList(String myName) {
-//        chatAdapter = new ChatAdapter(Utils.loadChats(this), myName);
-        ArrayList<VoiceChat> chatlist = SharedPrefHelper.getInstance(getApplicationContext()).getChatList();
-        for (VoiceChat itChat : chatlist) {
-            Log.e(TAG, itChat.getVoiceUrl());
-            Log.e(TAG, itChat.getVoiceUser().getName());
-        }
-        chatAdapter = new ChatAdapter(chatlist, myName);
-        rvChatList.setAdapter(chatAdapter);
-        chatAdapter.notifyDataSetChanged();
-    }
+//    private void loadSampleChatList(String myName) {
+////        chatAdapter = new ChatAdapter(Utils.loadChats(this), myName);
+//        ArrayList<VoiceChat> chatlist = SharedPrefHelper.getInstance(getApplicationContext()).getChatList();
+//        for (VoiceChat itChat : chatlist) {
+//            Log.e(TAG, itChat.getVoiceUrl());
+//            Log.e(TAG, itChat.getVoiceUser().getName());
+//        }
+//        chatAdapter = new ChatAdapter(chatlist, myName);
+//        rvChatList.setAdapter(chatAdapter);
+//        chatAdapter.notifyDataSetChanged();
+//    }
 
     Realm realm = RealmHelper.getRealm(RealmHelper.CHAT);
 
     private void loadChatList(String myName) {
-        RealmResults<VoiceChat> results = realm.where(VoiceChat.class).equalTo("chatRoomId",chatRoomId).findAllSorted("sendTime");
+        RealmResults<VoiceChat> results = realm.where(VoiceChat.class).equalTo("chatRoomId", chatRoomId).findAllSorted("sendTime");
 
-        Log.d(TAG, "load chat list : " + Utils.needToDataUpdate(this,SharedPrefHelper.CHAT_DATA_UPDATE_TIME));
-        if (results.size() > 0 & !Utils.needToDataUpdate(this, SharedPrefHelper.CHAT_DATA_UPDATE_TIME)) {
+        Log.d(TAG, "load chat list : " + Utils.needToDataUpdate(this, SharedPrefHelper.CHAT_DATA_UPDATE_TIME));
+        Log.d(TAG, "load chat list size : " + results.size());
+        //        if(Utils.needToDataUpdate(this, SharedPrefHelper.CHAT_DATA_UPDATE_TIME))
+
+
+        if (results.size() > 0 && !Utils.needToDataUpdate(this, SharedPrefHelper.CHAT_DATA_UPDATE_TIME)) {
             Log.d(TAG, "load realm");
             ArrayList<VoiceChat> chatList = new ArrayList<>();
             chatList.addAll(results);
 
             chatAdapter = new ChatAdapter(chatList, myName);
             rvChatList.setAdapter(chatAdapter);
+            rvChatList.scrollToPosition(chatAdapter.getItemCount() - 1);
+
             chatAdapter.notifyDataSetChanged();
+
         } else {
-            Call<ArrayList<VoiceChat>> request = NetRetrofit.getInstance(getApplicationContext()).getService().loadVoiceChatList(chatRoomId,100,0);
+            Call<ArrayList<VoiceChat>> request = NetRetrofit.getInstance(getApplicationContext()).getService().loadVoiceChatList(chatRoomId, 1000, 0);
             request.enqueue(new Callback<ArrayList<VoiceChat>>() {
                 @Override
                 public void onResponse(Call<ArrayList<VoiceChat>> call, Response<ArrayList<VoiceChat>> response) {
                     if (response.isSuccessful()) {
                         chatAdapter = new ChatAdapter(response.body(), myName);
                         rvChatList.setAdapter(chatAdapter);
+                        rvChatList.scrollToPosition(chatAdapter.getItemCount() - 1);
                         chatAdapter.notifyDataSetChanged();
 
-                        for(VoiceChat itChat : response.body()){
+                        for (VoiceChat itChat : response.body()) {
                             itChat.setChatRoomId(chatRoomId);
                             realm.executeTransaction(realm1 -> {
                                 realm.copyToRealmOrUpdate(itChat);
@@ -383,6 +410,8 @@ public class ChatActivity extends AppCompatActivity {
     public void uploadVoice(Map updateInfo, File temptFile) {
         final String uploadImagePath = "https://" + updateInfo.get("Host") + "/" + updateInfo.get("key");
 
+        Log.d(TAG, "upload image path: " + uploadImagePath);
+
         String filePath = ImageUtil.getFilePathFromUri(getTempUri(temptFile), getApplicationContext());
         if (filePath == null || "".equals(filePath)) {
             return;
@@ -393,15 +422,23 @@ public class ChatActivity extends AppCompatActivity {
                 .progress(true, 0)
                 .show();
 
+        DialogUtils.initDialogView(progressDialog, this);
+
         VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest("https://hellovoicebucket.s3.amazonaws.com",
                 response -> {
                     Log.d(TAG, "onResponse : " + response);
-
                     progressDialog.dismiss();
 
                     //TODO SEND CHAT VOICE @PARAM URL = uploadImagepath
                     if (chatRoomId != -1) {
-                        Call<VoiceCard> newVoiceRequest = NetRetrofit.getInstance(getApplicationContext()).getService().sendChatVoice(chatRoomId, uploadImagePath, 0);
+                        int duration = 0;
+                        try {
+                            duration = VoicePlayerManager.getInstance().getPlayTime(uploadImagePath, getApplicationContext());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d(TAG, "reply chat id: " + chatRoomId);
+                        Call<VoiceCard> newVoiceRequest = NetRetrofit.getInstance(getApplicationContext()).getService().sendChatVoice(chatRoomId, uploadImagePath, duration);
                         newVoiceRequest.enqueue(new Callback<VoiceCard>() {
                             @Override
                             public void onResponse(Call<VoiceCard> call, retrofit2.Response<VoiceCard> response) {
@@ -457,10 +494,19 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED){
+            long downTime = SystemClock.uptimeMillis();
+            long upTime = SystemClock.uptimeMillis() + 10;
+            btnReply.dispatchTouchEvent(MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, 0, 0, 0));
+        }
+
         unbinder.unbind();
         EventBus.getDefault().unregister(this);
-        SharedPrefHelper.getInstance(getApplicationContext()).removeSharedPreferences(SharedPrefHelper.MY_CHAT);
-        SharedPrefHelper.getInstance(getApplicationContext()).removeSharedPreferences(SharedPrefHelper.OTHER_CHAT);
+        realm.close();
+
+//        SharedPrefHelper.getInstance(getApplicationContext()).removeSharedPreferences(SharedPrefHelper.MY_CHAT);
+//        SharedPrefHelper.getInstance(getApplicationContext()).removeSharedPreferences(SharedPrefHelper.OTHER_CHAT);
 
     }
 
@@ -472,9 +518,12 @@ public class ChatActivity extends AppCompatActivity {
     private class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private static final int ME = 0;
         private static final int OPPONENT = 1;
+        private static final int LEAVE = 2;
         private List<VoiceChat> chats;
         private String myName;
+        private String OpponentName = null;
         private VoicePlayerManager voicePlayerManager;
+        private VoiceBubble pastVoiceBubble = null;
 
         public ChatAdapter(List chats, String myName) {
             voicePlayerManager = VoicePlayerManager.getInstance();
@@ -495,6 +544,10 @@ public class ChatActivity extends AppCompatActivity {
                     view = LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.item_chat_other, parent, false);
                     return new OtherChatHolder(view);
+                case LEAVE:
+                    view = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.item_chat_leave, parent, false);
+                    return new FooterHolder(view);
                 default:
                     return null;
             }
@@ -502,54 +555,84 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            VoiceChat chat = chats.get(position);
             int type = getItemViewType(position);
-
+            VoiceChat chat;
             switch (type) {
                 case ME:
+                    chat = chats.get(position);
                     bindMyChat(chat, holder);
                     break;
 
                 case OPPONENT:
+                    chat = chats.get(position);
                     bindOpponentChat(chat, holder);
+                    break;
+
+                case LEAVE:
+                    bindLeaveChat(holder);
                     break;
             }
         }
 
+        public void stopVoicePlay(){
+            if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY)
+                pastVoiceBubble.clickPlayButton();
+        }
+
         private void bindMyChat(VoiceChat chat, RecyclerView.ViewHolder holder) {
             MyChatHolder thisHolder = (MyChatHolder) holder;
-
-            try {
-                int playTime = voicePlayerManager.getPlayTime(chat.getVoiceUrl(), getApplicationContext());
-                thisHolder.chatBubble.setPlayTime(playTime);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                int playTime = voicePlayerManager.getPlayTime(chat.getVoiceUrl(), getApplicationContext());
+//                thisHolder.chatBubble.setPlayTime(playTime);
+//            } catch (IOException e) {
+//                e.printStackTrace();
 //            voicePlayerManager.voicePlayStop();
-
+//            }
+            thisHolder.chatBubble.setPlayTime(chat.getSeconds());
             thisHolder.chatBubble.setVoiceFileUrl(chat.getVoiceUrl());
             thisHolder.chatBubble.setVoicePlayListener(new VoiceBubble.VoicePlayListener() {
                 @Override
                 public void onPlay() {
+                    if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY){
+                        pastVoiceBubble.clickPlayButton();
+
+                    }
+                    pastVoiceBubble = thisHolder.chatBubble;
+                    if(pastVoiceBubble != null)
+                        Log.d(TAG, "past voice state: " + pastVoiceBubble.getVoiceBubbleState());
                     voicePlayerManager.voicePlay(chat.getVoiceUrl());
                 }
 
                 @Override
                 public void onResume() {
+                    if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY)
+                        pastVoiceBubble.clickPlayButton();
+                    pastVoiceBubble = thisHolder.chatBubble;
+                    if(pastVoiceBubble != null)
+                        Log.d(TAG, "past voice state: " + pastVoiceBubble.getVoiceBubbleState());
                     voicePlayerManager.voicePlayResume();
                 }
 
                 @Override
                 public void onPause() {
+                    if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY)
+                        pastVoiceBubble.clickPlayButton();
+                    pastVoiceBubble = thisHolder.chatBubble;
+                    if(pastVoiceBubble != null)
+                        Log.d(TAG, "past voice state: " + pastVoiceBubble.getVoiceBubbleState());
                     voicePlayerManager.voicePlayPause();
                 }
 
                 @Override
                 public void onStopPlay() {
+                    if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY)
+                        pastVoiceBubble.clickPlayButton();
+                    pastVoiceBubble = thisHolder.chatBubble;
+                    if(pastVoiceBubble != null)
+                        Log.d(TAG, "past voice state: " + pastVoiceBubble.getVoiceBubbleState());
                     voicePlayerManager.voicePlayStop();
                 }
             });
-
 //            Log.e(TAG, "play time : " + playTime);
             thisHolder.tvChatTime.setText(Utils.setChatTime(chat.getSendTime()));
 
@@ -581,44 +664,84 @@ public class ChatActivity extends AppCompatActivity {
             thisHolder.chatBubble.setVoicePlayListener(new VoiceBubble.VoicePlayListener() {
                 @Override
                 public void onPlay() {
+                    if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY){
+                        pastVoiceBubble.clickPlayButton();
+
+                    }
+                    pastVoiceBubble = thisHolder.chatBubble;
+                    if(pastVoiceBubble != null)
+                        Log.d(TAG, "past voice state: " + pastVoiceBubble.getVoiceBubbleState());
                     voicePlayerManager.voicePlay(chat.getVoiceUrl());
                 }
 
                 @Override
                 public void onResume() {
+                    if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY)
+                        pastVoiceBubble.clickPlayButton();
+                    pastVoiceBubble = thisHolder.chatBubble;
+                    if(pastVoiceBubble != null)
+                        Log.d(TAG, "past voice state: " + pastVoiceBubble.getVoiceBubbleState());
                     voicePlayerManager.voicePlayResume();
                 }
 
                 @Override
                 public void onPause() {
+                    if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY)
+                        pastVoiceBubble.clickPlayButton();
+                    pastVoiceBubble = thisHolder.chatBubble;
+                    if(pastVoiceBubble != null)
+                        Log.d(TAG, "past voice state: " + pastVoiceBubble.getVoiceBubbleState());
                     voicePlayerManager.voicePlayPause();
                 }
 
                 @Override
                 public void onStopPlay() {
+                    if(pastVoiceBubble != null && pastVoiceBubble.getVoiceBubbleState() == VoiceBubble.STATE_PLAY)
+                        pastVoiceBubble.clickPlayButton();
+                    pastVoiceBubble = thisHolder.chatBubble;
+                    if(pastVoiceBubble != null)
+                        Log.d(TAG, "past voice state: " + pastVoiceBubble.getVoiceBubbleState());
                     voicePlayerManager.voicePlayStop();
                 }
             });
         }
 
+        private void bindLeaveChat(RecyclerView.ViewHolder holder){
+            FooterHolder thisHolder = (FooterHolder) holder;
+            if(leaved){
+                thisHolder.layoutLeave.setVisibility(View.VISIBLE);
+                thisHolder.leaveMessage.setText("상대방이 방을 나가셨습니다.");
+            } else {
+                thisHolder.layoutLeave .setVisibility(View.GONE);
+            }
+        }
 
         /**
          * 0 -> me
          * 1 -> opponent
+         * 2 -> leave
          */
         @Override
         public int getItemViewType(int position) {
-            VoiceChat currentChat = chats.get(position);
-            User voiceUser = currentChat.getVoiceUser();
-            if (myName.equals(voiceUser.getName()))
-                return ME;
-            else
-                return OPPONENT;
+            Log.d(TAG, "1)" + (chats.size() + 1) + " : 2)" + position);
+
+            if (chats.size() == position)
+                return LEAVE;
+            else {
+                VoiceChat currentChat = chats.get(position);
+                User voiceUser = currentChat.getVoiceUser();
+
+                if (myName.equals(voiceUser.getName()))
+                    return ME;
+                else {
+                    return OPPONENT;
+                }
+            }
         }
 
         @Override
         public int getItemCount() {
-            return chats.size();
+            return chats.size() + 1;
         }
 
         public void addItem(VoiceChat add) {
@@ -653,6 +776,18 @@ public class ChatActivity extends AppCompatActivity {
         public MyChatHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+        }
+    }
+
+    public class FooterHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.constraint_layout_leave)
+        ConstraintLayout layoutLeave;
+        @BindView(R.id.tv_leave_message)
+        TextView leaveMessage;
+
+        public FooterHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
         }
     }
 

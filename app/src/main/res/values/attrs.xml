@@ -2,10 +2,15 @@
 <resources>
     <declare-styleable name="VoiceBubble">
         <attr name="bg" format="reference|integer" />
-        <attr name="progress_background_tint" format="color"/>
-        <attr name="progress_tint" format="color"/>
-        <attr name="thumb_tint" format="color"/>
-        <attr name="play_button_tint" format="color"/>
-        <attr name="time_color" format="color"/>
+        <attr name="progress_background_tint" format="color" />
+        <attr name="progress_tint" format="color" />
+        <attr name="thumb_tint" format="color" />
+        <attr name="play_button_tint" format="color" />
+        <attr name="time_color" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="BounceBgView">
+        <attr name="start_width" format="dimension" />
+        <attr name="bounce_color" format="color" />
     </declare-styleable>
 </resources>

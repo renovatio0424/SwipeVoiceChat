@@ -1,5 +1,6 @@
 package com.square.renov.swipevoicechat.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -41,8 +42,6 @@ public class FilterActivity extends AppCompatActivity {
     @BindView(R.id.tv_title_bar)
     TextView titleBar;
 
-    @BindView(R.id.rangebar_age)
-    CrystalRangeSeekbar rangeBarAge;
     @BindView(R.id.sw_gender)
     ImageView swGender;
     boolean isCheckedGender;
@@ -57,11 +56,15 @@ public class FilterActivity extends AppCompatActivity {
     @BindView(R.id.sw_active_user)
     ImageView swActiveUser;
     boolean isCheckedActiveUser;
-    @BindView(R.id.sw_age_range)
-    ImageView swAgeRange;
-    boolean isCheckedAgeRange;
-    @BindView(R.id.tv_age_range)
-    TextView tvAgeRange;
+
+//    @BindView(R.id.rangebar_age)
+//    CrystalRangeSeekbar rangeBarAge;
+//    @BindView(R.id.sw_age_range)
+//    ImageView swAgeRange;
+//    boolean isCheckedAgeRange;
+//
+//    @BindView(R.id.tv_age_range)
+//    TextView tvAgeRange;
 
 
     int AgeLeftValue = 0, AgeRightValue = 0, ageGap = 5;
@@ -111,19 +114,19 @@ public class FilterActivity extends AppCompatActivity {
             }
         });
 
-        swAgeRange.setOnClickListener(v -> {
-            if (!isCheckedAgeRange) {
-                rangeBarAge.setVisibility(View.VISIBLE);
-                tvAgeRange.setVisibility(View.VISIBLE);
-                checkRadioButton(swAgeRange, true);
-            } else {
-                rangeBarAge.setVisibility(View.GONE);
-                tvAgeRange.setVisibility(View.GONE);
-                checkRadioButton(swAgeRange, false);
-            }
-        });
-
-        rangeBarAge.setOnRangeSeekbarChangeListener((minValue, maxValue) -> tvAgeRange.setText(String.valueOf(minValue) + "~" + String.valueOf(maxValue) + "세"));
+//        swAgeRange.setOnClickListener(v -> {
+//            if (!isCheckedAgeRange) {
+//                rangeBarAge.setVisibility(View.VISIBLE);
+//                tvAgeRange.setVisibility(View.VISIBLE);
+//                checkRadioButton(swAgeRange, true);
+//            } else {
+//                rangeBarAge.setVisibility(View.GONE);
+//                tvAgeRange.setVisibility(View.GONE);
+//                checkRadioButton(swAgeRange, false);
+//            }
+//        });
+//
+//        rangeBarAge.setOnRangeSeekbarChangeListener((minValue, maxValue) -> tvAgeRange.setText(String.valueOf(minValue) + "~" + String.valueOf(maxValue) + "세"));
     }
 
     public void checkRadioButton(ImageView radioView, boolean isChecked){
@@ -140,9 +143,9 @@ public class FilterActivity extends AppCompatActivity {
             case R.id.sw_active_user:
                 isCheckedActiveUser = isChecked;
                 break;
-            case R.id.sw_age_range:
-                isCheckedAgeRange = isChecked;
-                break;
+//            case R.id.sw_age_range:
+//                isCheckedAgeRange = isChecked;
+//                break;
         }
     }
 
@@ -156,29 +159,29 @@ public class FilterActivity extends AppCompatActivity {
 
                     if (filter == null) {
                         checkRadioButton(swActiveUser, false);
-                        checkRadioButton(swAgeRange, false);
+//                        checkRadioButton(swAgeRange, false);
                         checkRadioButton(swGender, false);
                         return;
                     }
 
                     checkRadioButton(swActiveUser, filter.getActiveUser());
 
-                    if (filter.getAgeMin() == 0 && filter.getAgeMax() == 0) {
-                        checkRadioButton(swAgeRange, false);
-                    } else {
-                        checkRadioButton(swAgeRange, true);
-                        int minAge = 12, maxAge = 44;
-                        if (filter.getAgeMin() > 12 && filter.getAgeMax() < 44) {
-                            minAge = filter.getAgeMin();
-                            maxAge = filter.getAgeMax();
-                        }
-                        AgeLeftValue = minAge;
-                        AgeRightValue = maxAge;
-                        rangeBarAge.setVisibility(View.VISIBLE);
-                        tvAgeRange.setVisibility(View.VISIBLE);
-                        rangeBarAge.setMinStartValue(minAge);
-                        rangeBarAge.setMaxStartValue(maxAge);
-                    }
+//                    if (filter.getAgeMin() == 0 && filter.getAgeMax() == 0) {
+//                        checkRadioButton(swAgeRange, false);
+//                    } else {
+//                        checkRadioButton(swAgeRange, true);
+//                        int minAge = 12, maxAge = 44;
+//                        if (filter.getAgeMin() > 12 && filter.getAgeMax() < 44) {
+//                            minAge = filter.getAgeMin();
+//                            maxAge = filter.getAgeMax();
+//                        }
+//                        AgeLeftValue = minAge;
+//                        AgeRightValue = maxAge;
+//                        rangeBarAge.setVisibility(View.VISIBLE);
+//                        tvAgeRange.setVisibility(View.VISIBLE);
+//                        rangeBarAge.setMinStartValue(minAge);
+//                        rangeBarAge.setMaxStartValue(maxAge);
+//                    }
 
                     //TODO: 성별 선택? 이성 보이스 듣기?
                     if (filter.getGender() != null) {
@@ -189,6 +192,9 @@ public class FilterActivity extends AppCompatActivity {
                     } else {
                         checkRadioButton(swGender, false);
                     }
+
+                    filter.setAgeMin(null);
+                    filter.setAgeMax(null);
 
                     Log.e(TAG, "filter\n" +
                             "\nactive user: " + filter.getActiveUser() +
@@ -232,14 +238,26 @@ public class FilterActivity extends AppCompatActivity {
     public void onClickSwitchGender() {
     }
 
-    @OnClick(R.id.sw_age_range)
-    public void onClickSwitchAgeRange() {
-    }
 
     @Override
     protected void onDestroy() {
         //TODO: 필터 업데이트
+        super.onDestroy();
+        unbinder.unbind();
+
+    }
+
+    @Override
+    public void finish() {
+
         Filter filter = setFilter();
+
+        if(filter != null && (filter.getGender() != null || filter.getActiveUser())){
+            Log.d(TAG, "filter update");
+            Intent returnIntent = getIntent();
+            setResult(RESULT_OK, returnIntent);
+        }
+
         Call<Filter> request = service.updateFilter(filter);
         request.enqueue(new Callback<Filter>() {
             @Override
@@ -261,9 +279,8 @@ public class FilterActivity extends AppCompatActivity {
                 Log.e(TAG, "error message: " + t.getMessage());
             }
         });
-        super.onDestroy();
-        unbinder.unbind();
 
+        super.finish();
     }
 
     private Filter setFilter() {
@@ -271,21 +288,20 @@ public class FilterActivity extends AppCompatActivity {
 
         result.setActiveUser(isCheckedActiveUser);
 
-        if (isCheckedAgeRange) {
-            result.setAgeMin((int) rangeBarAge.getSelectedMinValue());
-            result.setAgeMax((int) rangeBarAge.getSelectedMaxValue());
-        } else {
-            result.setAgeMin(0);
-            result.setAgeMax(0);
-        }
+//        if (isCheckedAgeRange) {
+//            result.setAgeMin((int) rangeBarAge.getSelectedMinValue());
+//            result.setAgeMax((int) rangeBarAge.getSelectedMaxValue());
+//        } else {
+//            result.setAgeMin(0);
+//            result.setAgeMax(0);
+//        }
+
+        result.setAgeMax(null);
+        result.setAgeMin(null);
+
 
         if (isCheckedGender) {
-            User me = SharedPrefHelper.getInstance(this).getUserInfo();
-            if ("F".equals(me.getGender())) {
-                result.setGender("M");
-            } else {
-                result.setGender("F");
-            }
+            result.setGender(rgGender.getCheckedRadioButtonId() == R.id.radio_male ? "M" : "F");
         } else {
             result.setGender(null);
         }

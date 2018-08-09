@@ -24,6 +24,7 @@ import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.Network.network.RequestManager;
 import com.square.renov.swipevoicechat.Network.network.VolleyMultipartRequest;
 import com.square.renov.swipevoicechat.R;
+import com.square.renov.swipevoicechat.Util.DialogUtils;
 import com.square.renov.swipevoicechat.Util.ImageUtil;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.square.renov.swipevoicechat.Util.Utils;
@@ -75,6 +76,7 @@ public class RecordActivity extends AppCompatActivity {
     Unbinder unbinder;
 
     int playTime;
+
 
     public interface VoiceRecordListener {
         void onRecord();
@@ -131,6 +133,7 @@ public class RecordActivity extends AppCompatActivity {
     final int STATE_STOP = 3;
 
     long startRecordTime, endRecordTime;
+    private boolean reply;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -145,6 +148,8 @@ public class RecordActivity extends AppCompatActivity {
             else
                 recordTitle.setText("답장하기");
         }
+
+        reply = false;
 
         tvRecordTime.setText("00:00 / 00:00");
         recordExample.setText(Html.fromHtml(recordExample.getText().toString()));
@@ -251,7 +256,8 @@ public class RecordActivity extends AppCompatActivity {
                 }
                 //TODO STOP PLAY VIEW
                 setRecordView();
-                mtask.pause();
+                if (mtask != null)
+                    mtask.pause();
 //                stopTimer();
                 Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
                 break;
@@ -287,38 +293,43 @@ public class RecordActivity extends AppCompatActivity {
             return;
         }
 
-        getUploadVoiceInfoAndUploadVoice();
+//
 
-        //TODO : 루나 차감 미구현으로 주석
-//        MaterialDialog reportDialog = new MaterialDialog.Builder(this)
-//                .customView(R.layout.dialog_code, false)
-//                .show();
-//
-//        TextView tvTitle = (TextView) reportDialog.findViewById(R.id.tv_title);
-//        TextView tvContent = (TextView) reportDialog.findViewById(R.id.tv_content);
-//        TextView tvConfirm = (TextView) reportDialog.findViewById(R.id.tv_send_code);
-//        TextView tvCancel = (TextView) reportDialog.findViewById(R.id.tv_cancel);
-//        EditText etInviteCode = (EditText) reportDialog.findViewById(R.id.et_code);
-//
-//        etInviteCode.setVisibility(View.GONE);
-//
-//        tvTitle.setText("답장을 보내시겠습니까?");
-//        tvContent.setText(Html.fromHtml(getString(R.string.dialog_reply_content)));
-//        tvConfirm.setText("확인");
-//        tvConfirm.setEnabled(true);
-//        tvConfirm.setBackgroundResource(R.drawable.button_text_background);
-//        tvConfirm.setTextColor(getResources().getColorStateList(R.color.button_text_color));
-//        tvConfirm.setOnClickListener(v -> {
-//            if (Utils.haveEnoughReplyLuna(this, 2))
-//                getUploadVoiceInfoAndUploadVoice();
-//            reportDialog.dismiss();
-//        });
-//
-//        tvCancel.setText("취소");
-//        tvCancel.setOnClickListener(v -> {
-//            reportDialog.dismiss();
-//        });
+        if (chatId == -1) {
+            getUploadVoiceInfoAndUploadVoice();
+        } else {
+            //TODO : 루나 차감 미구현으로 주석
+            MaterialDialog reportDialog = new MaterialDialog.Builder(this)
+                    .customView(R.layout.dialog_code, false)
+                    .show();
 
+            DialogUtils.initDialogView(reportDialog, this);
+
+            TextView tvTitle = (TextView) reportDialog.findViewById(R.id.tv_title);
+            TextView tvContent = (TextView) reportDialog.findViewById(R.id.tv_content);
+            TextView tvConfirm = (TextView) reportDialog.findViewById(R.id.tv_send_code);
+            TextView tvCancel = (TextView) reportDialog.findViewById(R.id.tv_cancel);
+            EditText etInviteCode = (EditText) reportDialog.findViewById(R.id.et_code);
+
+            etInviteCode.setVisibility(View.GONE);
+
+            tvTitle.setText("답장을 보내시겠습니까?");
+            tvContent.setText(Html.fromHtml(getString(R.string.dialog_reply_content)));
+            tvConfirm.setText("확인");
+            tvConfirm.setEnabled(true);
+            tvConfirm.setBackgroundResource(R.drawable.button_text_background);
+            tvConfirm.setTextColor(getResources().getColorStateList(R.color.button_text_color));
+            tvConfirm.setOnClickListener(v -> {
+                reportDialog.dismiss();
+                if (Utils.haveEnoughReplyLuna(this, 2))
+                    getUploadVoiceInfoAndUploadVoice();
+            });
+
+            tvCancel.setText("취소");
+            tvCancel.setOnClickListener(v -> {
+                reportDialog.dismiss();
+            });
+        }
     }
 
     @OnClick(R.id.ib_close)
@@ -408,15 +419,24 @@ public class RecordActivity extends AppCompatActivity {
 
                     //TODO START VOICE @PARAM URL = uploadImagepath
                     if (chatId != -1) {
-                        Call<VoiceChatRoom> replyRequest = NetRetrofit.getInstance(getApplicationContext()).getService().makeVoiceChatRoom(chatId, uploadImagePath, 0);
+                        int duration = 0;
+                        try {
+                            duration = VoicePlayerManager.getInstance().getPlayTime(uploadImagePath, getApplicationContext());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Call<VoiceChatRoom> replyRequest = NetRetrofit.getInstance(getApplicationContext()).getService().makeVoiceChatRoom(chatId, uploadImagePath, duration);
                         replyRequest.enqueue(new Callback<VoiceChatRoom>() {
                             @Override
                             public void onResponse(Call<VoiceChatRoom> call, retrofit2.Response<VoiceChatRoom> response) {
                                 if (response.isSuccessful()) {
                                     Toast.makeText(RecordActivity.this, "답장을 성공적으로 보냈습니다!", Toast.LENGTH_SHORT).show();
                                     SharedPrefHelper.getInstance(getApplicationContext()).setSharedPreferences(SharedPrefHelper.CHAT_ROOM_DATA_UPDATE_TIME, 0L);
-                                    EventBus.getDefault().post(new RefreshEvent(RefreshEvent.Action.STATUS_CHANGE, RefreshEvent.TYPE_REPLY));
+                                    SharedPrefHelper.getInstance(getApplicationContext()).setSharedPreferences(SharedPrefHelper.NEW_CHAT_ROOM_ID, response.body().getId());
+                                    EventBus.getDefault().post(new RefreshEvent(RefreshEvent.Action.STATUS_CHANGE, response.body().getId()));
+                                    reply = true;
                                     Intent returnIntent = getIntent();
+                                    returnIntent.putExtra("chatRoomId", response.body().getId());
                                     setResult(RESULT_OK, returnIntent);
                                     finish();
                                 } else {
@@ -434,14 +454,20 @@ public class RecordActivity extends AppCompatActivity {
                             }
                         });
                     } else {
-                        Call<VoiceCard> newVoiceRequest = NetRetrofit.getInstance(getApplicationContext()).getService().sendNewVoice(uploadImagePath, 0);
+                        int duration = 0;
+                        try {
+                            duration = VoicePlayerManager.getInstance().getPlayTime(uploadImagePath, getApplicationContext());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Call<VoiceCard> newVoiceRequest = NetRetrofit.getInstance(getApplicationContext()).getService().sendNewVoice(uploadImagePath, duration);
                         newVoiceRequest.enqueue(new Callback<VoiceCard>() {
                             @Override
                             public void onResponse(Call<VoiceCard> call, retrofit2.Response<VoiceCard> response) {
                                 if (response.isSuccessful()) {
                                     Toast.makeText(RecordActivity.this, "새 이야기를 성공적으로 보냈습니다!", Toast.LENGTH_SHORT).show();
-                                    EventBus.getDefault().post(new RefreshEvent(RefreshEvent.Action.STATUS_CHANGE));
                                     Intent returnIntent = getIntent();
+                                    returnIntent.putExtra("chatRoomId", response.body().getId());
                                     setResult(RESULT_OK, returnIntent);
                                     finish();
                                 } else {
@@ -493,6 +519,17 @@ public class RecordActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         stopTimer();
+
+        if (CURRENT_STATE == STATE_RECORD) {
+            CURRENT_STATE = STATE_PREPARE;
+            voiceRecordListener.onStopRecord();
+            setRecordView();
+        }
+
+        if (CURRENT_STATE == STATE_PLAY) {
+            recordButton.performClick();
+        }
+
     }
 
     @Override
@@ -500,8 +537,11 @@ public class RecordActivity extends AppCompatActivity {
         super.onDestroy();
         unbinder.unbind();
 
-        Intent returnIntent = getIntent();
-        setResult(RESULT_CANCELED, returnIntent);
+        if (!reply) {
+            Log.d(TAG, "card reverse");
+            Intent returnIntent = getIntent();
+            setResult(RESULT_CANCELED, returnIntent);
+        }
     }
 
     public void setRecordView() {
@@ -591,6 +631,11 @@ public class RecordActivity extends AppCompatActivity {
                 if (recordTime == 0) {
                     tvRecordTime.setText(Utils.setRecordTimer(time) + " / " + Utils.setRecordTimer(maxRecordTime));
                     Log.e(TAG, "progress: " + (int) (time / maxRecordTime));
+
+                    if (time >= maxRecordTime) {
+                        voiceRecordListener.onStopRecord();
+                        stopTimer();
+                    }
 //                    mProgressbar.setProgress((int)(time*100/maxRecordTime));
                 } else {
                     if (time >= recordTime) {

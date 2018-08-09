@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.square.renov.swipevoicechat.Model.Filter;
 import com.square.renov.swipevoicechat.Model.PointLog;
 import com.square.renov.swipevoicechat.Model.Result;
+import com.square.renov.swipevoicechat.Model.SystemCheck;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Model.VoiceCard;
 import com.square.renov.swipevoicechat.Model.VoiceChat;
@@ -63,7 +64,7 @@ public interface ApiService {
     Call<User> updateUserInfo(@Body User updateUserInfo);
 
     @DELETE("user/withdraw")
-    Call<Result> withdrawUser(@Field("reason") String reason);
+    Call<Result> withdrawUser(@Query("reason") String reason);
 
 
     @GET("voice")
@@ -85,10 +86,10 @@ public interface ApiService {
     Call<VoiceCard> sendNewVoice(@Field("url") String url, @Field("seconds") int seconds);
 
     @GET("voice/chat/list")
-    Call<ArrayList<VoiceChatRoom>> loadVoiceChatRoomList();
+    Call<ArrayList<VoiceChatRoom>> loadVoiceChatRoomList(@Query("limit") int limit, @Query("offset") int offset);
 
     @GET("voice/chat/{chatId}/list")
-    Call<ArrayList<VoiceChat>> loadVoiceChatList(@Path("chatId") int chatId,@Query("limit") int limit, @Query("offset") int offset);
+    Call<ArrayList<VoiceChat>> loadVoiceChatList(@Path("chatId") int chatId, @Query("limit") int limit, @Query("offset") int offset);
 
     /**
      * 첫 답장하기 (답장하면서 채팅방 생성)
@@ -124,6 +125,16 @@ public interface ApiService {
     @GET("voice/count")
     Call<Integer> getNewVoiceCount();
 
+    @FormUrlEncoded
     @POST("cash/charge/android")
     Call<JsonObject> payInAppProduct(@Field("originalJson") String originalJson, @Field("signature") String signature);
+
+    @GET("user/code")
+    Call<String> getMyInviteCode();
+
+    @GET("user/code/valid")
+    Call<Result> checkInviteCode(@Query("code") String code);
+
+    @GET("setting/android")
+    Call<SystemCheck> checkSystem();
 }

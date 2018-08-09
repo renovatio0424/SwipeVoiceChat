@@ -21,6 +21,9 @@ public class VoiceChat extends RealmObject{
     @SerializedName("createdAt")
     @Expose
     private long sendTime;
+    @SerializedName("seconds")
+    @Expose
+    private int seconds;
 
     private int chatRoomId;
 
@@ -55,5 +58,9 @@ public class VoiceChat extends RealmObject{
 
     public void setChatRoomId(int chatRoomId) {
         this.chatRoomId = chatRoomId;
+    }
+
+    public int getSeconds() {
+        return seconds;
     }
 }

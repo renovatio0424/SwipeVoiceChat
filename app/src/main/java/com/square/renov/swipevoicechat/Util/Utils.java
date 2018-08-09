@@ -5,15 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.graphics.Typeface;
-import android.os.SystemClock;
-import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.TextWatcher;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -22,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.square.renov.swipevoicechat.Activity.InviteActivity;
 import com.square.renov.swipevoicechat.Activity.ShopActivity;
 import com.square.renov.swipevoicechat.Model.PointLog;
 import com.square.renov.swipevoicechat.Model.Profile;
@@ -157,13 +150,18 @@ public class Utils {
     }
 
     public static String setChatTime(long time) {
+        long currentTime = System.currentTimeMillis();
+
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
-        int AM_PM = calendar.get(Calendar.AM_PM);
-
         String result = "";
+        if (currentTime - time < 24 * 60 * 60 * 1000) {
+            int AM_PM = calendar.get(Calendar.AM_PM);
+            result = (AM_PM == Calendar.AM ? "오전 " : "오후 ") + (calendar.get(Calendar.HOUR) == 0 ? 12 : calendar.get(Calendar.HOUR)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE));
+        } else if (24 * 60 * 60 * 1000 <= currentTime - time) {
+            result = calendar.get(Calendar.YEAR) + ". " + (calendar.get(Calendar.MONTH) + 1) + ". " + calendar.get(Calendar.DATE);
+        }
 
-        result = (AM_PM == Calendar.AM ? "오전 " : "오후 ") + calendar.get(Calendar.HOUR) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE));
 
         return result;
     }
@@ -247,22 +245,22 @@ public class Utils {
         };
     }
 
-    public static boolean needToDataUpdate(Context context,String updateDataName){
+    public static boolean needToDataUpdate(Context context, String updateDataName) {
         long lastUpdateTime = SharedPrefHelper.getInstance(context).getSharedPreferences(updateDataName, 0L);
         long currentTime = System.currentTimeMillis();
 
         Log.d("need to data update]", "last update time : " + lastUpdateTime + " / current time: " + currentTime);
         long timeDiff = currentTime - lastUpdateTime;
 
-        if(timeDiff > 24 * 60 * 60 * 1000)
+        if (timeDiff > 24 * 60 * 60 * 1000)
             return true;
         else
             return false;
     }
 
-    public static boolean haveEnoughReplyLuna(Context context, int needLuna){
+    public static boolean haveEnoughReplyLuna(Context context, int needLuna) {
         User me = SharedPrefHelper.getInstance(context).getUserInfo();
-        if(me.getLuna() >= needLuna){
+        if (me.getLuna() >= needLuna) {
             return true;
         }
 
@@ -270,7 +268,9 @@ public class Utils {
                 .customView(R.layout.dialog_code, false)
                 .show();
 
-        TextView tvTitle = (TextView) reportDialog.findViewById(R.id.tv_title) ;
+        DialogUtils.initDialogView(reportDialog, context);
+
+        TextView tvTitle = (TextView) reportDialog.findViewById(R.id.tv_title);
         TextView tvContent = (TextView) reportDialog.findViewById(R.id.tv_content);
         TextView tvConfirm = (TextView) reportDialog.findViewById(R.id.tv_send_code);
         TextView tvCancel = (TextView) reportDialog.findViewById(R.id.tv_cancel);
@@ -297,5 +297,13 @@ public class Utils {
         });
 
         return false;
+    }
+
+    public static String setLunaCount(int luna) {
+        String result = "";
+        if(luna > 999){
+            return result = "999 +";
+        }
+        return result = String.valueOf(luna);
     }
 }

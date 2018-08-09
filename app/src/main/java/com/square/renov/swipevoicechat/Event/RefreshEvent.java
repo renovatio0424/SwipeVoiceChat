@@ -7,7 +7,8 @@ public class RefreshEvent {
 
     public Action action;
     public String type;
-    public int position;
+//    public int position;
+    public int chatRoomId;
     public VoiceChatRoom voiceChatRoom;
     public VoiceChat voiceChat;
     public static String TYPE_REPLY = "reply";
@@ -21,10 +22,15 @@ public class RefreshEvent {
         this.type = type;
     }
 
-    public RefreshEvent(Action action, int mPosition){
+    public RefreshEvent(Action action, int chatRoomId){
         this.action = action;
-        this.position = mPosition;
+        this.chatRoomId = chatRoomId;
     }
+
+//    public RefreshEvent(Action action, int mPosition){
+//        this.action = action;
+//        this.position = mPosition;
+//    }
 
     public RefreshEvent(Action action, VoiceChatRoom room){
         this.action = action;

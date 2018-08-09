@@ -93,10 +93,7 @@ public class LogInActivity extends Activity {
         AdbrixUtil.setFirstTimeExperience(this, SharedPrefHelper.LOGIN);
 
         initGoogleSignIn();
-        initFacebookSignIn();
 //        TODO : 로그인 유저 정보 받아서 넘기기
-
-//        goToTutorial();
     }
 
     private void goToTutorial() {
@@ -167,7 +164,7 @@ public class LogInActivity extends Activity {
 //                    hellovoiceauth token set
                     Log.d(TAG, "header: " + response.headers());
                     String token = response.headers().get("HelloVoiceAuth");
-                    Log.d(TAG, "token: " + token);
+//                    Log.d(TAG, "token: " + token);
 
                     User myInfo = response.body();
 
@@ -258,7 +255,6 @@ public class LogInActivity extends Activity {
         // Set the dimensions of the sign-in button.
         signInGoogle.setSize(SignInButton.SIZE_WIDE);
         signInGoogle.setOnClickListener(v -> signIn());
-
     }
 
     @OnClick(R.id.google_sign_up_button)

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/empty_view_bounce_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/evaluate_voice_layout"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_gravity="center"
+        custom:layout_constraintBottom_toBottomOf="parent"
+        custom:layout_constraintEnd_toEndOf="parent"
+        custom:layout_constraintHorizontal_bias="0.5"
+        custom:layout_constraintStart_toStartOf="parent"
+        custom:layout_constraintTop_toTopOf="parent"
+        custom:layout_constraintVertical_bias="0.4">
+
+        <com.square.renov.swipevoicechat.widget.BounceBgView
+            android:id="@+id/id_bg_bounce"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            custom:bounce_color="@color/main_grey_color"
+            custom:start_width="40dp" />
+
+        <ImageView
+            android:id="@+id/id_bg_profile"
+            android:layout_width="91.5dp"
+            android:layout_height="91.5dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            custom:srcCompat="@drawable/ic_user" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:text="@string/empty_view_text"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:lineSpacingMultiplier="1.5"
+        custom:layout_constraintBottom_toBottomOf="parent"
+        custom:layout_constraintEnd_toEndOf="parent"
+        custom:layout_constraintHorizontal_bias="0.5"
+        custom:layout_constraintStart_toStartOf="parent"
+        custom:layout_constraintTop_toBottomOf="@+id/evaluate_voice_layout" />
+
+</android.support.constraint.ConstraintLayout>

@@ -58,9 +58,10 @@ public class VoicePlayerManager {
             mRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             mRecorder.setOutputFile(mFileName);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 //            mRecorder.setAudioEncoder(MediaRecorder.getAudioSourceMax());
-            mRecorder.setAudioEncodingBitRate(16);
+            //TODO : 없었던 부분 -> IOS 호환성 문제 있을 경우 제거
+            mRecorder.setAudioEncodingBitRate(96000);
             mRecorder.setAudioSamplingRate(44100);
         }
 
@@ -99,6 +100,8 @@ public class VoicePlayerManager {
         if (mPlayer == null) {
             mPlayer = new MediaPlayer();
         }
+//        mPlayer.setDataSource(filePath);
+        filePath = filePath.replace("https","http");
         mPlayer = MediaPlayer.create(context, Uri.parse(filePath));
         int time = mPlayer.getDuration();
         return time;

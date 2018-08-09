@@ -1,10 +1,15 @@
 package com.square.renov.swipevoicechat.Push;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.load.resource.bitmap.FitCenter;
+import com.bumptech.glide.request.RequestOptions;
 import com.onesignal.NotificationExtenderService;
 import com.onesignal.OSNotificationDisplayedResult;
 import com.onesignal.OSNotificationReceivedResult;
@@ -25,51 +30,56 @@ public class PushViewHandler extends NotificationExtenderService {
     String name = null;
     String message = null;
     int chatRoomId = 0;
+    MultiTransformation multiTransformation = new MultiTransformation(new CircleCrop(),
+            new FitCenter());
 
     @Override
     protected boolean onNotificationProcessing(OSNotificationReceivedResult notification) {
 
         JSONObject data = notification.payload.additionalData;
-//
-//        if(notification.payload != null){
-//            Log.d(TAG, "receive Push: " + notification.payload.toString());
-//            Log.d(TAG, "receive Push: " + notification.payload.body);
-//            Log.d(TAG, "receive Push: " + notification.payload.additionalData);
-//        }
-////        String profileImageUrl = null;
-////        try {
-////            profileImageUrl = data.getString("profileImage");
-////        } catch (JSONException e) {
-////            e.printStackTrace();
-////        }
-////
-////        if(profileImageUrl != null) {
-////            try {
-////                name = data.getString("name");
-////                profileImagePath = data.getString("profileImage");
-////                chatRoomId = data.getInt("chatId");
-////            } catch (JSONException e) {
-////                e.printStackTrace();
-////            }
-////        }
-//
+
         try {
             chatRoomId = data.getInt("chatId");
             Log.d(TAG, "chat room id : " + chatRoomId);
+            if (chatRoomId != 0) {
+                String name = (String) data.get("name");
+                String profileImage = (String) data.get("profileImage");
+
+                Log.d(TAG, "name : " + name);
+                Log.d(TAG, "profileImage : " + profileImage);
+
+                OverrideSettings overrideSettings = new OverrideSettings();
+                overrideSettings.extender = new NotificationCompat.Extender() {
+                    @Override
+                    public NotificationCompat.Builder extend(NotificationCompat.Builder builder) {
+
+                        Bitmap bitmapProfile = null;
+                        try {
+                            bitmapProfile = Glide
+                                    .with(getApplicationContext())
+                                    .applyDefaultRequestOptions(RequestOptions.bitmapTransform(multiTransformation))
+                                    .asBitmap()
+                                    .load(profileImage)
+                                    .submit()
+                                    .get();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+
+                        return builder.setContentTitle(name)
+                                .setSmallIcon(R.drawable.ic_moon)
+                                .setLargeIcon(bitmapProfile);
+                    }
+                };
+                OSNotificationDisplayedResult displayedResult = displayNotification(overrideSettings);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        if(chatRoomId != 0){
-            Realm realm = RealmHelper.getRealm(RealmHelper.CHAT_ROOM);
-            realm.executeTransactionAsync(realm1 -> {
-                VoiceChatRoom oldRoom = realm1.where(VoiceChatRoom.class).equalTo("id", chatRoomId).findFirst();
-                oldRoom.setNewRoom(true);
-            });
-        }
-
-        OverrideSettings overrideSettings = new OverrideSettings();
-        overrideSettings.extender = builder -> {
+//        OverrideSettings overrideSettings = new OverrideSettings();
+//        overrideSettings.extender = builder -> {
 //            if(profileImagePath != null){
 //                try {
 //                    Bitmap bitmapProfile = Glide.with(getApplicationContext())
@@ -88,13 +98,11 @@ public class PushViewHandler extends NotificationExtenderService {
 //
 //            if(name != null)
 //                builder.setContentTitle(name);
-
-            return builder
-                    .setSmallIcon(R.drawable.ic_moon)
-                    .setContentText(notification.payload.body);
-        };
-        OSNotificationDisplayedResult displayedResult = displayNotification(overrideSettings);
-
+//
+//            return builder
+//                    .setSmallIcon(R.drawable.ic_moon)
+//                    .setContentText(notification.payload.body);
+//        };
         return true;
     }
 }

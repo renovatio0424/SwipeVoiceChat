@@ -1,9 +1,9 @@
 package com.square.renov.swipevoicechat.Fragment;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,7 +39,6 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
-import com.square.renov.swipevoicechat.Activity.InviteActivity;
 import com.square.renov.swipevoicechat.Activity.LogInActivity;
 import com.square.renov.swipevoicechat.Activity.WebActivity;
 import com.square.renov.swipevoicechat.Model.Result;
@@ -50,14 +49,13 @@ import com.square.renov.swipevoicechat.Network.network.RequestManager;
 import com.square.renov.swipevoicechat.Network.network.VolleyMultipartRequest;
 import com.square.renov.swipevoicechat.R;
 import com.square.renov.swipevoicechat.Util.AgeUtil;
+import com.square.renov.swipevoicechat.Util.DialogUtils;
 import com.square.renov.swipevoicechat.Util.ImageUtil;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 import com.onesignal.OneSignal;
 import com.square.renov.swipevoicechat.Util.Utils;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +65,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import jp.wasabeef.glide.transformations.BlurTransformation;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -92,8 +89,7 @@ public class SettingFragment extends Fragment {
 
     User myInfo;
     public Unbinder unbinder;
-    MultiTransformation multiTransformation = new MultiTransformation(new BlurTransformation(25, 1),
-            new CircleCrop(),
+    MultiTransformation multiTransformation = new MultiTransformation(new CircleCrop(),
             new FitCenter());
 
     private boolean isCheckedBasicPush, isCheckedReplyPush;
@@ -129,7 +125,7 @@ public class SettingFragment extends Fragment {
                 Log.d(TAG, "Onesignal TAG: " + (isCheckedReplyPush ? "reply y" : "reply n"));
                 Log.d(TAG, "Onesignal TAG: " + (isCheckedBasicPush ? "basic y " : "basic n"));
 
-                if(getActivity() != null){
+                if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         checkRadioButton(replyPush, isCheckedReplyPush);
                         checkRadioButton(basicPush, isCheckedBasicPush);
@@ -435,11 +431,12 @@ public class SettingFragment extends Fragment {
     @OnClick(R.id.layout_logout)
     public void onClickLogOut() {
         //TODO: 로그아웃 기능 구현중
-        new MaterialDialog.Builder(getActivity())
+        MaterialDialog logoutDialog = new MaterialDialog.Builder(getActivity())
                 .title("로그아웃 하시겠습니까?")
                 .titleColorRes(R.color.black)
                 .content("정말 로그아웃 하시겠습니까?")
                 .contentColorRes(R.color.grey)
+                .backgroundColorRes(R.color.white)
                 .negativeText("취소")
                 .negativeColorRes(R.color.grey)
                 .positiveText("로그아웃")
@@ -472,6 +469,55 @@ public class SettingFragment extends Fragment {
                     });
                 })
                 .show();
+//
+//        MaterialDialog logoutDialog = new MaterialDialog.Builder(getActivity())
+//                .customView(R.layout.dialog_code, false)
+//                .show();
+//
+//        TextView tvTitle = (TextView) logoutDialog.findViewById(R.id.tv_title);
+//        TextView tvContent = (TextView) logoutDialog.findViewById(R.id.tv_content);
+//        TextView tvSend = (TextView) logoutDialog.findViewById(R.id.tv_send_code);
+//        TextView tvCancel = (TextView) logoutDialog.findViewById(R.id.tv_cancel);
+//        EditText etReason = (EditText) logoutDialog.findViewById(R.id.et_code);
+//
+//        etReason.setVisibility(View.GONE);
+//        tvTitle.setText("로그아웃 하시겠습니까?");
+//        tvContent.setText("정말 로그아웃 하시겠습니까?");
+//        tvCancel.setText("취소");
+//        tvSend.setText("로그아웃");
+//
+//        tvCancel.setOnClickListener(v->{
+//            logoutDialog.dismiss();
+//        });
+//        tvSend.setOnClickListener(v->{
+//            Call<Result> response = NetRetrofit.getInstance(getContext()).getService().logout();
+//                    response.enqueue(new Callback<Result>() {
+//                        @Override
+//                        public void onResponse(Call<Result> call, Response<Result> response) {
+//                            if (response.isSuccessful()) {
+//                                Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
+//                                SharedPrefHelper.getInstance(getContext()).removeAllSharedPreferences();
+//                                OneSignal.deleteTag("userId");
+//                                OneSignal.deleteTag("Basic");
+//                                OneSignal.deleteTag("Reply");
+//                                goToLogin();
+//                            }
+//
+//                            switch (response.code()) {
+//                                default:
+//                                    Toast.makeText(getContext(), "code: " + response.code() + "message: " + response.body(), Toast.LENGTH_SHORT).show();
+//                                    break;
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<Result> call, Throwable t) {
+//                            t.printStackTrace();
+//                        }
+//                    });
+//        });
+
+//        DialogUtils.initDialogView(logoutDialog, getActivity());
     }
 
     @OnClick(R.id.layout_terms)
@@ -481,13 +527,14 @@ public class SettingFragment extends Fragment {
         startActivity(intent);
     }
 
+    @SuppressLint("StringFormatMatches")
     @OnClick(R.id.layout_feedback)
     public void onClickFeedback() {
         User me = SharedPrefHelper.getInstance(getActivity()).getUserInfo();
         Uri uri = Uri.parse("mailto:help.sori@formationsquare.com");
         Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.do_qna));
-        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_content_qna, me.getName()));
+        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_content_qna, me.getId()));
         startActivity(Intent.createChooser(intent, getString(R.string.send_email)));
     }
 
@@ -508,6 +555,8 @@ public class SettingFragment extends Fragment {
         MaterialDialog reportDialog = new MaterialDialog.Builder(getActivity())
                 .customView(R.layout.dialog_code, false)
                 .show();
+
+//        DialogUtils.initDialogView(reportDialog, getActivity());
 
         TextView tvTitle = (TextView) reportDialog.findViewById(R.id.tv_title);
         TextView tvContent = (TextView) reportDialog.findViewById(R.id.tv_content);
@@ -556,6 +605,7 @@ public class SettingFragment extends Fragment {
             }
         });
 
+        tvSend.setText("확인");
         tvSend.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "send code", Toast.LENGTH_SHORT).show();
             Call<Result> request = NetRetrofit.getInstance(getActivity()).getService().withdrawUser(etReason.getText().toString());
@@ -564,6 +614,11 @@ public class SettingFragment extends Fragment {
                 public void onResponse(Call<Result> call, Response<Result> response) {
                     if (response.isSuccessful()) {
                         reportDialog.dismiss();
+                        SharedPrefHelper.getInstance(getContext()).removeAllSharedPreferences();
+                        OneSignal.deleteTag("userId");
+                        OneSignal.deleteTag("Basic");
+                        OneSignal.deleteTag("Reply");
+                        goToLogin();
                     } else {
                         try {
                             Utils.toastError(getContext(), response);
@@ -579,7 +634,6 @@ public class SettingFragment extends Fragment {
                 }
             });
         });
-
         tvCancel.setOnClickListener(v -> {
             reportDialog.dismiss();
         });
@@ -593,6 +647,8 @@ public class SettingFragment extends Fragment {
         MaterialDialog reportDialog = new MaterialDialog.Builder(getActivity())
                 .customView(R.layout.dialog_code, false)
                 .show();
+
+//        DialogUtils.initDialogView(reportDialog, getActivity());
 
         ((TextView) reportDialog.findViewById(R.id.tv_title)).setText("닉네임 변경하기");
         ((TextView) reportDialog.findViewById(R.id.tv_content)).setVisibility(View.GONE);

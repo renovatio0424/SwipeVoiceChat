@@ -244,6 +244,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void moveToMain() {
         OneSignal.sendTag("userId", String.valueOf(myinfo.getId()));
+        OneSignal.sendTag("Reply", "true");
+        OneSignal.sendTag("Basic", "true");
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("duration",1000);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
