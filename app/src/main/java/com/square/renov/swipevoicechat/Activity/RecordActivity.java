@@ -199,7 +199,6 @@ public class RecordActivity extends AppCompatActivity {
                 }
                 //TODO START RECORD VIEW
                 setRecordView();
-                Toast.makeText(this, "record", Toast.LENGTH_SHORT).show();
 
                 mtask = new MyTimerTask(0L);
                 recordTimer = new Timer();
@@ -220,7 +219,6 @@ public class RecordActivity extends AppCompatActivity {
                 }
                 //TODO STOP RECORD VIEW
                 setRecordView();
-                Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
                 stopTimer();
                 break;
 
@@ -246,7 +244,6 @@ public class RecordActivity extends AppCompatActivity {
                     mtask.resume();
                 }
 
-                Toast.makeText(this, "play", Toast.LENGTH_SHORT).show();
                 break;
 
             case STATE_PLAY:
@@ -259,7 +256,6 @@ public class RecordActivity extends AppCompatActivity {
                 if (mtask != null)
                     mtask.pause();
 //                stopTimer();
-                Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
                 break;
 
             default:
@@ -276,7 +272,6 @@ public class RecordActivity extends AppCompatActivity {
                 setRecordView();
                 tvRecordTime.setText("00:00 / 30:00");
                 sendButton.setImageResource(R.drawable.send_inactivated);
-                Toast.makeText(this, "prepare", Toast.LENGTH_SHORT).show();
                 break;
 
             default:
@@ -467,7 +462,6 @@ public class RecordActivity extends AppCompatActivity {
                                 if (response.isSuccessful()) {
                                     Toast.makeText(RecordActivity.this, "새 이야기를 성공적으로 보냈습니다!", Toast.LENGTH_SHORT).show();
                                     Intent returnIntent = getIntent();
-                                    returnIntent.putExtra("chatRoomId", response.body().getId());
                                     setResult(RESULT_OK, returnIntent);
                                     finish();
                                 } else {

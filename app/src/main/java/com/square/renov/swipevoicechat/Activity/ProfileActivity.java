@@ -243,7 +243,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void moveToMain() {
-        OneSignal.sendTag("userId", String.valueOf(myinfo.getId()));
+        OneSignal.sendTag("userId", String.valueOf(myInfo.getId()));
         OneSignal.sendTag("Reply", "true");
         OneSignal.sendTag("Basic", "true");
         Intent intent = new Intent(this, MainActivity.class);
@@ -251,6 +251,7 @@ public class ProfileActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+    User myInfo;
 
     private void updateUserInfo(String uploadImagePath) {
 //        getMyInfo(uploadImagePath);

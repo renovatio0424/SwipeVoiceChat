@@ -132,12 +132,7 @@ public class LoadingActivity extends AppCompatActivity {
                         moon.startAnimation(animation);
                     }
                 } else {
-                    try {
                         moon.startAnimation(animation);
-                        Utils.toastError(getApplicationContext(), response);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
 
@@ -207,11 +202,7 @@ public class LoadingActivity extends AppCompatActivity {
                         OneSignal.sendTag("userId", String.valueOf(myInfo.getId()));
                     }
                 } else {
-                    try {
-                        Utils.toastError(getApplicationContext(), response);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+
                 }
 
 

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -273,6 +274,7 @@ public class CardFragment extends Fragment {
             public void onCardSwiped(SwipeDirection direction) {
                 Log.d("CardStackView", "onCardSwiped: " + direction.toString());
 
+
                 if (adapter.CURRENT_STATE == adapter.STATE_PLAY)
                     adapter.cardPlayStop();
 
@@ -361,6 +363,7 @@ public class CardFragment extends Fragment {
                 Log.d("CardStackView", "onCardClicked: " + index);
             }
         });
+//        cardStackView.getTopView().setEnabled(true);
     }
 
     private void paginate() {
@@ -388,6 +391,7 @@ public class CardFragment extends Fragment {
                 Log.d(TAG, "RESULT_OK");
                 //TODO : 필터 데이터 삭제 시점 2 -> 답장하기
                 if (data.hasExtra("chatRoomId") && data.getIntExtra("chatRoomId", -1) != -1) {
+                    Log.d(TAG, "chatRoomId: " + data.getIntExtra("chatRoomId", -1));
                     realm.executeTransaction(realm1 -> {
                         RealmResults<VoiceCard> results = realm1.where(VoiceCard.class).equalTo("id", pastCard.getId()).findAll();
                         results.deleteAllFromRealm();
@@ -1094,6 +1098,8 @@ public class CardFragment extends Fragment {
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
+
+            convertView.setEnabled(false);
 
             if (CURRENT_STATE == STATE_PLAY) {
                 Log.d(TAG, "current state1 : " + CURRENT_STATE);

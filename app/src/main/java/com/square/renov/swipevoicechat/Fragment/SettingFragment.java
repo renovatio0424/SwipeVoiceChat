@@ -447,18 +447,11 @@ public class SettingFragment extends Fragment {
                         @Override
                         public void onResponse(Call<Result> call, Response<Result> response) {
                             if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
                                 SharedPrefHelper.getInstance(getContext()).removeAllSharedPreferences();
                                 OneSignal.deleteTag("userId");
                                 OneSignal.deleteTag("Basic");
                                 OneSignal.deleteTag("Reply");
                                 goToLogin();
-                            }
-
-                            switch (response.code()) {
-                                default:
-                                    Toast.makeText(getContext(), "code: " + response.code() + "message: " + response.body(), Toast.LENGTH_SHORT).show();
-                                    break;
                             }
                         }
 
@@ -607,7 +600,6 @@ public class SettingFragment extends Fragment {
 
         tvSend.setText("확인");
         tvSend.setOnClickListener(v -> {
-            Toast.makeText(getActivity(), "send code", Toast.LENGTH_SHORT).show();
             Call<Result> request = NetRetrofit.getInstance(getActivity()).getService().withdrawUser(etReason.getText().toString());
             request.enqueue(new Callback<Result>() {
                 @Override

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,7 +23,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.common.oob.SignUp;
+import com.google.android.gms.location.DetectedActivity;
+import com.google.android.gms.location.Geofence;
 import com.square.renov.swipevoicechat.Model.Result;
 import com.square.renov.swipevoicechat.Model.User;
 import com.square.renov.swipevoicechat.Network.NetRetrofit;
@@ -44,6 +49,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.nlopez.smartlocation.OnActivityUpdatedListener;
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.SmartLocation;
+import io.nlopez.smartlocation.geofencing.model.GeofenceModel;
+import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -119,13 +129,35 @@ public class SignUpActivity extends AppCompatActivity {
 //                locationAgreement.setBackgroundResource(R.drawable.background_spinner);
                 isAgreeLocationTerms = true;
                 v.post(() -> v.setAlpha(1f));
-                getLocation();
+                startLocation();
             }
         });
 
 //        setBirthdayDialog(birthday);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    }
+
+    private LocationGooglePlayServicesProvider provider;
+
+    private void startLocation() {
+        if (ContextCompat.checkSelfPermission(SignUpActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(SignUpActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
+            return;
+        }
+
+        provider = new LocationGooglePlayServicesProvider();
+        provider.setCheckLocationSettings(true);
+
+        SmartLocation smartLocation = new SmartLocation.Builder(this).logging(true).build();
+
+        smartLocation.location(provider)
+                .oneFix()
+                .start(location -> {
+                    if(location != null)
+                        mlocation = location;
+                });
+
     }
 
     int pastPosition = -1;
@@ -171,37 +203,37 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-    private void getLocation() {
-//        TODO : 위치 권한 설정 -> 위치 설정 OK ? -> 위치 정보 가져오기
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION))
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-            else
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-            return;
-        }
-
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    // Got last known location. In some rare situations this can be null.
-                    if (location != null) {
-                        // Logic to handle location object
-                        mlocation = new Location(location);
-                        Toast.makeText(this, "lat: " + mlocation.getLatitude() + "lng: " + mlocation.getLongitude(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-    }
+//    private void getLocation() {
+////        TODO : 위치 권한 설정 -> 위치 설정 OK ? -> 위치 정보 가져오기
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+//                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) ||
+//                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+//            else
+//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+//            return;
+//        }
+//
+//        mFusedLocationClient.getLastLocation()
+//                .addOnSuccessListener(this, location -> {
+//                    // Got last known location. In some rare situations this can be null.
+//                    if (location != null) {
+//                        // Logic to handle location object
+//                        mlocation = new Location(location);
+////                        Toast.makeText(this, "lat: " + mlocation.getLatitude() + "lng: " + mlocation.getLongitude(), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -218,7 +250,7 @@ public class SignUpActivity extends AppCompatActivity {
                     Log.e(TAG, "grantResult: " + i);
 
                 if (grantResults.length > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED))
-                    getLocation();
+                    startLocation();
                 else {
                     Toast.makeText(this, "위치 권한 설정에 동의하셔야 서비스 이용이 가능합니다.", Toast.LENGTH_SHORT).show();
                     locationAgreement.setAlpha(1.f);
@@ -328,15 +360,23 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private boolean isCompleteForm() {
-        if (isAgreeLocationTerms &&
-                mlocation != null) {
-
+        if (isAgreeLocationTerms && mlocation != null) {
             return true;
         } else {
             if (!isAgreeLocationTerms)
-                Toast.makeText(this, "disagree", Toast.LENGTH_SHORT).show();
-            if (mlocation == null)
-                Toast.makeText(this, "location null", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "위치 정보 사용에 동의해주세요", Toast.LENGTH_SHORT).show();
+            if (mlocation == null || !SmartLocation.with(this).location().state().isAnyProviderAvailable()){
+//                Toast.makeText(this, "location null", Toast.LENGTH_SHORT).show();
+                new MaterialDialog.Builder(this).title("위치 서비스 설정").content("위치 서비스 기능(GPS)을 설정해주세요.").positiveText("확인").onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        // GPS설정 화면으로 이동
+                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        intent.addCategory(Intent.CATEGORY_DEFAULT);
+                        startActivity(intent);
+                    }
+                }).cancelable(false).canceledOnTouchOutside(false).show();
+            }
             return false;
         }
     }
@@ -345,7 +385,9 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbinder.unbind();
+        SmartLocation.with(this).location().stop();
     }
+
 
     /**
      * 스피너 커스텀을 위한 클래스
@@ -407,4 +449,5 @@ public class SignUpActivity extends AppCompatActivity {
             return convertView;
         }
     }
+
 }

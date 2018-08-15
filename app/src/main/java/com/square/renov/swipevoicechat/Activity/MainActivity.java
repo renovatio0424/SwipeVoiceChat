@@ -327,10 +327,10 @@ public class MainActivity extends AppCompatActivity {
                     allGranted = false;
                 }
                 if (allGranted) {
-                    Toast.makeText(this, "all granted", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(this, "all granted", Toast.LENGTH_SHORT).show();
                     //TODO init nas
                 } else {
-                    Toast.makeText(this, "not all granted", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(this, "not all granted", Toast.LENGTH_SHORT).show();
                 }
             }
         } else {
