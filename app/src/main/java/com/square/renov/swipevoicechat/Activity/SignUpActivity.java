@@ -144,6 +144,17 @@ public class SignUpActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(SignUpActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(SignUpActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1001);
             return;
+        } else if(!SmartLocation.with(this).location().state().isAnyProviderAvailable()){
+            new MaterialDialog.Builder(this).title("위치 서비스 설정").content("위치 서비스 기능(GPS)을 설정해주세요.").positiveText("확인").onPositive(new MaterialDialog.SingleButtonCallback() {
+                @Override
+                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                    // GPS설정 화면으로 이동
+                    Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    intent.addCategory(Intent.CATEGORY_DEFAULT);
+                    startActivity(intent);
+                }
+            }).cancelable(false).canceledOnTouchOutside(false).show();
+            return;
         }
 
         provider = new LocationGooglePlayServicesProvider();
@@ -157,7 +168,6 @@ public class SignUpActivity extends AppCompatActivity {
                     if(location != null)
                         mlocation = location;
                 });
-
     }
 
     int pastPosition = -1;
@@ -365,17 +375,8 @@ public class SignUpActivity extends AppCompatActivity {
         } else {
             if (!isAgreeLocationTerms)
                 Toast.makeText(this, "위치 정보 사용에 동의해주세요", Toast.LENGTH_SHORT).show();
-            if (mlocation == null || !SmartLocation.with(this).location().state().isAnyProviderAvailable()){
-//                Toast.makeText(this, "location null", Toast.LENGTH_SHORT).show();
-                new MaterialDialog.Builder(this).title("위치 서비스 설정").content("위치 서비스 기능(GPS)을 설정해주세요.").positiveText("확인").onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        // GPS설정 화면으로 이동
-                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        intent.addCategory(Intent.CATEGORY_DEFAULT);
-                        startActivity(intent);
-                    }
-                }).cancelable(false).canceledOnTouchOutside(false).show();
+            if (mlocation == null){
+                startLocation();
             }
             return false;
         }

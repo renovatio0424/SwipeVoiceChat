@@ -235,31 +235,31 @@
                     app:srcCompat="@drawable/ic_chevron_right" />
             </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/layout_license"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_weight="1">
+            <!--<RelativeLayout-->
+                <!--android:id="@+id/layout_license"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="50dp"-->
+                <!--android:layout_weight="1">-->
 
-                <TextView
-                    style="@style/style_setting_desc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="오픈 소스 라이선스"/>
+                <!--<TextView-->
+                    <!--style="@style/style_setting_desc"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:text="오픈 소스 라이선스"/>-->
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_chevron_right" />
-            </RelativeLayout>
+                <!--<ImageView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_alignParentEnd="true"-->
+                    <!--android:layout_alignParentRight="true"-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:layout_marginEnd="16dp"-->
+                    <!--android:layout_marginRight="16dp"-->
+                    <!--app:layout_constraintBottom_toBottomOf="parent"-->
+                    <!--app:layout_constraintEnd_toEndOf="parent"-->
+                    <!--app:layout_constraintTop_toTopOf="parent"-->
+                    <!--app:srcCompat="@drawable/ic_chevron_right" />-->
+            <!--</RelativeLayout>-->
 
             <RelativeLayout
                 android:id="@+id/layout_withdraw"

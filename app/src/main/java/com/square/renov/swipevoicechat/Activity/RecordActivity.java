@@ -430,6 +430,10 @@ public class RecordActivity extends AppCompatActivity {
                                     SharedPrefHelper.getInstance(getApplicationContext()).setSharedPreferences(SharedPrefHelper.NEW_CHAT_ROOM_ID, response.body().getId());
                                     EventBus.getDefault().post(new RefreshEvent(RefreshEvent.Action.STATUS_CHANGE, response.body().getId()));
                                     reply = true;
+
+                                    //루나 갱신
+                                    Utils.refreshMyInfo(getApplicationContext());
+
                                     Intent returnIntent = getIntent();
                                     returnIntent.putExtra("chatRoomId", response.body().getId());
                                     setResult(RESULT_OK, returnIntent);

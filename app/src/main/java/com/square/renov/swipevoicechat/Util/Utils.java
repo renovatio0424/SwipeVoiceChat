@@ -26,6 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.square.renov.swipevoicechat.Model.VoiceChat;
 import com.square.renov.swipevoicechat.Model.VoiceChatRoom;
+import com.square.renov.swipevoicechat.Network.NetRetrofit;
 import com.square.renov.swipevoicechat.R;
 
 import org.json.JSONArray;
@@ -36,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Utils {
@@ -305,5 +308,30 @@ public class Utils {
             return result = "999 +";
         }
         return result = String.valueOf(luna);
+    }
+
+    public static void refreshMyInfo(Context context){
+        Call<User> request = NetRetrofit.getInstance(context).getService().checkCurrentUserInfo();
+        request.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    String stringUserInfo = gson.toJson(response.body());
+                    SharedPrefHelper.getInstance(context).setSharedPreferences(SharedPrefHelper.USER_INFO, stringUserInfo);
+                } else {
+                    try {
+                        Utils.toastError(context, response);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 }

@@ -108,6 +108,8 @@ public class ProfileActivity extends AppCompatActivity {
                 .apply(RequestOptions.placeholderOf(R.drawable.crop_image))
                 .apply(RequestOptions.bitmapTransform(multiTransformation))
                 .into(ivCrop);
+
+        myInfo = (User) getIntent().getParcelableExtra("user");
     }
 
     @Override
@@ -186,7 +188,6 @@ public class ProfileActivity extends AppCompatActivity {
 
                     ImageUtil.deleteImageByUri(getTempUri(), getApplicationContext());
                     updateUserInfo(uploadImagePath);
-                    Toast.makeText(this, "image upload Success", Toast.LENGTH_SHORT).show();
 //                        리워드 보상 팝업 띄우기
 //                        OneButtonAlertDialogFragment oneButtonAlertDialogFragment = OneButtonAlertDialogFragment.newInstance();
 //                        Bundle bundle = new Bundle();
@@ -238,8 +239,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         //TODO : 프로그레스 종료
         RequestManager.addRequest(multipartRequest, "ProfileMultipart");
-
-
     }
 
     private void moveToMain() {
@@ -255,7 +254,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void updateUserInfo(String uploadImagePath) {
 //        getMyInfo(uploadImagePath);
-        User myInfo = (User) getIntent().getParcelableExtra("user");
 
         Log.e(TAG, "user birth: " + myInfo.getBirth());
         myInfo.setProfileImageUrl(uploadImagePath);
@@ -328,50 +326,8 @@ public class ProfileActivity extends AppCompatActivity {
         return uri;
     }
 
-    @SuppressLint("NewApi")
-    @OnClick(R.id.iv_crop)
-    public void onClickCrop() {
-        if (CropImage.isExplicitCameraPermissionRequired(this)) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CropImage.CAMERA_CAPTURE_PERMISSIONS_REQUEST_CODE);
-            return;
-        }
-
-        //        else
-//            new MaterialDialog.Builder(ProfileActivity.this)
-//                    .title("프로필 등록하기")
-//                    .items(R.array.profile)
-//                    .itemsCallbackSingleChoice(0, (dialog, itemView, which, text) -> {
-//                        switch (which) {
-//                            case 0:
-//                                selectCamera();
-//                                break;
-//                            case 1:
-//                                selectGallery();
-//                                break;
-//                        }
-//                        return true;
-//                    })
-//                    .positiveText("확인")
-//                    .negativeText("취소")
-//                    .show();
-
-
-//        권한 요청
-        CropImage.activity()
-                .setGuidelines(CropImageView.Guidelines.ON)
-                .setMaxCropResultSize(960,1020)
-                .setMinCropResultSize(200, 300)
-                .setAutoZoomEnabled(false)
-                .setFixAspectRatio(true)
-                .setAspectRatio(3, 4)
-                .setAllowFlipping(false)
-                .setAllowRotation(false)
-                .start(this);
-    }
-
-
     @RequiresApi(api = Build.VERSION_CODES.M)
-    @OnClick(R.id.tv_upload)
+    @OnClick({R.id.tv_upload, R.id.iv_crop})
     public void onClickButtonProfileRegister() {
         if (CropImage.isExplicitCameraPermissionRequired(this)) {
             requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CropImage.CAMERA_CAPTURE_PERMISSIONS_REQUEST_CODE);

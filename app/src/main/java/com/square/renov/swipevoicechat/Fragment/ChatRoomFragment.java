@@ -124,7 +124,7 @@ public class ChatRoomFragment extends Fragment {
                     public void onResponse(Call<VoiceChatRoom> call, Response<VoiceChatRoom> response) {
                         if (response.isSuccessful()) {
                             Toast.makeText(getContext(), "방나가기", Toast.LENGTH_SHORT).show();
-                            realm.executeTransactionAsync(realm1 -> {
+                            realm.executeTransaction(realm1 -> {
                                 RealmResults<VoiceChatRoom> result = realm1.where(VoiceChatRoom.class).equalTo("id", chatRoomId).findAll();
                                 result.deleteAllFromRealm();
                             });
@@ -358,7 +358,7 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void moveToChatActivity(int chatRoomId, String opponentUserName) {
-        realm.executeTransactionAsync(realm1 -> {
+        realm.executeTransaction(realm1 -> {
             VoiceChatRoom oldRoom = realm1.where(VoiceChatRoom.class).equalTo("id", chatRoomId).findFirst();
             oldRoom.setNewRoom(false);
         });

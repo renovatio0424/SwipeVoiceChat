@@ -147,9 +147,9 @@ public class SharedPrefHelper {
         removeSharedPreferences(CHAT_ROOM_DATA_UPDATE_TIME);
         removeSharedPreferences(NEW_CHAT_ROOM_ID);
         Realm realm = RealmHelper.getRealm(RealmHelper.CHAT_ROOM);
-        realm.executeTransactionAsync(realm1 -> realm1.deleteAll());
+        realm.executeTransaction(realm1 -> realm1.deleteAll());
         Realm realm1 = RealmHelper.getRealm(RealmHelper.CHAT);
-        realm1.executeTransactionAsync(realm2 -> realm2.deleteAll());
+        realm1.executeTransaction(realm2 -> realm2.deleteAll());
     }
 
     public boolean hadExperiencedSignUpStep(int user_sign_up_step){

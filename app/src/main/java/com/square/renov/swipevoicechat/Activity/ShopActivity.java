@@ -412,6 +412,8 @@ public class ShopActivity extends AppCompatActivity {
                                 int point = pointJsonObject.get("point").getAsInt();
                                 Log.d(TAG, "point : " + point);
                                 //TODO: 포인트 업데이트 방식 어떻게??
+
+                                Utils.refreshMyInfo(getApplicationContext());
                             } else {
                                 try {
                                     Utils.toastError(getApplicationContext(), response);
@@ -443,10 +445,8 @@ public class ShopActivity extends AppCompatActivity {
                     allGranted = false;
                 }
                 if (allGranted) {
-                    Toast.makeText(this, "all granted", Toast.LENGTH_SHORT).show();
                     //TODO init nas
                 } else {
-                    Toast.makeText(this, "not all granted", Toast.LENGTH_SHORT).show();
                 }
             }
         } else {

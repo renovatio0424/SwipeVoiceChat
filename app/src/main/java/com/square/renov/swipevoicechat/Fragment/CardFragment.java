@@ -66,6 +66,7 @@ import com.square.renov.swipevoicechat.widget.VoicePlayerManager;
 import com.yuyakaido.android.cardstackview.CardStackView;
 import com.yuyakaido.android.cardstackview.SwipeDirection;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -73,7 +74,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.realm.ObjectChangeSet;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmModel;
+import io.realm.RealmObjectChangeListener;
 import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -148,17 +153,16 @@ public class CardFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        User me = SharedPrefHelper.getInstance(getActivity()).getUserInfo();
+        filterLuna.setText(Utils.setLunaCount(me.getLuna()));
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         isActive = false;
-//        if (pastCard != null) {
-//            RealmResults<VoiceCard> results = realm.where(VoiceCard.class).equalTo("id", pastCard.getId()).findAll();
-//            realm.executeTransaction(realm1 -> {
-//                if (results.size() > 0)
-//                    results.deleteAllFromRealm();
-//                Log.d(TAG, "delete filter card");
-//            });
-//        }
     }
 
 
@@ -260,7 +264,8 @@ public class CardFragment extends Fragment {
 
     private void setup() {
 //        filterLuna.setText("" + myInfo.getLuna());
-        filterLuna.setText(Utils.setLunaCount(myInfo.getLuna()));
+
+        cardStackView.setEnabled(false);
         cardStackView.setSwipeThreshold(0.5f);
         cardStackView.setSwipeDirection(SwipeDirection.HORIZONTAL);
         cardStackView.setCardEventListener(new CardStackView.CardEventListener() {
@@ -296,54 +301,71 @@ public class CardFragment extends Fragment {
 //                    } catch (IndexOutOfBoundsException e) {
 //                        visibleEmptyView();
 //                    }
-                    //TODO 필터 데이터 삭제 시점1 건너뛰기
-                    Call<VoiceCard> request = NetRetrofit.getInstance(getContext()).getService().passVoice(pastCard.getId(), "Pass", null);
-                    request.enqueue(new Callback<VoiceCard>() {
-                        @Override
-                        public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
-                            RealmResults<VoiceCard> results = realm.where(VoiceCard.class).equalTo("id", pastCard.getId()).findAll();
-                            realm.executeTransaction(realm1 -> {
-                                if (results.size() > 0) {
-                                    results.deleteAllFromRealm();
-                                }
-                                Log.d(TAG, "delete filter card");
-                            });
+                    //TODO 필터 데이터 삭제 시점1 건너뛰
+                    if(pastCard != null && pastCard.isValid()){
+                        Call<VoiceCard> request = NetRetrofit.getInstance(getContext()).getService().passVoice(pastCard.getId(), "Pass", null);
+                        request.enqueue(new Callback<VoiceCard>() {
+                            @Override
+                            public void onResponse(Call<VoiceCard> call, Response<VoiceCard> response) {
+                                realm.executeTransaction(realm1 -> {
+                                    if(pastCard.isValid()){
+                                        RealmResults<VoiceCard> results = realm.where(VoiceCard.class).equalTo("id", pastCard.getId()).findAll();
+                                        results.load();
+                                        if (results.size() > 0) {
+                                            realm.executeTransaction(realm -> {
+                                                results.deleteAllFromRealm();
+                                                adapter.addAll(results);
+                                                adapter.notifyDataSetChanged();
+                                            });
+                                        }
+//                                        Log.d(TAG, "delete filter card id : " + pastCard.getId());
+                                    }
+                                });
 
-                            if (response.isSuccessful()) {
-                                try {
-                                    int currentPosition = cardStackView.getTopIndex();
-                                    if (adapter != null)
-                                        pastCard = adapter.getItem(currentPosition);
-                                    else
-                                        pastCard = null;
+                                if (response.isSuccessful()) {
+                                    try {
+                                        if(pastCard != null)
+                                            adapter.remove(pastCard);
+                                        int currentPosition = cardStackView.getTopIndex();
+                                        Log.d("CardStackView","adapter count : " + adapter.getCount());
+                                        if (adapter != null)
+                                            pastCard = adapter.getItem(currentPosition);
+                                        else
+                                            pastCard = null;
 
-
-                                    Log.d("CardStackView", "on card swiped topIndex: " + cardStackView.getTopIndex());
-                                } catch (IndexOutOfBoundsException e) {
-                                    visibleEmptyView();
-                                }
-                            } else {
-                                try {
-                                    Utils.toastError(getActivity(), response);
-
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                        Log.d("CardStackView", "on card swiped topIndex: " + cardStackView.getTopIndex());
+                                    } catch (IndexOutOfBoundsException e) {
+                                        visibleEmptyView();
+                                    }
+                                } else {
+                                    try {
+                                        Utils.toastError(getActivity(), response);
+                                        if(pastCard != null)
+                                            adapter.remove(pastCard);
+                                        Log.d("CardStackView","adapter count : " + adapter.getCount());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onFailure(Call<VoiceCard> call, Throwable t) {
-                            t.printStackTrace();
-                        }
-                    });
+                            @Override
+                            public void onFailure(Call<VoiceCard> call, Throwable t) {
+                                t.printStackTrace();
+                            }
+                        });
+                    }
                 }
 
                 /**
-                 * 5장 남았을 경우 새로 불러오기
+                 * 1장 남았을 경우 새로 불러오기
                  * */
-                if (adapter.getCount() - cardStackView.getTopIndex() < 5) {
-                    Log.d("CardStackView", "Paginate: " + cardStackView.getTopIndex());
+                if (adapter.getCount() - cardStackView.getTopIndex() < 1) {
+                    Log.d("CardStackView", "Paginate: " + (adapter.getCount() - cardStackView.getTopIndex()));
+                    if (adapter != null) {
+                        adapter.clear();
+                        adapter.notifyDataSetChanged();
+                    }
                     paginate();
                 }
             }
@@ -367,9 +389,7 @@ public class CardFragment extends Fragment {
     }
 
     private void paginate() {
-        cardStackView.setPaginationReserved();
-        adapter.addAll();
-        adapter.notifyDataSetChanged();
+        loadCard();
     }
 
     private void moveToRecordActivity(Integer chatId) {
@@ -393,8 +413,20 @@ public class CardFragment extends Fragment {
                 if (data.hasExtra("chatRoomId") && data.getIntExtra("chatRoomId", -1) != -1) {
                     Log.d(TAG, "chatRoomId: " + data.getIntExtra("chatRoomId", -1));
                     realm.executeTransaction(realm1 -> {
-                        RealmResults<VoiceCard> results = realm1.where(VoiceCard.class).equalTo("id", pastCard.getId()).findAll();
-                        results.deleteAllFromRealm();
+                        if(pastCard.isValid()){
+                            RealmResults<VoiceCard> results = realm1.where(VoiceCard.class).equalTo("id", pastCard.getId()).findAll();
+                            results.load();
+                            if(results.size() > 0){
+                                realm.executeTransaction(new Realm.Transaction() {
+                                    @Override
+                                    public void execute(Realm realm) {
+                                        results.deleteAllFromRealm();
+                                        adapter.addAll(results);
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        }
                     });
                 }
             } else {
@@ -406,6 +438,15 @@ public class CardFragment extends Fragment {
                 adapter.clear();
                 adapter.notifyDataSetChanged();
             }
+            RealmResults<VoiceCard> results = realm.where(VoiceCard.class).findAll();
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    results.deleteAllFromRealm();
+                    adapter.addAll(results);
+                    adapter.notifyDataSetChanged();
+                }
+            });
             loadCard();
         }
     }
@@ -533,15 +574,23 @@ public class CardFragment extends Fragment {
                         });
                     } else {
                         //TODO : 필터 카드 불러오기 시점
+                        Log.d(TAG, "load realm card 1");
                         RealmResults<VoiceCard> results = realm.where(VoiceCard.class).findAll();
+                        results.load();
+
                         if (results.size() != 0) {
                             if (adapter == null) {
                                 adapter = new UserCardAdapter(getContext());
                                 cardStackView.setAdapter(adapter);
                             }
 
+                            for(VoiceCard itCard : results){
+                                Log.e(TAG, "realm filter card id : " + itCard.getId() + "\nuser name : " + itCard.getUser().getName());
+                            }
+
                             cardStackView.setPaginationReserved();
                             adapter.addAll(results);
+                            results.load();
                             adapter.notifyDataSetChanged();
 
                             invisibleEmptyView();
@@ -605,21 +654,26 @@ public class CardFragment extends Fragment {
                                             cardStackView.setAdapter(adapter);
                                         }
 
-                                        cardStackView.setPaginationReserved();
-                                        adapter.addAll(response.body());
-                                        adapter.notifyDataSetChanged();
-
                                         //TODO 필터 카드 저장
                                         for (VoiceCard itCard : response.body()) {
                                             realm.executeTransaction(realm1 -> {
                                                 realm1.insertOrUpdate(itCard);
+                                                adapter.add(itCard);
                                             });
                                         }
+
+                                        cardStackView.setPaginationReserved();
+                                        adapter.notifyDataSetChanged();
+
+//                                        adapter.addAll(response.body());
 
                                         Log.e(TAG, "voice card size: " + response.body().size());
                                         invisibleEmptyView();
 
                                         Log.e(TAG, "load card success");
+
+                                        //루나 갱신
+                                        Utils.refreshMyInfo(getActivity());
 
                                         try {
                                             int currentPosition = cardStackView.getTopIndex();
@@ -669,6 +723,56 @@ public class CardFragment extends Fragment {
                                             }
                                         } catch (IOException e) {
                                             e.printStackTrace();
+                                            cardRequest = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
+                                            cardRequest.enqueue(new Callback<ArrayList<VoiceCard>>() {
+                                                @Override
+                                                public void onResponse(Call<ArrayList<VoiceCard>> call, Response<ArrayList<VoiceCard>> response) {
+                                                    if (response.isSuccessful()) {
+
+                                                        if (response.body().size() == 0) {
+                                                            visibleEmptyView();
+                                                            return;
+                                                        }
+
+                                                        if (adapter == null) {
+                                                            adapter = new UserCardAdapter(getContext());
+                                                            cardStackView.setAdapter(adapter);
+                                                        }
+
+                                                        cardStackView.setPaginationReserved();
+                                                        adapter.addAll(response.body());
+                                                        adapter.notifyDataSetChanged();
+
+                                                        Log.e(TAG, "voice card size: " + response.body().size());
+                                                        invisibleEmptyView();
+
+                                                        Log.e(TAG, "load card success");
+
+                                                        try {
+                                                            int currentPosition = cardStackView.getTopIndex();
+                                                            pastCard = adapter.getItem(currentPosition);
+                                                            Log.d("CardStackView", "load card topIndex: " + cardStackView.getTopIndex());
+                                                        } catch (IndexOutOfBoundsException e) {
+                                                            e.printStackTrace();
+                                                            pastCard = null;
+                                                            visibleEmptyView();
+                                                        }
+
+                                                    } else {
+                                                        try {
+                                                            Utils.toastError(getContext(), response);
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<ArrayList<VoiceCard>> call, Throwable t) {
+                                                    Log.e(TAG, t.getMessage());
+                                                    t.printStackTrace();
+                                                }
+                                            });
                                         }
                                     }
                                 }
@@ -680,6 +784,7 @@ public class CardFragment extends Fragment {
                                 }
                             });
                         }
+                        Log.d(TAG, "load realm card 2");
                     }
 //                    cardRequest = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
 //                    cardRequest.enqueue(new Callback<ArrayList<VoiceCard>>() {
@@ -794,6 +899,56 @@ public class CardFragment extends Fragment {
             public void onFailure(Call<Filter> call, Throwable t) {
                 Log.e(TAG, t.getMessage());
                 t.printStackTrace();
+                cardRequest = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
+                cardRequest.enqueue(new Callback<ArrayList<VoiceCard>>() {
+                    @Override
+                    public void onResponse(Call<ArrayList<VoiceCard>> call, Response<ArrayList<VoiceCard>> response) {
+                        if (response.isSuccessful()) {
+
+                            if (response.body().size() == 0) {
+                                visibleEmptyView();
+                                return;
+                            }
+
+                            if (adapter == null) {
+                                adapter = new UserCardAdapter(getContext());
+                                cardStackView.setAdapter(adapter);
+                            }
+
+                            cardStackView.setPaginationReserved();
+                            adapter.addAll(response.body());
+                            adapter.notifyDataSetChanged();
+
+                            Log.e(TAG, "voice card size: " + response.body().size());
+                            invisibleEmptyView();
+
+                            Log.e(TAG, "load card success");
+
+                            try {
+                                int currentPosition = cardStackView.getTopIndex();
+                                pastCard = adapter.getItem(currentPosition);
+                                Log.d("CardStackView", "load card topIndex: " + cardStackView.getTopIndex());
+                            } catch (IndexOutOfBoundsException e) {
+                                e.printStackTrace();
+                                pastCard = null;
+                                visibleEmptyView();
+                            }
+
+                        } else {
+                            try {
+                                Utils.toastError(getContext(), response);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ArrayList<VoiceCard>> call, Throwable t) {
+                        Log.e(TAG, t.getMessage());
+                        t.printStackTrace();
+                    }
+                });
             }
         });
     }
@@ -872,7 +1027,8 @@ public class CardFragment extends Fragment {
     }
 
     private boolean isNoFilter(Filter filter) {
-        return filter == null || (filter.getAgeMax() == null && filter.getAgeMin() == null && filter.getGender() == null && !filter.getActiveUser());
+//        return filter == null || (filter.getAgeMax() == null && filter.getAgeMin() == null && filter.getGender() == null && !filter.getActiveUser());
+        return true;
     }
 
     @Override
@@ -944,9 +1100,8 @@ public class CardFragment extends Fragment {
 
     @OnClick(R.id.filter_setting)
     public void onClickFilterSetting() {
-        Intent intent = new Intent(getActivity(), FilterActivity.class);
-//        startActivity(intent);
-        startActivityForResult(intent, filterRequestCode);
+//        Intent intent = new Intent(getActivity(), FilterActivity.class);
+//        startActivityForResult(intent, filterRequestCode);
     }
 
     @OnClick(R.id.filter_event)
@@ -1107,7 +1262,19 @@ public class CardFragment extends Fragment {
             }
 
             VoiceCard voiceCard = getItem(position);
-            User cardUser = voiceCard.getUser();
+            voiceCard.load();
+
+            User cardUser = null;
+            try {
+                cardUser = voiceCard.getUser();
+            } catch (IllegalStateException e){
+                remove(voiceCard);
+                notifyDataSetChanged();
+                return convertView;
+            }
+
+
+
 
             SpannableStringBuilder s = Utils.setNameAndAge(cardUser.getName(), AgeUtil.getAgeFromBirth(cardUser.getBirth()));
             s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.age_white_color)), cardUser.getName().length(), s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1119,7 +1286,6 @@ public class CardFragment extends Fragment {
 
             Glide.with(getContext())
                     .load(cardUser.getProfileImageUrl())
-//                    .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
                     .into(holder.profileImage);
 
             holder.ivReport.setOnClickListener(v -> {
@@ -1172,13 +1338,6 @@ public class CardFragment extends Fragment {
             holder.waveView.setScaledData(sample);
             holder.waveView.setEnabled(false);
 
-            try {
-                duration = VoicePlayerManager.getInstance().getPlayTime(voiceCard.getVoiceUrl(), getActivity());
-                Log.e(TAG, "duration: " + duration);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             ObjectAnimator progressAnim = ObjectAnimator.ofFloat(holder.waveView, "progress", 0F, 100F);
             progressAnim.setInterpolator(new LinearInterpolator());
             progressAnim.addListener(new Animator.AnimatorListener() {
@@ -1206,6 +1365,18 @@ public class CardFragment extends Fragment {
 
                 }
             });
+
+
+            try {
+                duration = VoicePlayerManager.getInstance().getPlayTime(voiceCard.getVoiceUrl(), getActivity());
+                Log.e(TAG, "duration: " + duration);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+
+//            duration = voiceCard.getSeconds();
 
             if (duration != -1)
                 progressAnim.setDuration(duration);
@@ -1263,7 +1434,6 @@ public class CardFragment extends Fragment {
             holder.tvTimeStart.setText(Utils.getPlayTimeFormat(0));
             holder.tvTimeEnd.setText(Utils.getPlayTimeFormat(duration));
             holder.tvPlayState.setVisibility(View.INVISIBLE);
-
 
             return convertView;
         }

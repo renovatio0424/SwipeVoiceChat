@@ -1,6 +1,7 @@
 package com.square.renov.swipevoicechat.widget;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -100,9 +101,9 @@ public class VoicePlayerManager {
         if (mPlayer == null) {
             mPlayer = new MediaPlayer();
         }
-//        mPlayer.setDataSource(filePath);
-        filePath = filePath.replace("https","http");
-        mPlayer = MediaPlayer.create(context, Uri.parse(filePath));
+        mPlayer.setDataSource(filePath);
+//        mPlayer = MediaPlayer.create(context, Uri.parse(filePath));
+        mPlayer.setLooping(true);
         int time = mPlayer.getDuration();
         return time;
     }

@@ -110,11 +110,9 @@ public class EventActivity extends AppCompatActivity {
         String templateId = "11289";
         Map<String, String> templateArgs = new HashMap<>();
 
-//        String userId = SharedPrefHelper.getInstance(this).getSharedPreferences(SharedPrefHelper.USER_ID,null);
-        User me = SharedPrefHelper.getInstance(this).getUserInfo();
-        String recommend = idToCode((long) me.getId());
+        String recommend = "초대코드는" + idToCode() + "입니다";
 
-        templateArgs.put("recommend", recommend);
+        templateArgs.put("DESCRIPTION", recommend);
         KakaoLinkService.getInstance().sendCustom(this, templateId, templateArgs, new ResponseCallback<KakaoLinkResponse>() {
             @Override
             public void onFailure(ErrorResult errorResult) {
@@ -129,8 +127,8 @@ public class EventActivity extends AppCompatActivity {
         });
     }
 
-    private String idToCode(Long id) {
-        return Long.toString(id.longValue(), 36).toUpperCase();
+    private String idToCode() {
+        return myInviteCode;
     }
 
     private void copyClipBoard() {

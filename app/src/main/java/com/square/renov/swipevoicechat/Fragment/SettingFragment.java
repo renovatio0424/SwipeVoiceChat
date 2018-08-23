@@ -335,7 +335,6 @@ public class SettingFragment extends Fragment {
                             .into(profileImage));
 
                     updateUserInfo(uploadImagePath);
-                    Toast.makeText(getActivity(), "image upload Success", Toast.LENGTH_SHORT).show();
 //                        리워드 보상 팝업 띄우기
 //                        OneButtonAlertDialogFragment oneButtonAlertDialogFragment = OneButtonAlertDialogFragment.newInstance();
 //                        Bundle bundle = new Bundle();

@@ -38,47 +38,55 @@ public class PushViewHandler extends NotificationExtenderService {
 
         JSONObject data = notification.payload.additionalData;
 
-        try {
-            chatRoomId = data.getInt("chatId");
-            Log.d(TAG, "chat room id : " + chatRoomId);
-            if (chatRoomId != 0) {
-                String name = (String) data.get("name");
-                String profileImage = (String) data.get("profileImage");
+        Log.d(TAG, "chat room id : " + chatRoomId);
 
-                Log.d(TAG, "name : " + name);
-                Log.d(TAG, "profileImage : " + profileImage);
 
-                OverrideSettings overrideSettings = new OverrideSettings();
-                overrideSettings.extender = new NotificationCompat.Extender() {
-                    @Override
-                    public NotificationCompat.Builder extend(NotificationCompat.Builder builder) {
+        Log.d(TAG, "name : " + name);
 
-                        Bitmap bitmapProfile = null;
-                        try {
-                            bitmapProfile = Glide
-                                    .with(getApplicationContext())
-                                    .applyDefaultRequestOptions(RequestOptions.bitmapTransform(multiTransformation))
-                                    .asBitmap()
-                                    .load(profileImage)
-                                    .submit()
-                                    .get();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        }
 
-                        return builder.setContentTitle(name)
-                                .setSmallIcon(R.drawable.ic_moon)
-                                .setLargeIcon(bitmapProfile);
+        OverrideSettings overrideSettings = new OverrideSettings();
+        overrideSettings.extender = new NotificationCompat.Extender() {
+            @Override
+            public NotificationCompat.Builder extend(NotificationCompat.Builder builder) {
+                if (data != null && data.has("profileImage")) {
+                    String profileImage = null;
+                    try {
+                        profileImage = (String) data.get("profileImage");
+                        Log.d(TAG, "profileImage : " + profileImage);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                };
-                OSNotificationDisplayedResult displayedResult = displayNotification(overrideSettings);
+                    Bitmap bitmapProfile = null;
+                    try {
+                        bitmapProfile = Glide
+                                .with(getApplicationContext())
+                                .applyDefaultRequestOptions(RequestOptions.bitmapTransform(multiTransformation))
+                                .asBitmap()
+                                .load(profileImage)
+                                .submit()
+                                .get();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                    builder.setLargeIcon(bitmapProfile);
+                }
+
+                if (data != null && data.has("name")) {
+                    String name = null;
+                    try {
+                        name = (String) data.get("name");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    builder.setContentTitle(name);
+                }
+                return builder.setSmallIcon(R.drawable.ic_moon);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-//        OverrideSettings overrideSettings = new OverrideSettings();
+        };
+        OSNotificationDisplayedResult displayedResult = displayNotification(overrideSettings);
+        //        OverrideSettings overrideSettings = new OverrideSettings();
 //        overrideSettings.extender = builder -> {
 //            if(profileImagePath != null){
 //                try {
