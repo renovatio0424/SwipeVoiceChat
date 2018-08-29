@@ -60,12 +60,12 @@ public class TutorialActivity extends AppCompatActivity {
     public void onClickBottomButton() {
         int position = viewPager.getCurrentItem();
         Log.e(TAG, "position:" + position);
-        if (position == 1) {
+        if (position == 2) {
             Intent intent = new Intent(this, LogInActivity.class);
             startActivity(intent);
             finish();
         } else {
-            viewPager.setCurrentItem(1);
+            viewPager.setCurrentItem(position + 1);
         }
 
     }
@@ -83,6 +83,8 @@ public class TutorialActivity extends AppCompatActivity {
             super(fm);
             fragments.add(TutorialFragment.newInstance(R.drawable.tutorial_1, "목소리로 털어놓는 \n당신의 가장 솔직한 이야기", "나를 알아주는 \n위로의 속삭임"));
             fragments.add(TutorialFragment.newInstance(R.drawable.tutorial_2, "아무도 나를 모르는 이곳에서 \n조금 더 솔직하게 얘기해보세요", "나를 알아주는 \n위로의 속삭임"));
+            fragments.add(TutorialFragment.newInstance(R.drawable.tutorial_3, "나를 모르는 누군가에게\n당신의 이야기를 들려주세요", "나를 알아주는 \n위로의 속삭임"));
+
         }
 
         @Override

@@ -264,27 +264,24 @@ public class CardFragment extends Fragment {
 
     private void setup() {
 //        filterLuna.setText("" + myInfo.getLuna());
-
-        cardStackView.setEnabled(false);
-        cardStackView.setSwipeThreshold(0.5f);
+//        cardStackView.setSwipeThreshold(0.5f);
+        cardStackView.setElevationEnabled(false);
         cardStackView.setSwipeDirection(SwipeDirection.HORIZONTAL);
         cardStackView.setCardEventListener(new CardStackView.CardEventListener() {
             @Override
             public void onCardDragging(float percentX, float percentY) {
-                Log.d("CardStackView", "onCardDragging");
-                Log.d("CardStackView", "top index : " + cardStackView.getTopIndex());
+//                Log.d("CardStackView", "onCardDragging");
+//                Log.d("CardStackView", "top index : " + cardStackView.getTopIndex());
             }
 
             @Override
             public void onCardSwiped(SwipeDirection direction) {
                 Log.d("CardStackView", "onCardSwiped: " + direction.toString());
 
-
                 if (adapter.CURRENT_STATE == adapter.STATE_PLAY)
                     adapter.cardPlayStop();
 
                 if (direction == SwipeDirection.Right) {
-//                    showRecordDialog(false);
                     moveToRecordActivity(pastCard.getId());
                     int currentPosition = cardStackView.getTopIndex();
                     try {
@@ -301,7 +298,8 @@ public class CardFragment extends Fragment {
 //                    } catch (IndexOutOfBoundsException e) {
 //                        visibleEmptyView();
 //                    }
-                    //TODO 필터 데이터 삭제 시점1 건너뛰
+                    //TODO 필터 데이터 삭제 시점1 건너
+
                     if(pastCard != null && pastCard.isValid()){
                         Call<VoiceCard> request = NetRetrofit.getInstance(getContext()).getService().passVoice(pastCard.getId(), "Pass", null);
                         request.enqueue(new Callback<VoiceCard>() {
@@ -338,14 +336,14 @@ public class CardFragment extends Fragment {
                                         visibleEmptyView();
                                     }
                                 } else {
-                                    try {
-                                        Utils.toastError(getActivity(), response);
+//                                    try {
+//                                        Utils.toastError(getActivity(), response);
                                         if(pastCard != null)
                                             adapter.remove(pastCard);
                                         Log.d("CardStackView","adapter count : " + adapter.getCount());
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
                                 }
                             }
 
@@ -607,182 +605,182 @@ public class CardFragment extends Fragment {
                                 visibleEmptyView();
                             }
                         } else {
-                            cardRequest = NetRetrofit.getInstance(getContext()).getService().getFilteredRandomVoiceCard();
-                            cardRequest.enqueue(new Callback<ArrayList<VoiceCard>>() {
-                                @Override
-                                public void onResponse(Call<ArrayList<VoiceCard>> call, Response<ArrayList<VoiceCard>> response) {
-                                    if (response.isSuccessful()) {
-                                        if (isNoFilter(filter) && response.body().size() < 5) {
-                                            //TODO 필터 부족시 랜덤 카드 전환 팝업 구현
-                                            showNotEnoughFilterCardPopUp();
-                                            Filter nullFilter = new Filter();
-                                            nullFilter.setAgeMin(null);
-                                            nullFilter.setAgeMax(null);
-                                            nullFilter.setGender(null);
-                                            nullFilter.setActiveUser(false);
-                                            Call<Filter> filterCall = NetRetrofit.getInstance(getContext()).getService().updateFilter(nullFilter);
-                                            filterCall.enqueue(new Callback<Filter>() {
-                                                @Override
-                                                public void onResponse(Call<Filter> call, Response<Filter> response) {
-                                                    if (response.isSuccessful()) {
-                                                        loadCard();
-                                                    } else {
-                                                        try {
-                                                            Utils.toastError(getContext(), response);
-                                                        } catch (IOException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onFailure(Call<Filter> call, Throwable t) {
-                                                    t.printStackTrace();
-                                                }
-                                            });
-                                            return;
-                                        }
-
-
-                                        if (response.body().size() == 0) {
-                                            visibleEmptyView();
-                                            return;
-                                        }
-
-                                        if (adapter == null) {
-                                            adapter = new UserCardAdapter(getContext());
-                                            cardStackView.setAdapter(adapter);
-                                        }
-
-                                        //TODO 필터 카드 저장
-                                        for (VoiceCard itCard : response.body()) {
-                                            realm.executeTransaction(realm1 -> {
-                                                realm1.insertOrUpdate(itCard);
-                                                adapter.add(itCard);
-                                            });
-                                        }
-
-                                        cardStackView.setPaginationReserved();
-                                        adapter.notifyDataSetChanged();
-
-//                                        adapter.addAll(response.body());
-
-                                        Log.e(TAG, "voice card size: " + response.body().size());
-                                        invisibleEmptyView();
-
-                                        Log.e(TAG, "load card success");
-
-                                        //루나 갱신
-                                        Utils.refreshMyInfo(getActivity());
-
-                                        try {
-                                            int currentPosition = cardStackView.getTopIndex();
-                                            pastCard = adapter.getItem(currentPosition);
-                                            Log.d("CardStackView", "load card topIndex: " + cardStackView.getTopIndex());
-                                        } catch (IndexOutOfBoundsException e) {
-                                            e.printStackTrace();
-                                            pastCard = null;
-                                            visibleEmptyView();
-                                        }
-                                    } else {
-                                        try {
-                                            Result result = Utils.parseError(response);
-                                            if ("NotEnoughCash".equals(result.getCode())) {
-                                                //TODO 루나 부족할 경우 팝업
-                                                showNotEnoughCashPopUp();
-
-                                                Filter nullFilter = new Filter();
-                                                nullFilter.setAgeMin(null);
-                                                nullFilter.setAgeMax(null);
-                                                nullFilter.setGender(null);
-                                                nullFilter.setActiveUser(false);
-                                                Call<Filter> filterCall = NetRetrofit.getInstance(getContext()).getService().updateFilter(nullFilter);
-
-                                                filterCall.enqueue(new Callback<Filter>() {
-                                                    @Override
-                                                    public void onResponse(Call<Filter> call, Response<Filter> response) {
-                                                        if (response.isSuccessful()) {
-                                                            loadCard();
-                                                        } else {
-                                                            try {
-                                                                Utils.toastError(getContext(), response);
-                                                            } catch (IOException e) {
-                                                                e.printStackTrace();
-                                                            }
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(Call<Filter> call, Throwable t) {
-                                                        t.printStackTrace();
-                                                    }
-                                                });
-
-                                            } else {
-                                                Utils.toastError(getContext(), response);
-                                            }
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                            cardRequest = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
-                                            cardRequest.enqueue(new Callback<ArrayList<VoiceCard>>() {
-                                                @Override
-                                                public void onResponse(Call<ArrayList<VoiceCard>> call, Response<ArrayList<VoiceCard>> response) {
-                                                    if (response.isSuccessful()) {
-
-                                                        if (response.body().size() == 0) {
-                                                            visibleEmptyView();
-                                                            return;
-                                                        }
-
-                                                        if (adapter == null) {
-                                                            adapter = new UserCardAdapter(getContext());
-                                                            cardStackView.setAdapter(adapter);
-                                                        }
-
-                                                        cardStackView.setPaginationReserved();
-                                                        adapter.addAll(response.body());
-                                                        adapter.notifyDataSetChanged();
-
-                                                        Log.e(TAG, "voice card size: " + response.body().size());
-                                                        invisibleEmptyView();
-
-                                                        Log.e(TAG, "load card success");
-
-                                                        try {
-                                                            int currentPosition = cardStackView.getTopIndex();
-                                                            pastCard = adapter.getItem(currentPosition);
-                                                            Log.d("CardStackView", "load card topIndex: " + cardStackView.getTopIndex());
-                                                        } catch (IndexOutOfBoundsException e) {
-                                                            e.printStackTrace();
-                                                            pastCard = null;
-                                                            visibleEmptyView();
-                                                        }
-
-                                                    } else {
-                                                        try {
-                                                            Utils.toastError(getContext(), response);
-                                                        } catch (IOException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onFailure(Call<ArrayList<VoiceCard>> call, Throwable t) {
-                                                    Log.e(TAG, t.getMessage());
-                                                    t.printStackTrace();
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<ArrayList<VoiceCard>> call, Throwable t) {
-                                    Log.e(TAG, t.getMessage());
-                                    t.printStackTrace();
-                                }
-                            });
+//                            cardRequest = NetRetrofit.getInstance(getContext()).getService().getFilteredRandomVoiceCard();
+//                            cardRequest.enqueue(new Callback<ArrayList<VoiceCard>>() {
+//                                @Override
+//                                public void onResponse(Call<ArrayList<VoiceCard>> call, Response<ArrayList<VoiceCard>> response) {
+//                                    if (response.isSuccessful()) {
+//                                        if (isNoFilter(filter) && response.body().size() < 5) {
+//                                            //TODO 필터 부족시 랜덤 카드 전환 팝업 구현
+//                                            showNotEnoughFilterCardPopUp();
+//                                            Filter nullFilter = new Filter();
+//                                            nullFilter.setAgeMin(null);
+//                                            nullFilter.setAgeMax(null);
+//                                            nullFilter.setGender(null);
+//                                            nullFilter.setActiveUser(false);
+//                                            Call<Filter> filterCall = NetRetrofit.getInstance(getContext()).getService().updateFilter(nullFilter);
+//                                            filterCall.enqueue(new Callback<Filter>() {
+//                                                @Override
+//                                                public void onResponse(Call<Filter> call, Response<Filter> response) {
+//                                                    if (response.isSuccessful()) {
+//                                                        loadCard();
+//                                                    } else {
+//                                                        try {
+//                                                            Utils.toastError(getContext(), response);
+//                                                        } catch (IOException e) {
+//                                                            e.printStackTrace();
+//                                                        }
+//                                                    }
+//                                                }
+//
+//                                                @Override
+//                                                public void onFailure(Call<Filter> call, Throwable t) {
+//                                                    t.printStackTrace();
+//                                                }
+//                                            });
+//                                            return;
+//                                        }
+//
+//
+//                                        if (response.body().size() == 0) {
+//                                            visibleEmptyView();
+//                                            return;
+//                                        }
+//
+//                                        if (adapter == null) {
+//                                            adapter = new UserCardAdapter(getContext());
+//                                            cardStackView.setAdapter(adapter);
+//                                        }
+//
+//                                        //TODO 필터 카드 저장
+//                                        for (VoiceCard itCard : response.body()) {
+//                                            realm.executeTransaction(realm1 -> {
+//                                                realm1.insertOrUpdate(itCard);
+//                                                adapter.add(itCard);
+//                                            });
+//                                        }
+//
+//                                        cardStackView.setPaginationReserved();
+//                                        adapter.notifyDataSetChanged();
+//
+////                                        adapter.addAll(response.body());
+//
+//                                        Log.e(TAG, "voice card size: " + response.body().size());
+//                                        invisibleEmptyView();
+//
+//                                        Log.e(TAG, "load card success");
+//
+//                                        //루나 갱신
+//                                        Utils.refreshMyInfo(getActivity());
+//
+//                                        try {
+//                                            int currentPosition = cardStackView.getTopIndex();
+//                                            pastCard = adapter.getItem(currentPosition);
+//                                            Log.d("CardStackView", "load card topIndex: " + cardStackView.getTopIndex());
+//                                        } catch (IndexOutOfBoundsException e) {
+//                                            e.printStackTrace();
+//                                            pastCard = null;
+//                                            visibleEmptyView();
+//                                        }
+//                                    } else {
+//                                        try {
+//                                            Result result = Utils.parseError(response);
+//                                            if ("NotEnoughCash".equals(result.getCode())) {
+//                                                //TODO 루나 부족할 경우 팝업
+//                                                showNotEnoughCashPopUp();
+//
+//                                                Filter nullFilter = new Filter();
+//                                                nullFilter.setAgeMin(null);
+//                                                nullFilter.setAgeMax(null);
+//                                                nullFilter.setGender(null);
+//                                                nullFilter.setActiveUser(false);
+//                                                Call<Filter> filterCall = NetRetrofit.getInstance(getContext()).getService().updateFilter(nullFilter);
+//
+//                                                filterCall.enqueue(new Callback<Filter>() {
+//                                                    @Override
+//                                                    public void onResponse(Call<Filter> call, Response<Filter> response) {
+//                                                        if (response.isSuccessful()) {
+//                                                            loadCard();
+//                                                        } else {
+//                                                            try {
+//                                                                Utils.toastError(getContext(), response);
+//                                                            } catch (IOException e) {
+//                                                                e.printStackTrace();
+//                                                            }
+//                                                        }
+//                                                    }
+//
+//                                                    @Override
+//                                                    public void onFailure(Call<Filter> call, Throwable t) {
+//                                                        t.printStackTrace();
+//                                                    }
+//                                                });
+//
+//                                            } else {
+//                                                Utils.toastError(getContext(), response);
+//                                            }
+//                                        } catch (IOException e) {
+//                                            e.printStackTrace();
+//                                            cardRequest = NetRetrofit.getInstance(getContext()).getService().getRandomVoiceCard();
+//                                            cardRequest.enqueue(new Callback<ArrayList<VoiceCard>>() {
+//                                                @Override
+//                                                public void onResponse(Call<ArrayList<VoiceCard>> call, Response<ArrayList<VoiceCard>> response) {
+//                                                    if (response.isSuccessful()) {
+//
+//                                                        if (response.body().size() == 0) {
+//                                                            visibleEmptyView();
+//                                                            return;
+//                                                        }
+//
+//                                                        if (adapter == null) {
+//                                                            adapter = new UserCardAdapter(getContext());
+//                                                            cardStackView.setAdapter(adapter);
+//                                                        }
+//
+//                                                        cardStackView.setPaginationReserved();
+//                                                        adapter.addAll(response.body());
+//                                                        adapter.notifyDataSetChanged();
+//
+//                                                        Log.e(TAG, "voice card size: " + response.body().size());
+//                                                        invisibleEmptyView();
+//
+//                                                        Log.e(TAG, "load card success");
+//
+//                                                        try {
+//                                                            int currentPosition = cardStackView.getTopIndex();
+//                                                            pastCard = adapter.getItem(currentPosition);
+//                                                            Log.d("CardStackView", "load card topIndex: " + cardStackView.getTopIndex());
+//                                                        } catch (IndexOutOfBoundsException e) {
+//                                                            e.printStackTrace();
+//                                                            pastCard = null;
+//                                                            visibleEmptyView();
+//                                                        }
+//
+//                                                    } else {
+//                                                        try {
+//                                                            Utils.toastError(getContext(), response);
+//                                                        } catch (IOException e) {
+//                                                            e.printStackTrace();
+//                                                        }
+//                                                    }
+//                                                }
+//
+//                                                @Override
+//                                                public void onFailure(Call<ArrayList<VoiceCard>> call, Throwable t) {
+//                                                    Log.e(TAG, t.getMessage());
+//                                                    t.printStackTrace();
+//                                                }
+//                                            });
+//                                        }
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onFailure(Call<ArrayList<VoiceCard>> call, Throwable t) {
+//                                    Log.e(TAG, t.getMessage());
+//                                    t.printStackTrace();
+//                                }
+//                            });
                         }
                         Log.d(TAG, "load realm card 2");
                     }
@@ -1219,10 +1217,8 @@ public class CardFragment extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-
         if (adapter == null)
             return;
-
         if (!isVisibleToUser)
             adapter.cardPlayStop();
     }
@@ -1254,7 +1250,6 @@ public class CardFragment extends Fragment {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            convertView.setEnabled(false);
 
             if (CURRENT_STATE == STATE_PLAY) {
                 Log.d(TAG, "current state1 : " + CURRENT_STATE);
@@ -1272,9 +1267,6 @@ public class CardFragment extends Fragment {
                 notifyDataSetChanged();
                 return convertView;
             }
-
-
-
 
             SpannableStringBuilder s = Utils.setNameAndAge(cardUser.getName(), AgeUtil.getAgeFromBirth(cardUser.getBirth()));
             s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.age_white_color)), cardUser.getName().length(), s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1373,10 +1365,9 @@ public class CardFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
-
 //            duration = voiceCard.getSeconds();
+//
+//            duration = 1000;
 
             if (duration != -1)
                 progressAnim.setDuration(duration);

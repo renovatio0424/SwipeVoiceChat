@@ -133,7 +133,7 @@ public class ShopActivity extends AppCompatActivity {
         Uri uri = Uri.parse("mailto:help.sori@formationsquare.com");
         Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.do_qna));
-        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_content_qna, me.getName()));
+        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_content_qna, me.getId()));
         startActivity(Intent.createChooser(intent, getString(R.string.send_email)));
     }
 

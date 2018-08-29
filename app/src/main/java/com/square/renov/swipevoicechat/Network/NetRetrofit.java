@@ -3,6 +3,8 @@ package com.square.renov.swipevoicechat.Network;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.square.renov.swipevoicechat.Util.SharedPrefHelper;
 
 import java.io.IOException;
@@ -47,10 +49,14 @@ public class NetRetrofit {
             })
             .build();
 
+    Gson gson = new GsonBuilder()
+            .setLenient()
+            .create();
+
     Retrofit retrofit = new Retrofit.Builder()
             .client(client)
             .baseUrl(DEVELOP_SERVER_DOMAIN)
-            .addConverterFactory(GsonConverterFactory.create()) // 파싱등록
+            .addConverterFactory(GsonConverterFactory.create(gson)) // 파싱등록
             .build();
 
     ApiService service = retrofit.create(ApiService.class);

@@ -198,7 +198,6 @@ public class SettingFragment extends Fragment {
 
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
-                .setMaxCropResultSize(960, 1020)
                 .setMinCropResultSize(200, 300)
                 .setAutoZoomEnabled(false)
                 .setFixAspectRatio(true)
@@ -206,7 +205,6 @@ public class SettingFragment extends Fragment {
                 .setAllowFlipping(false)
                 .setAllowRotation(false)
                 .start(getContext(), this);
-        Toast.makeText(getActivity(), "click profile", Toast.LENGTH_SHORT).show();
     }
 
     private int CAMERA_CODE = 1;
@@ -216,7 +214,6 @@ public class SettingFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e(TAG, "on activity result");
-        Toast.makeText(getActivity(), "on activity result", Toast.LENGTH_SHORT).show();
         // handle result of pick image chooser
         if (requestCode == CAMERA_CODE && resultCode == RESULT_OK || requestCode == GALLERY_CODE && resultCode == RESULT_OK) {
             Uri imageUri = CropImage.getPickImageResultUri(getContext(), data);

@@ -101,10 +101,13 @@ public class VoicePlayerManager {
         if (mPlayer == null) {
             mPlayer = new MediaPlayer();
         }
+        mPlayer.reset();
+
         mPlayer.setDataSource(filePath);
-//        mPlayer = MediaPlayer.create(context, Uri.parse(filePath));
-        mPlayer.setLooping(true);
+        mPlayer.prepare();
         int time = mPlayer.getDuration();
+        mPlayer.release();
+        mPlayer = null;
         return time;
     }
 

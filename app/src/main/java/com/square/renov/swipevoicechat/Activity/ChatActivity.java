@@ -588,7 +588,13 @@ public class ChatActivity extends AppCompatActivity {
 //                e.printStackTrace();
 //            voicePlayerManager.voicePlayStop();
 //            }
-            thisHolder.chatBubble.setPlayTime(chat.getSeconds());
+            int playTime = 0;
+            try {
+                playTime = voicePlayerManager.getPlayTime(chat.getVoiceUrl(), getApplicationContext());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            thisHolder.chatBubble.setPlayTime(playTime);
             thisHolder.chatBubble.setVoiceFileUrl(chat.getVoiceUrl());
             thisHolder.chatBubble.setVoicePlayListener(new VoiceBubble.VoicePlayListener() {
                 @Override

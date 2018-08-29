@@ -336,7 +336,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
-                .setMaxCropResultSize(960,1020)
                 .setMinCropResultSize(200, 300)
                 .setAutoZoomEnabled(false)
                 .setFixAspectRatio(true)

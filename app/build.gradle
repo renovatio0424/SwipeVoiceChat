@@ -21,8 +21,8 @@ android {
         applicationId "com.square.renov.swipevoicechat"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 21
-        versionName "1.2.0"
+        versionCode 30
+        versionName "1.2.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 

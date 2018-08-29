@@ -152,7 +152,7 @@ public class LogInActivity extends Activity {
         callbackManager = CallbackManager.Factory.create();
 //        signInFacebook.setReadPermissions(Arrays.asList("public_profile ", "user_status"));
         LoginManager.getInstance().logInWithReadPermissions(LogInActivity.this,
-                Arrays.asList("public_profile", "email", "user_birthday"));
+                Arrays.asList("public_profile", "email"));
     }
 
     private Callback<User> returnCallback(String snsType, String Token) {

@@ -60,6 +60,8 @@ public class LoadingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_loading);
         unbinder = ButterKnife.bind(this);
 
+//        Utils.getHashKey(this);
+
         setBadge(getApplicationContext(), 0);
 
         String tutorial = SharedPrefHelper.getInstance(this).getSharedPreferences(SharedPrefHelper.TUTORAIL, null);

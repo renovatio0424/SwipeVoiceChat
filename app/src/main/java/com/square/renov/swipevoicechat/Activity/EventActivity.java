@@ -65,6 +65,7 @@ public class EventActivity extends AppCompatActivity {
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful()) {
                     myInviteCode = response.body();
+                    Log.d(TAG, "myInviteCode : " + response.body());
                 } else {
                     try {
                         Utils.toastError(getApplicationContext(), response);
@@ -110,7 +111,7 @@ public class EventActivity extends AppCompatActivity {
         String templateId = "11289";
         Map<String, String> templateArgs = new HashMap<>();
 
-        String recommend = "초대코드는" + idToCode() + "입니다";
+        String recommend = "초대코드는 " + myInviteCode + "입니다";
 
         templateArgs.put("DESCRIPTION", recommend);
         KakaoLinkService.getInstance().sendCustom(this, templateId, templateArgs, new ResponseCallback<KakaoLinkResponse>() {
