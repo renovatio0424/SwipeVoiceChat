@@ -80,7 +80,7 @@ public class ImageUtil {
             e.printStackTrace();
         }
 
-        Bitmap blurImage = fastblur(cropImage, 1, 25);
+        Bitmap blurImage = fastblur(cropImage, 1, 60);
 
         return getImageUri(blurImage, context);
     }
